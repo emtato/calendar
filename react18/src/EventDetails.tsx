@@ -1,4 +1,5 @@
 import {useState, type CSSProperties} from 'react'
+import {useEffect} from "react";
 
 const CALENDAR_OPTIONS = [
     {value: 'default', label: 'Default', color: '#6F5FA7'},
@@ -24,6 +25,21 @@ export default function Popup({isOpen, onClose, position}: PopupInfo) {
         (calendar) => calendar.value === calendarType
     ) ?? CALENDAR_OPTIONS[0]
 
+    // detect key presses
+    useEffect(() => { //run code after rendereing compoent
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                onClose();
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [onClose]); //dependency array (rerun only if onclose changes
+
+
     if (!isOpen) {
         return null
     }
@@ -45,6 +61,7 @@ export default function Popup({isOpen, onClose, position}: PopupInfo) {
                     style={{'--event-color': selectedCalendar.color} as CSSProperties}
                 >
                     <button className="icon-button drag-button" type="button" aria-label="Move popup">☰</button>
+                    {/* TODO */}
                     <button
                         className="icon-button close-button"
                         type="button"
@@ -56,7 +73,7 @@ export default function Popup({isOpen, onClose, position}: PopupInfo) {
                     <div className="event-content">
                         <input
                             className="title-input"
-                            placeholder="Add title and time"
+                            placeholder="Add title, time/location"
                         />
                         <div className="form-row">
                             <span className="row-icon">◷</span>
