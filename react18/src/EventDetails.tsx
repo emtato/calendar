@@ -1,3 +1,11 @@
+import {useState, type CSSProperties} from 'react'
+
+const CALENDAR_OPTIONS = [
+    {value: 'default', label: 'Default', color: '#6F5FA7'},
+    {value: 'work', label: 'Work', color: '#4285f4'},
+    {value: 'personal', label: 'Personal', color: '#34a853'},
+]
+
 interface PopupInfo { // describes the information the component expects
     /*
     isOpen: whether it should appear.
@@ -11,6 +19,11 @@ interface PopupInfo { // describes the information the component expects
 }
 
 export default function Popup({isOpen, onClose, position}: PopupInfo) {
+    const [calendarType, setCalendarType] = useState('default')
+    const selectedCalendar = CALENDAR_OPTIONS.find(
+        (calendar) => calendar.value === calendarType
+    ) ?? CALENDAR_OPTIONS[0]
+
     if (!isOpen) {
         return null
     }
@@ -27,7 +40,10 @@ export default function Popup({isOpen, onClose, position}: PopupInfo) {
                 }}
             >
 
-                <div className="event-popup">
+                <div
+                    className="event-popup"
+                    style={{'--event-color': selectedCalendar.color} as CSSProperties}
+                >
                     <button className="icon-button drag-button" type="button" aria-label="Move popup">☰</button>
                     <button
                         className="icon-button close-button"
@@ -59,6 +75,27 @@ export default function Popup({isOpen, onClose, position}: PopupInfo) {
                             <span className="secondary-text">Add location</span>
                         </div>
                         <div className="form-row">
+                            <span className="row-icon">▣</span>
+                            <label className="calendar-select">
+                                <select
+                                    aria-label="Calendar type"
+                                    value={calendarType}
+                                    onChange={(event) => setCalendarType(event.target.value)}
+                                >
+                                    {CALENDAR_OPTIONS.map((calendar) => (
+                                        <option key={calendar.value} value={calendar.value}>
+                                            {calendar.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <span
+                                    className="calendar-color"
+                                    style={{backgroundColor: selectedCalendar.color}}
+                                />
+                                <span className="calendar-arrow" aria-hidden="true">▾</span>
+                            </label>
+                        </div>
+                        <div className="form-row">
                             <span className="row-icon">☰</span>
                             <span className="secondary-text">Add description</span>
                         </div>
@@ -72,7 +109,4 @@ export default function Popup({isOpen, onClose, position}: PopupInfo) {
         </div>
     )
 }
-
-
-
 

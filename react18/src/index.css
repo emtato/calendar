@@ -81,7 +81,7 @@ b { /* used for event dates/times */
 
 .event-content {
     margin-top: 70px;
-    padding: 0 54px;
+    padding: 0 18px;
 }
 
 .icon-button {
@@ -109,7 +109,7 @@ b { /* used for event dates/times */
     padding: 4px 0 5px;
     margin-bottom: 18px;
     border: none;
-    border-bottom: 4px solid #6850a4;
+    border-bottom: 4px solid var(--event-color, #6f5fa7);
     outline: none;
     background: transparent;
     color: #3c4043;
@@ -143,12 +143,46 @@ b { /* used for event dates/times */
     font-size: 13px;
 }
 
+.calendar-select {
+    display: inline-flex;
+    align-items: center;
+    width: max-content;
+    gap: 8px;
+    color: #3c4043;
+    cursor: pointer;
+}
+
+.calendar-select select {
+    appearance: none;
+    padding: 0;
+    border: none;
+    outline: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.calendar-color {
+    width: 11px;
+    height: 11px;
+    flex: 0 0 11px;
+    border-radius: 50%;
+}
+
+.calendar-arrow {
+    color: #5f6368;
+    font-size: 12px;
+    line-height: 1;
+    pointer-events: none;
+}
+
 .outline-button {
     padding: 10px 18px;
     border: 2px solid #80868b;
     border-radius: 999px;
     background: transparent;
-    color: #1967d2;
+    color: var(--event-color, #6f5fa7);
     font-size: 13px;
     cursor: pointer;
 }
@@ -164,7 +198,7 @@ b { /* used for event dates/times */
 .text-button {
     border: none;
     background: transparent;
-    color: #0b57d0;
+    color: var(--event-color, #6f5fa7);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -174,7 +208,7 @@ b { /* used for event dates/times */
     padding: 14px 30px;
     border: none;
     border-radius: 999px;
-    background: #615b70;
+    background: var(--event-color, #6f5fa7);
     color: white;
     font-size: 14px;
     font-weight: 600;
@@ -182,5 +216,5 @@ b { /* used for event dates/times */
 }
 
 .save-button:hover {
-    background: #6f6a7d;
+    background: color-mix(in srgb, var(--event-color, #6f5fa7) 86%, white);
 }
