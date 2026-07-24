@@ -22,15 +22,16 @@ export default function CalendarApp() {
         console.log("dates dragged")
         console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
         setIsPopOpen(true)
+        // @ts-ignore
         setPopupPos({x: selectInfo.jsEvent?.clientX + 40, y: selectInfo.jsEvent?.clientY,});
-        console.log("loc "+ selectInfo.jsEvent?.x)
+        console.log("loc " + selectInfo.jsEvent?.x)
     }
 
     function handleEventClick(selectInfo: EventClickInfo) {
         console.log("clicked event")
         setIsPopOpen(true)
         setPopupPos({x: selectInfo.jsEvent?.clientX + 40, y: selectInfo.jsEvent?.clientY,});
-        console.log("loc "+ selectInfo.jsEvent.clientX)
+        console.log("loc " + selectInfo.jsEvent.clientX)
 
     }
 
@@ -43,8 +44,9 @@ export default function CalendarApp() {
         console.log("date click")
         console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
-  setPopupPos({x: clickInfo.jsEvent?.clientX + 40, y: clickInfo.jsEvent?.clientY,});
-        console.log("loc "+ clickInfo.jsEvent.clientX)    }
+        setPopupPos({x: clickInfo.jsEvent?.clientX + 40, y: clickInfo.jsEvent?.clientY,});
+        console.log("loc " + clickInfo.jsEvent.clientX)
+    }
 
     return (
         <>
@@ -77,6 +79,8 @@ export default function CalendarApp() {
             <Popup
                 isOpen={isPopOpen}
                 onClose={() => setIsPopOpen(false)}
+                position={popupPos}
+
             />
         </>
     )

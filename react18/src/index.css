@@ -57,15 +57,6 @@ b { /* used for event dates/times */
     position: fixed;
     inset: 0;
     z-index: 1000;
-    display: grid;
-    place-items: center;
-    background: rgba(0, 0, 0, 0.45);
+    background: rgba(0, 0, 0, 0.2);
 }
 
-.popup-panel {
-    width: min(420px, 90vw);
-    padding: 24px;
-    border-radius: 16px;
-    background: white;
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-}
