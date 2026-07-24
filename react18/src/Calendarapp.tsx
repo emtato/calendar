@@ -1,4 +1,4 @@
-import FullCalendar, {DateClickInfo, DateSelectInfo} from '@fullcalendar/react'
+import FullCalendar, {DateClickInfo, DateSelectInfo, EventClickInfo} from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/react/daygrid'
 
 import themePlugin from '@fullcalendar/react/themes/monarch'
@@ -16,16 +16,21 @@ import Popup from './EventDetails'
 
 export default function CalendarApp() {
     const [isPopOpen, setIsPopOpen] = useState(false)
+    const [popupPos, setPopupPos] = useState({x: 0, y: 0});
 
     function handleDateDrag(selectInfo: DateSelectInfo) {
         console.log("dates dragged")
         console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
         setIsPopOpen(true)
+        setPopupPos({x: selectInfo.jsEvent?.clientX + 40, y: selectInfo.jsEvent?.clientY,});
+        console.log("loc "+ selectInfo.jsEvent?.x)
     }
 
-    function handleEventClick() {
+    function handleEventClick(selectInfo: EventClickInfo) {
         console.log("clicked event")
         setIsPopOpen(true)
+        setPopupPos({x: selectInfo.jsEvent?.clientX + 40, y: selectInfo.jsEvent?.clientY,});
+        console.log("loc "+ selectInfo.jsEvent.clientX)
 
     }
 
@@ -38,8 +43,8 @@ export default function CalendarApp() {
         console.log("date click")
         console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
-
-    }
+  setPopupPos({x: clickInfo.jsEvent?.clientX + 40, y: clickInfo.jsEvent?.clientY,});
+        console.log("loc "+ clickInfo.jsEvent.clientX)    }
 
     return (
         <>
