@@ -31,7 +31,7 @@ export default class DemoApp extends React.Component<{}, DemoAppState> {
 
   render() {
     return (
-      <div className='demo-app'>
+      <div className='app'>
         {this.renderSidebar()}
         <div className='demo-app-main'>
           <FullCalendar
@@ -65,8 +65,8 @@ export default class DemoApp extends React.Component<{}, DemoAppState> {
 
   renderSidebar() {
     return (
-      <div className='demo-app-sidebar'>
-        <div className='demo-app-sidebar-section'>
+      <div className='demosidebar'>
+        <div className='sidebar-section'>
           <h2>Instructions</h2>
           <ul>
             <li>Select dates and you will be prompted to create a new event</li>
@@ -74,7 +74,7 @@ export default class DemoApp extends React.Component<{}, DemoAppState> {
             <li>Click an event to delete it</li>
           </ul>
         </div>
-        <div className='demo-app-sidebar-section'>
+        <div className='sidebar-section'>
           <label>
             <input
               type='checkbox'
@@ -84,7 +84,7 @@ export default class DemoApp extends React.Component<{}, DemoAppState> {
             toggle weekends
           </label>
         </div>
-        <div className='demo-app-sidebar-section'>
+        <div className='sidebar-section'>
           <h2>All Events ({this.state.currentEvents.length})</h2>
           <ul>
             {this.state.currentEvents.map(renderSidebarEvent)}

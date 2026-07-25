@@ -1,3 +1,6 @@
+/* ____________________________________________________
+   Global section
+   ____________________________________________________ */
 
 html,
 body,
@@ -5,6 +8,7 @@ body > div { /* the react root */
     margin: 0;
     padding: 0;
     height: 100%;
+    background: #948f9f;
 }
 
 h2 {
@@ -26,23 +30,121 @@ b { /* used for event dates/times */
     margin-right: 3px;
 }
 
-.demo-app {
-    display: flex;
+/* ____________________________________________________
+   Main layout section
+   ____________________________________________________ */
+
+.app {
+    display: grid;
+    grid-template-columns: 3fr 1fr;
+    column-gap: 6px;
     min-height: 100%;
     font-family: Arial, Helvetica Neue, Helvetica, sans-serif;
     font-size: 14px;
 }
 
-.demo-app-sidebar {
-    width: 300px;
+/* ____________________________________________________
+   Sidebar section
+   ____________________________________________________ */
+
+.app-sidebar {
     line-height: 1.5;
-    background: #eaf9ff;
-    border-right: 1px solid #d3e2e8;
+    background: #625B72;
+    color: white;
 }
 
-.demo-app-sidebar-section {
+.sidebar-toolbar {
+    min-height: 76px;
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.sidebar-toolbar-left,
+.sidebar-toolbar-right {
+    display: flex;
+    align-items: center;
+}
+
+.sidebar-toolbar-right {
+    gap: 10px;
+}
+
+.sidebar-icon-button {
+    width: 40px;
+    height: 40px;
+    padding: 8px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: white;
+}
+
+.sidebar-icon-button svg {
+    width: 24px;
+    height: 24px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.sidebar--minimized {
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 52px;
+    height: 100vh;
+    box-sizing: border-box;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: #625b72;
+    color: white;
+}
+
+.sidebar-expand-button {
+    margin-top: 12px;
+}
+
+.sidebar-icon-list {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+.sidebar-icon-button {
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: transparent;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+}
+
+.sidebar-icon-button:hover {
+    background: rgba(255, 255, 255, 0.12);
+}
+
+
+.app-sidebar-section {
     padding: 2em;
 }
+
+/* ____________________________________________________
+   Calendar section
+   ____________________________________________________ */
 
 .demo-app-main {
     flex-grow: 1;
@@ -53,6 +155,39 @@ b { /* used for event dates/times */
     max-width: 1100px;
     margin: 0 auto;
 }
+
+.calendar-main {
+    min-width: 0;
+}
+
+.calendar-main > div > div:first-child {
+    min-height: 76px;
+    box-sizing: border-box;
+    margin-bottom: 0;
+    padding: 14px 24px;
+    border: 0;
+    border-radius: 0;
+    background: #948f9f !important;
+}
+
+.calendar-main > div > div:first-child button[aria-label^='This '],
+.calendar-main > div > div:first-child button[aria-label='Today'],
+.calendar-main > div > div:first-child button[role='tab'][aria-selected='false'] {
+    background: white !important;
+}
+
+.calendar-main > div > div:first-child div:has(> button[role='tab']) {
+    background: white;
+}
+
+.calendar-main > div > div:nth-child(2) {
+    overflow: hidden;
+    border-radius: 12px;
+}
+
+/* ____________________________________________________
+   Event popup section
+   ____________________________________________________ */
 
 .popup-overlay {
     position: fixed;
@@ -78,6 +213,10 @@ b { /* used for event dates/times */
     BlinkMacSystemFont,
     sans-serif;
 }
+
+/* ____________________________________________________
+   Event popup content and controls section
+   ____________________________________________________ */
 
 .event-content {
     margin-top: 70px;
@@ -176,6 +315,10 @@ b { /* used for event dates/times */
     line-height: 1;
     pointer-events: none;
 }
+
+/* ____________________________________________________
+   Event popup action buttons section
+   ____________________________________________________ */
 
 .outline-button {
     padding: 10px 18px;

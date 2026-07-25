@@ -1,4 +1,4 @@
-import {useState, type CSSProperties} from 'react'
+import React, {useState, type CSSProperties} from 'react'
 import {useEffect} from "react";
 
 const CALENDAR_OPTIONS = [
@@ -17,6 +17,15 @@ interface PopupInfo { // describes the information the component expects
     position: {
         x: number; y: number
     }
+}
+
+interface SidebarInfo {
+    /*
+    isOpen: whether it should appear.
+    onClose: a function it can call when the user presses Cancel.
+     */
+    isOpen: boolean
+    onClose: () => void
 }
 
 export default function Popup({isOpen, onClose, position}: PopupInfo) {
@@ -124,6 +133,108 @@ export default function Popup({isOpen, onClose, position}: PopupInfo) {
                 </div>
             </div>
         </div>
+    )
+}
+
+
+export function Sidebar({isOpen, onClose}: SidebarInfo) {
+
+    useEffect(() => {
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                onClose();
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [onClose]);
+
+
+    if (!isOpen) {
+        return null
+    }
+
+    return (
+        <div className='app-sidebar'>
+            <div className='sidebar-toolbar'>
+                <div className='sidebar-toolbar-left'>
+                    <button className='sidebar-icon-button' type='button' aria-label='Close sidebar' onClick={onClose}>
+                        <svg viewBox='0 0 24 24' aria-hidden='true'>
+                            <path d='M5 12h14M13 6l6 6-6 6'/>
+                        </svg>
+                    </button>
+                </div>
+                <div className='sidebar-toolbar-right'>
+                    <button className='sidebar-icon-button' type='button' aria-label='Search'>
+                        <svg viewBox='0 0 24 24' aria-hidden='true'>
+                            <circle cx='11' cy='11' r='6.5'/>
+                            <path d='m16 16 4 4'/>
+                        </svg>
+                    </button>
+                    <button className='sidebar-icon-button' type='button' aria-label='Add'>
+                        <svg viewBox='0 0 24 24' aria-hidden='true'>
+                            <path d='M12 5v14M5 12h14'/>
+                        </svg>
+                    </button>
+                    <button className='sidebar-icon-button' type='button' aria-label='Settings'>
+                        <svg viewBox='0 0 24 24' aria-hidden='true'>
+                            <circle cx='12' cy='12' r='3'/>
+                            <path
+                                d='M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.12.37.34.7.65.93.3.23.67.36 1.05.38h.09v4h-.09A1.7 1.7 0 0 0 19.4 15Z'/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+            <div className='app-sidebar-section'>
+                <h2>Instructions</h2>
+                <ul>
+                    <li>Select dates and you will be prompted to create a new event</li>
+                    <li>Drag, drop, and resize events</li>
+                    <li>Click an event to delete it</li>
+                </ul>
+            </div>
+            <div className='app-sidebar-section'>
+
+            </div>
+
+        </div>
+    )
+}
+
+//onclose will js be closing this small bar -> opening big bar
+export function MinimizedBar({isOpen, onClose}: SidebarInfo) {
+
+    if (!isOpen) {
+        return null
+    }
+
+    return (
+        <aside className="sidebar sidebar--minimized" aria-label="Calendar sidebar">
+            <button className="sidebar-icon-button sidebar-expand-button"
+                    type="button"
+                    aria-label="Expand sidebar"
+                    onClick={onClose}
+            >
+                ←
+            </button>
+
+            <nav className="sidebar-icon-list" aria-label="Sidebar tools">
+                <button className="sidebar-icon-button" type="button" aria-label="Search">
+                    🔍
+                </button>
+
+                <button className="sidebar-icon-button" type="button" aria-label="Add">
+                    ＋
+                </button>
+
+                <button className="sidebar-icon-button" type="button" aria-label="Settings">
+                    ⚙️
+                </button>
+            </nav>
+        </aside>
     )
 }
 
