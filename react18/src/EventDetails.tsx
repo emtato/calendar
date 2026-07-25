@@ -15,11 +15,12 @@ const DEFAULT_END_TIME = 10 * 60
 
 function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number) {
     const times: number[] = []
-
     for (let minutes = startMinutes; minutes <= endMinutes; minutes += interval) {
         times.push(minutes)
     }
+
     return times
+
 }
 
 
@@ -73,24 +74,30 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
         (calendar) => calendar.value === calendarType
     ) ?? CALENDAR_OPTIONS[0]
 
-    const endTimeOptions = generateTimeOptions(startTime + 15, MINUTES_PER_DAY, 15)
+    let endTimeOptions = []
+    if (selectedStartDate < selectedEndDate) {
+        endTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY, 15)
+    } else {
+        endTimeOptions = generateTimeOptions(startTime, MINUTES_PER_DAY, 15)
+    }
 
     function checkTime(time: string) {
-        const nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
-
+        const selectedTime = Number(time)
+        let nextEndTime = selectedTime
+        if (selectedEndDate == selectedStartDate) {
+             nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
+        }
         setEndTime(nextEndTime)
         if (!selectedStartDate) {
             return
         }
-        let nextEndDate = ""
-
-        if (nextEndTime >= MINUTES_PER_DAY) {
-            nextEndDate = Temporal.PlainDate.from(selectedStartDate).add({days: 1}).toString()
-
-        } else {
-            nextEndDate = selectedStartDate
+        // TODO: decreasing start date shouldnt change end date
+        //TODO: decreasing end date to before start date should should match start date to end date
+        if (selectedTime % MINUTES_PER_DAY === 0 && selectedEndDate) { //if midnight
+            const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString() //add 1 day to end date
+            setSelectedEndDate(nextEndDate)
+            setEndTime(0)
         }
-        setSelectedEndDate(nextEndDate)
     }
 
     function handleStartTimeChange(event: React.ChangeEvent<HTMLSelectElement>) {
@@ -98,14 +105,15 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
         const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
 
         setStartTime(nextStartTime)
-        setEndTime(oneHourLater)
+        if (selectedStartDate == selectedEndDate) {
+            setEndTime(oneHourLater)
+        }
 
-        if (selectedStartDate) {
-            const nextEndDate = oneHourLater === MINUTES_PER_DAY
-                ? Temporal.PlainDate.from(selectedStartDate).add({days: 1}).toString()
-                : selectedStartDate
 
+        if (oneHourLater % MINUTES_PER_DAY === 0 && selectedEndDate) {
+            const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString()
             setSelectedEndDate(nextEndDate)
+            setEndTime(0)
         }
     }
 
