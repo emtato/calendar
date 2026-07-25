@@ -85,15 +85,13 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
         const selectedTime = Number(time)
         let nextEndTime = selectedTime
         if (selectedEndDate == selectedStartDate) {
-             nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
+            nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
         }
         setEndTime(nextEndTime)
         if (!selectedStartDate) {
             return
         }
-        // TODO: decreasing start date shouldnt change end date
-        //TODO: decreasing end date to before start date should should match start date to end date
-        if (selectedTime % MINUTES_PER_DAY === 0 && selectedEndDate) { //if midnight
+        if (selectedTime % MINUTES_PER_DAY === 0 && selectedEndDate && selectedTime !== 0) { //if midnight
             const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString() //add 1 day to end date
             setSelectedEndDate(nextEndDate)
             setEndTime(0)
@@ -185,13 +183,13 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                                 */}
                                 <div className="date-range">
                                     <select
-                                        className="date-input"
-                                        value={selectedStartDate}
+                                        className="date-input" value={selectedStartDate}
                                         onChange={(event) => {
                                             const nextStartDate = event.target.value
-                                            const nextEndDate = endTime === MINUTES_PER_DAY
-                                                ? Temporal.PlainDate.from(nextStartDate).add({days: 1}).toString()
-                                                : nextStartDate
+                                            const nextEndDate = nextStartDate >= selectedEndDate
+                                                //only update end date if start date is after end date
+                                                ? nextStartDate
+                                                : selectedEndDate
 
                                             setSelectedStartDate(nextStartDate)
                                             setSelectedEndDate(nextEndDate)
@@ -207,14 +205,21 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                                     <select
                                         className="date-input"
                                         value={selectedEndDate}
-                                        onChange={(event) => setSelectedEndDate(event.target.value)}
-                                    >
+                                        onChange={(event) => {
+                                            const nextEndDate = event.target.value
+                                            setSelectedEndDate(nextEndDate)
+                                            if (nextEndDate < selectedStartDate) {
+                                                setSelectedStartDate(event.target.value)
+                                            }
+                                        }
+                                        }>
                                         {dateList.map((date) => (
                                             <option key={date} value={date}>
                                                 {date}
                                             </option>
                                         ))}
-                                    </select></div>
+                                    </select>
+                                </div>
                                 <div className="date-range">
                                     <span className="time-select-with-edit">
                                     <select
