@@ -7,6 +7,35 @@ const CALENDAR_OPTIONS = [
     {value: 'personal', label: 'Personal', color: '#34a853'},
 ]
 
+const MINUTES_PER_DAY = 24 * 60
+const DEFAULT_START_TIME = 9 * 60
+const DEFAULT_END_TIME = 10 * 60
+
+function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number) {
+    const times: number[] = []
+
+    for (let minutes = startMinutes; minutes <= endMinutes; minutes += interval) {
+        times.push(minutes)
+    }
+
+    return times
+}
+
+function formatTime(minutesAfterMidnight: number) {
+    if (minutesAfterMidnight === MINUTES_PER_DAY) {
+        return '12:00 AM (next day)'
+    }
+
+    const hour24 = Math.floor(minutesAfterMidnight / 60)
+    const minutes = minutesAfterMidnight % 60
+    const hour12 = hour24 % 12 || 12
+    const period = hour24 < 12 ? 'AM' : 'PM'
+
+    return `${hour12}:${String(minutes).padStart(2, '0')} ${period}`
+}
+
+const START_TIME_OPTIONS = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30)
+
 interface PopupInfo { // describes the information the component expects
     /*
     isOpen: whether it should appear.
@@ -33,9 +62,22 @@ interface SidebarInfo {
 
 export default function Popup({isOpen, onClose, position, startDate, dateList}: PopupInfo) {
     const [calendarType, setCalendarType] = useState('default')
+    const [startTime, setStartTime] = useState(DEFAULT_START_TIME)
+    const [endTime, setEndTime] = useState(DEFAULT_END_TIME)
+
     const selectedCalendar = CALENDAR_OPTIONS.find(
         (calendar) => calendar.value === calendarType
     ) ?? CALENDAR_OPTIONS[0]
+
+    const endTimeOptions = generateTimeOptions(startTime + 15, MINUTES_PER_DAY, 15)
+
+    function handleStartTimeChange(event: React.ChangeEvent<HTMLSelectElement>) {
+        const nextStartTime = Number(event.target.value)
+        const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
+
+        setStartTime(nextStartTime)
+        setEndTime(oneHourLater)
+    }
 
     // detect key presses
     useEffect(() => { //run code after rendereing compoent
@@ -113,18 +155,28 @@ export default function Popup({isOpen, onClose, position, startDate, dateList}: 
                                         ))}
                                     </select></div>
                                 <div className="date-range">
-                                     <select className="time-input" defaultValue="9:00 AM">
-                                        {dateList.map((date) => (
-                                            <option key={date} value={date}>
-                                                {date}
+                                    <select
+                                        className="time-input"
+                                        aria-label="Start time"
+                                        value={startTime}
+                                        onChange={handleStartTimeChange}
+                                    >
+                                        {START_TIME_OPTIONS.map((minutes) => (
+                                            <option key={minutes} value={minutes}>
+                                                {formatTime(minutes)}
                                             </option>
                                         ))}
                                     </select>
                                     <span className="range-separator">-</span>
-                                    <select className="time-input" defaultValue="10:00 AM">
-                                        {dateList.map((date) => (
-                                            <option key={date} value={date}>
-                                                {date}
+                                    <select
+                                        className="time-input"
+                                        aria-label="End time"
+                                        value={endTime}
+                                        onChange={(event) => setEndTime(Number(event.target.value))}
+                                    >
+                                        {endTimeOptions.map((minutes) => (
+                                            <option key={minutes} value={minutes}>
+                                                {formatTime(minutes)}
                                             </option>
                                         ))}
                                     </select>
