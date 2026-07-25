@@ -17,6 +17,9 @@ interface PopupInfo { // describes the information the component expects
     position: {
         x: number; y: number
     }
+    startDate: string;
+    endDate: string;
+    dateList: string[];
 }
 
 interface SidebarInfo {
@@ -28,7 +31,7 @@ interface SidebarInfo {
     onClose: () => void
 }
 
-export default function Popup({isOpen, onClose, position}: PopupInfo) {
+export default function Popup({isOpen, onClose, position, startDate, dateList}: PopupInfo) {
     const [calendarType, setCalendarType] = useState('default')
     const selectedCalendar = CALENDAR_OPTIONS.find(
         (calendar) => calendar.value === calendarType
@@ -87,10 +90,51 @@ export default function Popup({isOpen, onClose, position}: PopupInfo) {
                         <div className="form-row">
                             <span className="row-icon">◷</span>
                             <div className="row-content">
-                                <div>Tuesday, July 7 – Tuesday, July 7</div>
+                                {/*
+                                <input
+                                value={dateText}
+                                onChange={(event) => setDateText(event.target.value)}
+                                />
+                                */}
+                                <div className="date-range">
+                                    <select className="date-input" defaultValue={startDate}>
+                                        {dateList.map((date) => (
+                                            <option key={date} value={date}>
+                                                {date}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <span className="range-separator">-</span>
+                                    <select className="date-input" defaultValue={startDate}>
+                                        {dateList.map((date) => (
+                                            <option key={date} value={date}>
+                                                {date}
+                                            </option>
+                                        ))}
+                                    </select></div>
+                                <div className="date-range">
+                                     <select className="time-input" defaultValue="9:00 AM">
+                                        {dateList.map((date) => (
+                                            <option key={date} value={date}>
+                                                {date}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <span className="range-separator">-</span>
+                                    <select className="time-input" defaultValue="10:00 AM">
+                                        {dateList.map((date) => (
+                                            <option key={date} value={date}>
+                                                {date}
+                                            </option>
+                                        ))}
+                                    </select>
+                                </div>
                                 <div className="secondary-text">Does not repeat</div>
                             </div>
-                            <button className="outline-button">Add time</button>
+                            <label className="all-day-option">
+                                <input type="checkbox"/>
+                                <span>All day</span>
+                            </label>
                         </div>
                         <div className="form-row">
                             <span className="row-icon">♙</span>
@@ -237,4 +281,3 @@ export function MinimizedBar({isOpen, onClose}: SidebarInfo) {
         </aside>
     )
 }
-

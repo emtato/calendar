@@ -329,6 +329,51 @@ b { /* used for event dates/times */
     pointer-events: none;
 }
 
+.date-input {
+    width: 100px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    border: transparent;
+}
+
+.time-input {
+    width: 61px;
+    border: none;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+}
+
+.date-range {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.range-separator {
+    margin-right: 0.25em;
+}
+
+.all-day-option {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    color: #3c4043;
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.all-day-option input {
+    width: 18px;
+    height: 18px;
+    margin: 0;
+    accent-color: var(--event-color, #6f5fa7);
+    cursor: pointer;
+}
+
 /* ____________________________________________________
    Event popup action buttons section
    ____________________________________________________ */
