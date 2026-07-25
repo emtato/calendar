@@ -107,7 +107,8 @@ export default function CalendarApp() {
     }
 
     return (
-        <div className='app'>
+        <div className={`app ${isSidebar ? '' : 'app-sidebar-collapsed'}`}>
+            {/* determine layout ratio depending on if sidebar is here*/}
             <div className='calendar-main'>
                 <FullCalendar
                     plugins={[
