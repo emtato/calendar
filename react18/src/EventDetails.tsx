@@ -1,5 +1,6 @@
 import React, {useState, type CSSProperties} from 'react'
 import {useEffect} from "react";
+import {Temporal} from 'temporal-polyfill'
 
 const CALENDAR_OPTIONS = [
     {value: 'default', label: 'Default', color: '#6F5FA7'},
@@ -11,19 +12,20 @@ const MINUTES_PER_DAY = 24 * 60
 const DEFAULT_START_TIME = 9 * 60
 const DEFAULT_END_TIME = 10 * 60
 
+
 function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number) {
     const times: number[] = []
 
     for (let minutes = startMinutes; minutes <= endMinutes; minutes += interval) {
         times.push(minutes)
     }
-
     return times
 }
 
+
 function formatTime(minutesAfterMidnight: number) {
-    if (minutesAfterMidnight === MINUTES_PER_DAY) {
-        return '12:00 AM (next day)'
+    if (minutesAfterMidnight === 24 * 60) {
+        return '12:00 AM';
     }
 
     const hour24 = Math.floor(minutesAfterMidnight / 60)
@@ -60,10 +62,12 @@ interface SidebarInfo {
     onClose: () => void
 }
 
-export default function Popup({isOpen, onClose, position, startDate, dateList}: PopupInfo) {
+export default function Popup({isOpen, onClose, position, startDate, endDate, dateList}: PopupInfo) {
     const [calendarType, setCalendarType] = useState('default')
     const [startTime, setStartTime] = useState(DEFAULT_START_TIME)
     const [endTime, setEndTime] = useState(DEFAULT_END_TIME)
+    const [selectedStartDate, setSelectedStartDate] = useState(startDate)
+    const [selectedEndDate, setSelectedEndDate] = useState(endDate)
 
     const selectedCalendar = CALENDAR_OPTIONS.find(
         (calendar) => calendar.value === calendarType
@@ -71,13 +75,46 @@ export default function Popup({isOpen, onClose, position, startDate, dateList}: 
 
     const endTimeOptions = generateTimeOptions(startTime + 15, MINUTES_PER_DAY, 15)
 
+    function checkTime(time: string) {
+        const nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
+
+        setEndTime(nextEndTime)
+        if (!selectedStartDate) {
+            return
+        }
+        let nextEndDate = ""
+
+        if (nextEndTime >= MINUTES_PER_DAY) {
+            nextEndDate = Temporal.PlainDate.from(selectedStartDate).add({days: 1}).toString()
+
+        } else {
+            nextEndDate = selectedStartDate
+        }
+        setSelectedEndDate(nextEndDate)
+    }
+
     function handleStartTimeChange(event: React.ChangeEvent<HTMLSelectElement>) {
         const nextStartTime = Number(event.target.value)
         const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
 
         setStartTime(nextStartTime)
         setEndTime(oneHourLater)
+
+        if (selectedStartDate) {
+            const nextEndDate = oneHourLater === MINUTES_PER_DAY
+                ? Temporal.PlainDate.from(selectedStartDate).add({days: 1}).toString()
+                : selectedStartDate
+
+            setSelectedEndDate(nextEndDate)
+        }
     }
+
+    useEffect(() => { // sync the popup dates when CalendarApp opens it with a new date
+        if (isOpen) {
+            setSelectedStartDate(startDate)
+            setSelectedEndDate(endDate)
+        }
+    }, [isOpen, startDate, endDate])
 
     // detect key presses
     useEffect(() => { //run code after rendereing compoent
@@ -139,7 +176,19 @@ export default function Popup({isOpen, onClose, position, startDate, dateList}: 
                                 />
                                 */}
                                 <div className="date-range">
-                                    <select className="date-input" defaultValue={startDate}>
+                                    <select
+                                        className="date-input"
+                                        value={selectedStartDate}
+                                        onChange={(event) => {
+                                            const nextStartDate = event.target.value
+                                            const nextEndDate = endTime === MINUTES_PER_DAY
+                                                ? Temporal.PlainDate.from(nextStartDate).add({days: 1}).toString()
+                                                : nextStartDate
+
+                                            setSelectedStartDate(nextStartDate)
+                                            setSelectedEndDate(nextEndDate)
+                                        }}
+                                    >
                                         {dateList.map((date) => (
                                             <option key={date} value={date}>
                                                 {date}
@@ -147,7 +196,11 @@ export default function Popup({isOpen, onClose, position, startDate, dateList}: 
                                         ))}
                                     </select>
                                     <span className="range-separator">-</span>
-                                    <select className="date-input" defaultValue={startDate}>
+                                    <select
+                                        className="date-input"
+                                        value={selectedEndDate}
+                                        onChange={(event) => setSelectedEndDate(event.target.value)}
+                                    >
                                         {dateList.map((date) => (
                                             <option key={date} value={date}>
                                                 {date}
@@ -155,6 +208,7 @@ export default function Popup({isOpen, onClose, position, startDate, dateList}: 
                                         ))}
                                     </select></div>
                                 <div className="date-range">
+                                    <span className="time-select-with-edit">
                                     <select
                                         className="time-input"
                                         aria-label="Start time"
@@ -167,12 +221,19 @@ export default function Popup({isOpen, onClose, position, startDate, dateList}: 
                                             </option>
                                         ))}
                                     </select>
+                                        <svg className="time-edit-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path
+                                                d="m4 20 4.2-1 10.6-10.6a1.8 1.8 0 0 0 0-2.6l-.6-.6a1.8 1.8 0 0 0-2.6 0L5 15.8 4 20Z"/>
+                                            <path d="m14.5 6.3 3.2 3.2"/>
+                                        </svg>
+                                    </span>
                                     <span className="range-separator">-</span>
+                                    <span className="time-select-with-edit">
                                     <select
                                         className="time-input"
                                         aria-label="End time"
                                         value={endTime}
-                                        onChange={(event) => setEndTime(Number(event.target.value))}
+                                        onChange={(event) => checkTime(event.target.value)}
                                     >
                                         {endTimeOptions.map((minutes) => (
                                             <option key={minutes} value={minutes}>
@@ -180,6 +241,12 @@ export default function Popup({isOpen, onClose, position, startDate, dateList}: 
                                             </option>
                                         ))}
                                     </select>
+                                        <svg className="time-edit-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                            <path
+                                                d="m4 20 4.2-1 10.6-10.6a1.8 1.8 0 0 0 0-2.6l-.6-.6a1.8 1.8 0 0 0-2.6 0L5 15.8 4 20Z"/>
+                                            <path d="m14.5 6.3 3.2 3.2"/>
+                                        </svg>
+                                    </span>
                                 </div>
                                 <div className="secondary-text">Does not repeat</div>
                             </div>

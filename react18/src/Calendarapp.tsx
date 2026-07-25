@@ -11,7 +11,7 @@ import timeGridPlugin from '@fullcalendar/react/timegrid'
 import multiMonthPlugin from '@fullcalendar/react/multimonth'
 import {INITIAL_EVENTS} from "./event-utils";
 
-import { Temporal } from 'temporal-polyfill'
+import {Temporal} from 'temporal-polyfill'
 
 import React, {useState} from 'react'
 import Popup, {MinimizedBar, Sidebar} from './EventDetails'
@@ -24,6 +24,8 @@ export default function CalendarApp() {
     const [isMiniBar, setMinibar] = useState(false)
 
     const [selectedDate, setSelectedDate] = useState("")
+    const [selectedEndDate, setSelectedEndDate] = useState("")
+
     const [dateList, setDateList] = useState<string[]>([])
 
     function closeBigBar() {
@@ -64,6 +66,7 @@ export default function CalendarApp() {
         setPopupPos({x: clickInfo.jsEvent?.clientX + 40, y: clickInfo.jsEvent?.clientY,});
         console.log("loc " + clickInfo.jsEvent.clientX)
         setSelectedDate(clickInfo.dateStr)
+        setSelectedEndDate(clickInfo.dateStr)
 
         //for dropdown selection in popup
         const selected = Temporal.PlainDate.from(clickInfo.dateStr)
@@ -74,6 +77,8 @@ export default function CalendarApp() {
         }
         setDateList(dateList)
     }
+
+
 
     function renderSidebar() {
         return (
@@ -157,8 +162,9 @@ export default function CalendarApp() {
                 onClose={() => setIsPopOpen(false)}
                 position={popupPos}
                 startDate={selectedDate}
-                endDate={selectedDate}
+                endDate={selectedEndDate}
                 dateList={dateList}
+
 
             />
             <Sidebar isOpen={isSidebar} onClose={closeBigBar}
