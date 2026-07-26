@@ -56,6 +56,9 @@ interface PopupInfo { // describes the information the component expects
     startDate: string;
     endDate: string;
     dateList: string[];
+    initialStartTime: number;
+    initialEndTime: number;
+
 }
 
 interface SidebarInfo {
@@ -67,10 +70,19 @@ interface SidebarInfo {
     onClose: () => void
 }
 
-export default function Popup({isOpen, onClose, position, startDate, endDate, dateList}: PopupInfo) {
+export default function Popup({
+                                  isOpen,
+                                  onClose,
+                                  position,
+                                  startDate,
+                                  endDate,
+                                  dateList,
+                                  initialStartTime,
+                                  initialEndTime
+                              }: PopupInfo) {
     const [calendarType, setCalendarType] = useState('default')
-    const [startTime, setStartTime] = useState(DEFAULT_START_TIME)
-    const [endTime, setEndTime] = useState(DEFAULT_END_TIME)
+    const [startTime, setStartTime] = useState(initialStartTime)
+    const [endTime, setEndTime] = useState(initialEndTime)
     const [selectedStartDate, setSelectedStartDate] = useState(startDate)
     const [selectedEndDate, setSelectedEndDate] = useState(endDate)
     const [location, setLocation] = useState('')
@@ -127,7 +139,7 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
         if (returnLocation != "") {
             //TODO
         }
-       // console.log("title received " + returnTitle)
+        // console.log("title received " + returnTitle)
         // setTitle(returnTitle)
         titleCleanupTimer.current = setTimeout(() => {
             setTitle(returnTitle);
@@ -197,6 +209,20 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
         };
     }, [onClose]); //dependency array (rerun only if onclose changes
 
+    useEffect(() => {
+        if (isOpen) {
+            setSelectedStartDate(startDate);
+            setSelectedEndDate(endDate);
+            setStartTime(initialStartTime);
+            setEndTime(initialEndTime);
+        }
+    }, [
+        isOpen,
+        startDate,
+        endDate,
+        initialStartTime,
+        initialEndTime
+    ]);
 
     if (!isOpen) {
         return null

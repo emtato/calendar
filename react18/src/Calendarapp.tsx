@@ -1,4 +1,10 @@
-import FullCalendar, {CalendarApi, DateClickInfo, DateSelectInfo, EventClickInfo, EventSourceFuncInfo} from '@fullcalendar/react'
+import FullCalendar, {
+    CalendarApi,
+    DateClickInfo,
+    DateSelectInfo,
+    EventClickInfo,
+    EventSourceFuncInfo
+} from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/react/daygrid'
 
 import themePlugin from '@fullcalendar/react/themes/monarch'
@@ -37,7 +43,7 @@ function createDateList(startDate: string, daysBetween?: number) {
     for (let i = -7; i < 8; i++) {
         dates.push(selected.add({days: i}).toString())
         if (daysBetween && i == 7) {
-            for (let j = 0; j < daysBetween; j++) {
+            for (let j = 1; j < daysBetween; j++) {
                 dates.push(selected.add({days: i + j}).toString())
             }
         }
@@ -58,6 +64,8 @@ export default function CalendarApp() {
 
     const [selectedDate, setSelectedDate] = useState("")
     const [selectedEndDate, setSelectedEndDate] = useState("")
+    const [startTime, setStartTime] = useState(9 * 60)
+    const [endTime, setEndTime] = useState(10 * 60) //default
 
     const [dateList, setDateList] = useState<string[]>([])
 
@@ -78,10 +86,11 @@ export default function CalendarApp() {
     }
 
     function handleDateDrag(selectInfo: DateSelectInfo) {
-        console.log("dates dragged")
         console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
 
-        calendarApiRef.current = selectInfo.view.calendar
+        const startDateOnly = Temporal.PlainDate.from(selectInfo.startStr).toString();
+        const endDateOnly = Temporal.PlainDate.from(selectInfo.endStr).toString();
+
         setHighlightedRange({
             start: selectInfo.startStr,
             end: selectInfo.endStr,
@@ -95,9 +104,24 @@ export default function CalendarApp() {
             })
         }
         console.log("loc " + selectInfo.jsEvent?.x)
-        let temp = String(Temporal.PlainDate.from(selectInfo.endStr).subtract({days: 1}))
+        const currentView = selectInfo.view.type;
+        let temp = String(Temporal.PlainDate.from(endDateOnly))
 
-        setSelectedDate(selectInfo.startStr)
+        if (currentView === 'dayGridMonth' || currentView === "multiMonthYear") {
+            temp = String(Temporal.PlainDate.from(endDateOnly).subtract({days: 1}))
+        } else {
+            const startTimeOnly = Temporal.PlainTime.from(selectInfo.startStr).toString();
+            const endTimeOnly = Temporal.PlainTime.from(selectInfo.endStr).toString();
+
+            const [hours, minutes, seconds] = startTimeOnly.split(":").map(Number);
+            const startTimeMinutes = hours * 60 + minutes;
+            const [hr, mn, s] = endTimeOnly.split(":").map(Number);
+            const endTimeMinutes = hr * 60 + mn;
+            setStartTime(startTimeMinutes)
+            setEndTime(endTimeMinutes)
+        }
+
+        setSelectedDate(startDateOnly)
         setSelectedEndDate(temp)
 
         const start = Temporal.PlainDate.from(selectInfo.startStr)
@@ -119,32 +143,39 @@ export default function CalendarApp() {
     }
 
     function handleEvents() {
-    //    console.log("event")
+        //    console.log("event")
 
     }
 
     function handleDateClick(clickInfo: DateClickInfo) {
-        console.log("date click")
         console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
         setPopupPos({x: clickInfo.jsEvent?.clientX + 40, y: clickInfo.jsEvent?.clientY,});
         console.log("loc " + clickInfo.jsEvent.clientX)
 
-        const nextDate = Temporal.PlainDate
-            .from(clickInfo.dateStr)
-            .add({days: 1})
-            .toString()
+        const dateOnly = Temporal.PlainDate.from(clickInfo.dateStr).toString();
+
+        const nextDate = Temporal.PlainDate.from(dateOnly).add({days: 1}).toString()
 
         calendarApiRef.current = clickInfo.view.calendar
         clickInfo.view.calendar.unselect()
         setHighlightedRange({
-            start: clickInfo.dateStr,
+            start: dateOnly,
             end: nextDate,
         })
 
-        setSelectedDate(clickInfo.dateStr)
-        setSelectedEndDate(clickInfo.dateStr)
-        setDateList(createDateList(clickInfo.dateStr))
+        setSelectedDate(dateOnly)
+        setSelectedEndDate(dateOnly)
+        setDateList(createDateList(dateOnly))
+
+        const currentView = clickInfo.view.type;
+        if (currentView === 'timeGridWeek' || currentView === "timeGridDay") {
+            const TimeOnly = Temporal.PlainTime.from(clickInfo.dateStr).toString();
+            const [hours, minutes, seconds] = TimeOnly.split(":").map(Number);
+            const startTimeMinutes = hours * 60 + minutes;
+            setStartTime(startTimeMinutes)
+            setEndTime(startTimeMinutes + 60)
+        }
     }
 
     return (
@@ -196,6 +227,8 @@ export default function CalendarApp() {
                 startDate={selectedDate}
                 endDate={selectedEndDate}
                 dateList={dateList}
+                initialStartTime={startTime}
+                initialEndTime={endTime}
 
 
             />
