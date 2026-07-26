@@ -25,7 +25,7 @@ export const simpleTimeLocationExtractor = (title: string, timeModified: boolean
             let foundtime = false
 
             const twelveHourTime = title.match(
-                /\b(0?[1-9]|1[0-2])(?:[.:]([0-5][0-9]))?\s*(am|pm)\b/i
+                /\b(@?0?[1-9]|1[0-2])(?:[.:]([0-5][0-9]))?\s*(am|pm)\b/i
             );
             if (twelveHourTime) {
                 foundtime = true;
@@ -46,7 +46,7 @@ export const simpleTimeLocationExtractor = (title: string, timeModified: boolean
             } //try searching for 24h time format without explicit am/pm
             if (!foundtime) {
                 const twentyFourHourTime = title.match(
-                    /\b((1[3-9]|2[0-3]):([0-5][0-9])|at\s+(1[3-9]|2[0-3]))\b/i);
+                    /\b((1[3-9]|2[0-3]):([0-5][0-9]))\b|(?:\bat|@)\s*(1[3-9]|2[0-3])(?::([0-5][0-9]))?\b/i);
                 if (twentyFourHourTime) {
                     let hour: number;
                     let minute: string;
@@ -55,15 +55,15 @@ export const simpleTimeLocationExtractor = (title: string, timeModified: boolean
                         hour = Number(twentyFourHourTime[2]);
                         minute = twentyFourHourTime[3];
                     } else {
-                        // matched "at HH"
+                        // matched an "at"/"@" time, with optional minutes
                         hour = Number(twentyFourHourTime[4]);
-                        minute = "00";
+                        minute = twentyFourHourTime[5] ?? "00";
                     }
                     returnTime = String(hour).padStart(2, "0") + ":" + minute;
 
                 } else {
                     const lastTimeAttempt = title.match(
-                        /\b((0?\d|1[0-2]):([0-5][0-9])|at\s+(0?\d|1[0-2]))\b/i);
+                        /\b((@?0?\d|1[0-2]):([0-5][0-9])|(at|@)\s?(0?\d|1[0-2]))\b/i);
                     //TODO: prompt user with pop up to select am/pm or cancel
                     //found time, but unsure of the time (am/pm)
                 }

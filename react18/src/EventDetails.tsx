@@ -90,6 +90,8 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
             const [hours, minutes] = returnTime.split(":").map(Number)
 
             const nextStartTime = hours * 60 + minutes
+            if (nextStartTime %30  !== 0) { //chosen time isnt a multiple of 30 minutes
+            }
             setStartTime(nextStartTime)
             const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
 
