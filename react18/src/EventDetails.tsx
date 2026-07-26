@@ -38,7 +38,7 @@ function formatTime(minutesAfterMidnight: number) {
     return `${hour12}:${String(minutes).padStart(2, '0')} ${period}`
 }
 
-const START_TIME_OPTIONS = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30)
+let START_TIME_OPTIONS = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30)
 
 interface PopupInfo { // describes the information the component expects
     /*
@@ -72,7 +72,6 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
     const [selectedEndDate, setSelectedEndDate] = useState(endDate)
     let timeModified = false //flag to check time changed manually -> overrides automatic time set from title analysis
     let locationModified = false
-
     const selectedCalendar = CALENDAR_OPTIONS.find(
         (calendar) => calendar.value === calendarType
     ) ?? CALENDAR_OPTIONS[0]
@@ -89,8 +88,17 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
             console.log("time received " + returnTime)
             const [hours, minutes] = returnTime.split(":").map(Number)
 
+            START_TIME_OPTIONS = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30)
             const nextStartTime = hours * 60 + minutes
-            if (nextStartTime %30  !== 0) { //chosen time isnt a multiple of 30 minutes
+            if (nextStartTime % 30 !== 0) { //chosen time isnt a multiple of 30 minutes
+                for (let i = 0; i < 49; i++) {
+                    if (nextStartTime - START_TIME_OPTIONS[i] < 30) { //were in the endgame now bitch
+                        i++
+                        START_TIME_OPTIONS.splice(i, 0, nextStartTime)
+                        break
+                    }
+
+                }
             }
             setStartTime(nextStartTime)
             const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
@@ -138,7 +146,11 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
             setEndTime(0)
         }
     }
-
+    function closePopup() {
+        setStartTime(DEFAULT_START_TIME)
+        setEndTime(DEFAULT_END_TIME)
+        onClose();
+    }
     useEffect(() => { // sync the popup dates when CalendarApp opens it with a new date
         if (isOpen) {
             setSelectedStartDate(startDate)
@@ -150,7 +162,7 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
     useEffect(() => { //run code after rendereing compoent
         function handleKeyDown(event: KeyboardEvent) {
             if (event.key === "Escape") {
-                onClose();
+                closePopup()
             }
         }
 
@@ -187,7 +199,7 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                         className="icon-button close-button"
                         type="button"
                         aria-label="Close popup"
-                        onClick={onClose}
+                        onClick={closePopup}
                     >
                         ×
                     </button>
