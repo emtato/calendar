@@ -318,11 +318,11 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                             <span className="secondary-text">Add guests</span>
                         </div>
                         <div className="form-row">
-                            <span className="row-icon">⌖</span>
+                            <span className="row-icon row-icon-shift-left">⌖</span>
                             <span className="secondary-text">Add location</span>
                         </div>
                         <div className="form-row">
-                            <span className="row-icon">▣</span>
+                            <span className="row-icon row-icon-shift-left">▣</span>
                             <label className="calendar-select">
                                 <select
                                     aria-label="Calendar type"
@@ -343,11 +343,19 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                             </label>
                         </div>
                         <div className="form-row">
-                            <span className="row-icon">☰</span>
+                            <span className="row-icon row-icon-shift-left">☰</span>
                             <span className="secondary-text">Add description</span>
                         </div>
                     </div>
                     <div className="popup-actions">
+                        <button className="delete-button" type="button" aria-label="Delete event">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M4 7h16"/>
+                                <path d="M9 7V4h6v3"/>
+                                <path d="m6 7 1 13h10l1-13"/>
+                                <path d="M10 11v5M14 11v5"/>
+                            </svg>
+                        </button>
                         <button className="text-button">More options</button>
                         <button className="save-button">Save</button>
                     </div>

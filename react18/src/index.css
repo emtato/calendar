@@ -289,6 +289,10 @@ b { /* used for event dates/times */
     font-size: 18px;
 }
 
+.row-icon-shift-left {
+    transform: translateX(-3px);
+}
+
 .row-content {
     font-size: 14px;
     line-height: 1.45;
@@ -415,6 +419,36 @@ b { /* used for event dates/times */
     align-items: center;
     gap: 28px;
     margin-top: 22px;
+}
+
+.delete-button {
+    width: 40px;
+    height: 40px;
+    margin-right: auto;
+    padding: 8px;
+    display: grid;
+    place-items: center;
+    border: none;
+    border-radius: 50%;
+    background: transparent;
+    color: #80868b;
+    cursor: pointer;
+    transition: color 150ms ease, background-color 150ms ease;
+}
+
+.delete-button svg {
+    width: 22px;
+    height: 22px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
+.delete-button:hover {
+    background: rgba(217, 48, 37, 0.1);
+    color: #d93025;
 }
 
 .text-button {
