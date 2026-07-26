@@ -1,6 +1,7 @@
 import React, {useState, type CSSProperties} from 'react'
 import {useEffect} from "react";
 import {Temporal} from 'temporal-polyfill'
+import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extractor";
 
 const CALENDAR_OPTIONS = [
     {value: 'default', label: 'Default', color: '#6F5FA7'},
@@ -69,6 +70,8 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
     const [endTime, setEndTime] = useState(DEFAULT_END_TIME)
     const [selectedStartDate, setSelectedStartDate] = useState(startDate)
     const [selectedEndDate, setSelectedEndDate] = useState(endDate)
+    let timeModified = false //flag to check time changed manually -> overrides automatic time set from title analysis
+    let locationModified = false
 
     const selectedCalendar = CALENDAR_OPTIONS.find(
         (calendar) => calendar.value === calendarType
@@ -79,6 +82,24 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
         endTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY, 15)
     } else {
         endTimeOptions = generateTimeOptions(startTime, MINUTES_PER_DAY, 15)
+    }
+
+    function handleTitleInputChange([returnTime, returnLocation, returnTitle]: [string, string, string]) {
+        if (returnTime != "") {
+            console.log("time received " + returnTime)
+            const [hours, minutes] = returnTime.split(":").map(Number)
+
+            const nextStartTime = hours * 60 + minutes
+            setStartTime(nextStartTime)
+            const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
+
+            if (selectedStartDate == selectedEndDate) {
+                setEndTime(oneHourLater)
+            }
+        }
+        if (returnLocation != "") {
+            //TODO
+        }
     }
 
     function checkTime(time: string) {
@@ -99,6 +120,7 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
     }
 
     function handleStartTimeChange(event: React.ChangeEvent<HTMLSelectElement>) {
+        timeModified = true
         const nextStartTime = Number(event.target.value)
         const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
 
@@ -171,6 +193,10 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                         <input
                             className="title-input"
                             placeholder="Add title, time/location"
+                            onInput={(event) => {
+                                const input = event.currentTarget.value
+                                handleTitleInputChange(simpleTimeLocationExtractor(input, timeModified, locationModified))
+                            }}
                         />
                         <div className="form-row">
                             <span className="row-icon">◷</span>
@@ -246,8 +272,10 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                                         className="time-input"
                                         aria-label="End time"
                                         value={endTime}
-                                        onChange={(event) => checkTime(event.target.value)}
-                                    >
+                                        onChange={(event) => {
+                                            timeModified = true
+                                            checkTime(event.target.value)
+                                        }}>
                                         {endTimeOptions.map((minutes) => (
                                             <option key={minutes} value={minutes}>
                                                 {formatTime(minutes)}

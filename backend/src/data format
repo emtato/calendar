@@ -1,0 +1,24 @@
+# Calendar Event
+{
+  "id": str,
+  "title": str,
+  "start": str: ISO 8601,
+  "end": str: ISO 8601,   2026-07-25T15:00:00-04:00
+  "location": str
+  "category": str
+  "descr": str
+}
+# Calendar Event format from frontend
+  "id": str,
+  "title": str,
+  "startdate": str: YYYY-MM-DD,
+  "enddate": str: YYYY-MM-DD,
+  "starttime": str: HH:MM (24h)
+  "endtime": str: HH:MM (24h)
+  "location": str
+  "category": str
+  "descr": str
+
+Notes:
+- id is unique.
+- start, end, location may be empty and all info is contained in title, fields will be filled out later automatically
