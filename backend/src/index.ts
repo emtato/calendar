@@ -1,5 +1,6 @@
 import express from "express";
 import {CalendarEvent} from "./CalendarEvent";
+import testEvents from "./testevents.json";
 
 const cors = require('cors');
 
@@ -25,8 +26,14 @@ req.query        URL query parameters
 req.body         JSON body (for POST/PUT)
 req.headers      HTTP headers
  */
-app.get('api/save', (req, res) => {
+app.get('/api/save', (req, res) => {
     res.send({message: 'i got it bud'});
     const newEvent: CalendarEvent = req.body;
 
 });
+
+app.get('/api/events', (req, res) => {
+    console.log("got request")
+        res.send(testEvents);
+    //TODO
+})

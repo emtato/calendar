@@ -1,0 +1,65 @@
+[
+  {
+    "id": "event-001",
+    "title": "Doctor Appointment",
+    "start": "2026-07-27T09:30:00",
+    "end": "2026-07-27T10:15:00",
+    "allDay": false,
+    "extendedProps": {
+      "location": "Downtown Clinic",
+      "description": "Annual check-up"
+    }
+  }, {
+  "id": "event-002",
+  "title": "CSC301 Lecture",
+  "start": "2026-07-28T11:00:00",
+  "end": "2026-07-28T12:30:00",
+  "allDay": false,
+  "extendedProps": {
+    "location": "Bahen Centre",
+    "description": "Software Engineering lecture"
+  }
+}, {
+  "id": "event-003",
+  "title": "Leg Day",
+  "start": "2026-07-28T18:00:00",
+  "end": "2026-07-28T19:15:00",
+  "allDay": false,
+  "extendedProps": {
+    "location": "GoodLife Fitness",
+    "description": "Leg press, hip thrusts, adductors"
+  }
+}, {
+  "id": "event-004",
+  "title": "Dinner with Friends",
+  "start": "2026-07-29T18:30:00",
+  "end": "2026-07-29T20:30:00",
+  "allDay": false,
+  "extendedProps": {
+    "location": "Korean BBQ",
+    "description": "Reservation for 4"
+  }
+}, {
+  "id": "event-005",
+  "title": "Project Meeting",
+  "start": "2026-07-30T14:00:00",
+  "end": "2026-07-30T15:00:00",
+  "allDay": false,
+  "extendedProps": {
+    "location": "Microsoft Teams",
+    "description": "Weekly sprint planning"
+  }
+}, {
+  "id": "event-006",
+  "title": "mystery day",
+  "start": "2026-07-31T14:00:00",
+  "end": "2026-07-31T15:00:00",
+  "allDay": true,
+  "extendedProps": {
+    "location": "meow",
+    "description": "spooky"
+  }
+}
+]
+
+
