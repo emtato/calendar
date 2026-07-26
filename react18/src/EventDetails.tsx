@@ -2,6 +2,7 @@ import React, {useState, type CSSProperties, useRef} from 'react'
 import {useEffect} from "react";
 import {Temporal} from 'temporal-polyfill'
 import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extractor";
+import {saveCalendarEvent, deleteCalendarEvent, getCalendarEventById} from "./api/eventsAPI";
 
 const CALENDAR_OPTIONS = [
     {value: 'default', label: 'Default', color: '#6F5FA7'},
@@ -74,8 +75,12 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
     const [selectedEndDate, setSelectedEndDate] = useState(endDate)
     const [location, setLocation] = useState('')
     const [title, setTitle] = useState('')
-    const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
+    const [allday, setAllday] = useState(false)
+    const [eventID, setEventID] = useState('')
+    const [description, setDescription] = useState('')
 
+
+    const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
     let timeModified = false //flag to check time changed manually -> overrides automatic time set from title analysis
     let locationModified = false
     const selectedCalendar = CALENDAR_OPTIONS.find(
@@ -122,7 +127,7 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
         if (returnLocation != "") {
             //TODO
         }
-        console.log("title received " + returnTitle)
+       // console.log("title received " + returnTitle)
         // setTitle(returnTitle)
         titleCleanupTimer.current = setTimeout(() => {
             setTitle(returnTitle);
@@ -198,7 +203,33 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
     }
 
     function saveEvent() {
-
+        //already given variables:
+        //title is title
+        //startTime is event starting time
+        //endTime is  event ending time
+        //selectedStartDate is event start date
+        //selectedEndDate is event end date
+        //allDay is event alldayness :3
+        //TODO: implement location and description select/text inputs
+        //TODO: ID impementation
+        const id = "id"
+        const location = "location"
+        const description = "description"
+        const event = {
+            id: id,
+            title: title,
+            startTime: startTime,
+            endTime: endTime,
+            startDate: selectedStartDate,
+            endDate: selectedEndDate,
+            allDay: allday,
+            extendedProps: {
+                location: location,
+                description: description,
+            }
+        }
+        console.log("saving event")
+        saveCalendarEvent(event)
     }
 
     return (
@@ -331,7 +362,8 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                                 </div>
                                 <div className="secondary-text">Does not repeat</div>
                             </div>
-                            <label className="all-day-option">
+                            <label className="all-day-option"
+                                   onClick={() => setAllday(!allday)}>
                                 <input type="checkbox"/>
                                 <span>All day</span>
                             </label>

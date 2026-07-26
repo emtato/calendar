@@ -26,14 +26,16 @@ req.query        URL query parameters
 req.body         JSON body (for POST/PUT)
 req.headers      HTTP headers
  */
-app.get('/api/save', (req, res) => {
-    res.send({message: 'i got it bud'});
-    const newEvent: CalendarEvent = req.body;
 
-});
 
 app.get('/api/events', (req, res) => {
     console.log("got request")
         res.send(testEvents);
     //TODO
+})
+
+app.post('/api/events/save', (req, res) => {
+    console.log("got request")
+    res.send({message: 'i got it bud'});
+    console.log(req.body)
 })

@@ -4,24 +4,6 @@ import type {
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
-/*
- * Update fields that may be changed when editing an existing event
- * Partial makes every field optional because an update may change only one field, such as the title, without resending the entire event
- */
-export type UpdateCalendarEventInput = Partial<CalendarEvent>;
-
-/*
- * Change one or more fields belonging to an existing calendar event
- *
- * Intended request: PATCH /api/events/:eventId
- * `eventId`: identifies the event to change
- * `changes`: contains only the fields that should be changed
- * Returns: the updated event received from the backend
- */
-export async function updateCalendarEvent(eventId: string, changes: UpdateCalendarEventInput): Promise<CalendarEvent> {
-    throw new Error("updateCalendarEvent is not implemented yet");
-}
-
 /**
  * Retrieve every calendar event the current user is alloed to see
  *
@@ -55,8 +37,23 @@ export async function getCalendarEventById(eventId: string): Promise<CalendarEve
  * `event`: the user-entered information for the new event
  * Returns: the saved event, including the ID assigned by the backend
  */
-export async function createCalendarEvent(event: CalendarEvent): Promise<CalendarEvent> {
-    throw new Error("createCalendarEvent is not implemented yet");
+export async function saveCalendarEvent(event: {
+    id: string;
+    title: string;
+    startTime: number;
+    endTime: number;
+    startDate: string;
+    endDate: string;
+    allDay: boolean;
+    extendedProps: { location: string; description: string }}) {
+    const response = await fetch(`${SERVER_URL}/api/events/save`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(event)
+    })
+    console.log("received response", response)
 }
 
 
