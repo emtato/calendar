@@ -91,10 +91,13 @@ export default function Popup({
     const [eventID, setEventID] = useState('')
     const [description, setDescription] = useState('')
 
+    const [endTimeModified, setEndTimeModified] = useState(false)
+  //  const [startTimeModified, setStartTimeModified] = useState(false)//flag to check time changed manually -> overrides automatic time set from title analysis
+
+    const [locationModified, setLocationModified] = useState(false)
+
 
     const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
-    let timeModified = false //flag to check time changed manually -> overrides automatic time set from title analysis
-    let locationModified = false
     const selectedCalendar = CALENDAR_OPTIONS.find(
         (calendar) => calendar.value === calendarType
     ) ?? CALENDAR_OPTIONS[0]
@@ -139,8 +142,7 @@ export default function Popup({
         if (returnLocation != "") {
             //TODO
         }
-        // console.log("title received " + returnTitle)
-        // setTitle(returnTitle)
+
         titleCleanupTimer.current = setTimeout(() => {
             setTitle(returnTitle);
             titleCleanupTimer.current = null;
@@ -165,15 +167,19 @@ export default function Popup({
     }
 
     function handleStartTimeChange(event: React.ChangeEvent<HTMLSelectElement>) {
-        timeModified = true
+       // setStartTimeModified(true)
         const nextStartTime = Number(event.target.value)
         const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
 
         setStartTime(nextStartTime)
-        if (selectedStartDate == selectedEndDate) {
+        //conditions for modifying end time:
+        /*
+        1. if end time was never modified AND its same day
+        2. if end time is earlier than start time AND its same day
+         */
+        if ((selectedStartDate == selectedEndDate && !endTimeModified) || (endTime < startTime && selectedStartDate == selectedEndDate)) {
             setEndTime(oneHourLater)
         }
-
 
         if (oneHourLater % MINUTES_PER_DAY === 0 && selectedEndDate) {
             const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString()
@@ -292,7 +298,9 @@ export default function Popup({
                             onInput={(event) => {
                                 const input = event.currentTarget.value
                                 setTitle(input);
-                                handleTitleInputChange(simpleTimeLocationExtractor(input, timeModified, locationModified))
+                                //temporarily disable time modification detection
+                                const startTimeModified = false
+                                handleTitleInputChange(simpleTimeLocationExtractor(input, startTimeModified, locationModified))
                             }}
                         />
                         <div className="form-row">
@@ -370,7 +378,7 @@ export default function Popup({
                                         aria-label="End time"
                                         value={endTime}
                                         onChange={(event) => {
-                                            timeModified = true
+                                            setEndTimeModified(true)
                                             checkTime(event.target.value)
                                         }}>
                                         {endTimeOptions.map((minutes) => (
