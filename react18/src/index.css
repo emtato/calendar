@@ -198,6 +198,10 @@ b { /* used for event dates/times */
     border-radius: 24px;
 }
 
+.calendar-selection-highlight {
+    background-color: var(--fc-monarch-highlight) !important;
+}
+
 /* ____________________________________________________
    Event popup section
    ____________________________________________________ */

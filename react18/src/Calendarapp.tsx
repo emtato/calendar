@@ -1,4 +1,4 @@
-import FullCalendar, {DateClickInfo, DateSelectInfo, EventClickInfo} from '@fullcalendar/react'
+import FullCalendar, {CalendarApi, DateClickInfo, DateSelectInfo, EventClickInfo} from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/react/daygrid'
 
 import themePlugin from '@fullcalendar/react/themes/monarch'
@@ -13,12 +13,44 @@ import {INITIAL_EVENTS} from "./event-utils";
 
 import {Temporal} from 'temporal-polyfill'
 
-import React, {useState} from 'react'
+import React, {useRef, useState} from 'react'
 import Popup, {MinimizedBar, Sidebar} from './EventDetails'
+
+interface HighlightedRange {
+    start: string
+    end: string
+}
+
+function toLocalDateString(date: Date) {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+
+    return `${year}-${month}-${day}`
+}
+
+function createDateList(startDate: string, daysBetween?: number) {
+    const selected = Temporal.PlainDate.from(startDate)
+    const dates: string[] = []
+
+    for (let i = -7; i < 8; i++) {
+        dates.push(selected.add({days: i}).toString())
+        if (daysBetween && i == 7) {
+            for (let j = 0; j < daysBetween; j++) {
+                dates.push(selected.add({days: i + j}).toString())
+            }
+        }
+    }
+
+
+    return dates
+}
 
 export default function CalendarApp() {
     const [isPopOpen, setIsPopOpen] = useState(false)
     const [popupPos, setPopupPos] = useState({x: 0, y: 0});
+    const [highlightedRange, setHighlightedRange] = useState<HighlightedRange | null>(null)
+    const calendarApiRef = useRef<CalendarApi | null>(null)
 
     const [isSidebar, setSidebar] = useState(true)
     const [isMiniBar, setMinibar] = useState(false)
@@ -38,13 +70,44 @@ export default function CalendarApp() {
         setMinibar(false)
     }
 
+    function closePopup() {
+        setIsPopOpen(false)
+        setHighlightedRange(null)
+        calendarApiRef.current?.unselect()
+    }
+
     function handleDateDrag(selectInfo: DateSelectInfo) {
         console.log("dates dragged")
         console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
+
+        calendarApiRef.current = selectInfo.view.calendar
+        setHighlightedRange({
+            start: selectInfo.startStr,
+            end: selectInfo.endStr,
+        })
+
         setIsPopOpen(true)
-        // @ts-ignore
-        setPopupPos({x: selectInfo.jsEvent?.clientX + 40, y: selectInfo.jsEvent?.clientY,});
+        if (selectInfo.jsEvent) {
+            setPopupPos({
+                x: selectInfo.jsEvent.clientX + 40,
+                y: selectInfo.jsEvent.clientY,
+            })
+        }
         console.log("loc " + selectInfo.jsEvent?.x)
+        let temp = String(Temporal.PlainDate.from(selectInfo.endStr).subtract({days: 1}))
+
+        setSelectedDate(selectInfo.startStr)
+        setSelectedEndDate(temp)
+
+        const start = Temporal.PlainDate.from(selectInfo.startStr)
+        const end = Temporal.PlainDate.from(selectInfo.endStr)
+        const daysBetween = start.until(end).days
+
+        setDateList(createDateList(selectInfo.startStr, daysBetween))
+
+        // The custom range remains visible while FullCalendar's internal
+        // selection is cleared so another drag can begin normally.
+        selectInfo.view.calendar.unselect()
     }
 
     function handleEventClick(selectInfo: EventClickInfo) {
@@ -65,19 +128,23 @@ export default function CalendarApp() {
         setIsPopOpen(true)
         setPopupPos({x: clickInfo.jsEvent?.clientX + 40, y: clickInfo.jsEvent?.clientY,});
         console.log("loc " + clickInfo.jsEvent.clientX)
+
+        const nextDate = Temporal.PlainDate
+            .from(clickInfo.dateStr)
+            .add({days: 1})
+            .toString()
+
+        calendarApiRef.current = clickInfo.view.calendar
+        clickInfo.view.calendar.unselect()
+        setHighlightedRange({
+            start: clickInfo.dateStr,
+            end: nextDate,
+        })
+
         setSelectedDate(clickInfo.dateStr)
         setSelectedEndDate(clickInfo.dateStr)
-
-        //for dropdown selection in popup
-        const selected = Temporal.PlainDate.from(clickInfo.dateStr)
-        const dateList = []
-        for (let i = -7; i < 8; i++) {
-            const date = selected.add({days: i})
-            dateList.push(date.toString())
-        }
-        setDateList(dateList)
+        setDateList(createDateList(clickInfo.dateStr))
     }
-
 
 
     function renderSidebar() {
@@ -149,6 +216,15 @@ export default function CalendarApp() {
                     selectable={true}
                     selectMirror={true}
                     dayMaxEvents={true}
+                    dayCellClass={(dayInfo) => {
+                        const cellDate = toLocalDateString(dayInfo.date)
+
+                        return highlightedRange &&
+                        cellDate >= highlightedRange.start &&
+                        cellDate < highlightedRange.end
+                            ? 'calendar-selection-highlight'
+                            : ''
+                    }}
                     dateClick={handleDateClick}
                     initialEvents={INITIAL_EVENTS} // alternatively, use the `events` setting to fetch from a feed
                     select={handleDateDrag}
@@ -159,7 +235,7 @@ export default function CalendarApp() {
             </div>
             <Popup //passing info into popup
                 isOpen={isPopOpen}
-                onClose={() => setIsPopOpen(false)}
+                onClose={closePopup}
                 position={popupPos}
                 startDate={selectedDate}
                 endDate={selectedEndDate}
