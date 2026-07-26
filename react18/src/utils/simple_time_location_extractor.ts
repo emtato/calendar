@@ -2,21 +2,27 @@
 //extracts time if title contains time in the following formats
 // XPM, X PM, X.XXPM, X.XX PM, X:XXPM X:XX PM, 0:XX, 13-23:XX, noon, midnight
 
-import {CreateCalendarEventInput} from "../../../backend/src/CalendarEvent";
-
 export const simpleTimeLocationExtractor = (title: string, timeModified: boolean,
-    locationModified: boolean): [string, string, string] => {
+                                            locationModified: boolean): [string, string, string] => {
 
     let returnTime = ""
     let returnLocation = ""
-    let returnTitle = ""
+    let returnTitle = title
     //TODO: eventually make returned title remove the keywords it found in title? meet Amy at 3 -> meet Amy
     if (!timeModified) {
         if ((/\bnoon\b/i).test(title) || (/\bmidnight\b/i).test(title)) {
             if ((/\bnoon\b/i).test(title) && !(/\bmidnight\b/i).test(title)) {
                 returnTime = "12:00";
+                returnTitle = returnTitle
+                    .replace(/(?:\bat\s*|@\s*)?\bnoon\b/i, "")
+                    .replace(/\s+/g, " ")
+                    .trim();
             } else if (!(/\bnoon\b/i).test(title) && (/\bmidnight\b/i).test(title)) {
                 returnTime = "00:00";
+                returnTitle = returnTitle
+                    .replace(/(?:\bat\s*|@\s*)?\bmidnight\b/i, "")
+                    .replace(/\s+/g, " ")
+                    .trim();
             }
         }
         //not noon or midnight
@@ -25,9 +31,15 @@ export const simpleTimeLocationExtractor = (title: string, timeModified: boolean
             let foundtime = false
 
             const twelveHourTime = title.match(
-                /\b(@?0?[1-9]|1[0-2])(?:[.:]([0-5][0-9]))?\s*(am|pm)\b/i
+                /(?:\bat\s*|@\s*)?\b(0?[1-9]|1[0-2])(?:[.:]([0-5][0-9]))?\s*(am|pm)\b/i
             );
             if (twelveHourTime) {
+                const matchedText = twelveHourTime[0]; //remove matched text from title
+                returnTitle = returnTitle
+                    .replace(matchedText, "")
+                    .replace(/\s+/g, " ")
+                    .trim();
+
                 foundtime = true;
                 let hour = Number(twelveHourTime[1]);
                 const minute = twelveHourTime[2] ?? "00";
@@ -48,6 +60,12 @@ export const simpleTimeLocationExtractor = (title: string, timeModified: boolean
                 const twentyFourHourTime = title.match(
                     /\b((1[3-9]|2[0-3]):([0-5][0-9]))\b|(?:\bat|@)\s*(1[3-9]|2[0-3])(?::([0-5][0-9]))?\b/i);
                 if (twentyFourHourTime) {
+                    const matchedText = twentyFourHourTime[0];//remove matched text from title
+                    returnTitle = returnTitle
+                        .replace(matchedText, "")
+                        .replace(/\s+/g, " ")
+                        .trim();
+
                     let hour: number;
                     let minute: string;
                     if (twentyFourHourTime[2] !== undefined) {
@@ -66,6 +84,7 @@ export const simpleTimeLocationExtractor = (title: string, timeModified: boolean
                         /\b((@?0?\d|1[0-2]):([0-5][0-9])|(at|@)\s?(0?\d|1[0-2]))\b/i);
                     //TODO: prompt user with pop up to select am/pm or cancel
                     //found time, but unsure of the time (am/pm)
+                    //remeber to remove matched text from title
                 }
             }
 

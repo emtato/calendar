@@ -1,4 +1,4 @@
-import React, {useState, type CSSProperties} from 'react'
+import React, {useState, type CSSProperties, useRef} from 'react'
 import {useEffect} from "react";
 import {Temporal} from 'temporal-polyfill'
 import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extractor";
@@ -22,6 +22,7 @@ function generateTimeOptions(startMinutes: number, endMinutes: number, interval:
 
     return times
 }
+
 //TODO: make dropdown menu pretty with times going in a grid horizontally then vertically
 //11:00 11:30 12:00 12:30
 //1:00  1:30  2:00  2:30 etc
@@ -71,6 +72,10 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
     const [endTime, setEndTime] = useState(DEFAULT_END_TIME)
     const [selectedStartDate, setSelectedStartDate] = useState(startDate)
     const [selectedEndDate, setSelectedEndDate] = useState(endDate)
+    const [location, setLocation] = useState('')
+    const [title, setTitle] = useState('')
+    const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
+
     let timeModified = false //flag to check time changed manually -> overrides automatic time set from title analysis
     let locationModified = false
     const selectedCalendar = CALENDAR_OPTIONS.find(
@@ -88,6 +93,10 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
     }
 
     function handleTitleInputChange([returnTime, returnLocation, returnTitle]: [string, string, string]) {
+        if (titleCleanupTimer.current !== null) {
+            clearTimeout(titleCleanupTimer.current);
+            titleCleanupTimer.current = null;
+        }
         if (returnTime != "") {
             console.log("time received " + returnTime)
             const [hours, minutes] = returnTime.split(":").map(Number)
@@ -113,6 +122,12 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
         if (returnLocation != "") {
             //TODO
         }
+        console.log("title received " + returnTitle)
+        // setTitle(returnTitle)
+        titleCleanupTimer.current = setTimeout(() => {
+            setTitle(returnTitle);
+            titleCleanupTimer.current = null;
+        }, 1500);
     }
 
     function checkTime(time: string) {
@@ -149,11 +164,13 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
             setEndTime(0)
         }
     }
+
     function closePopup() {
         setStartTime(DEFAULT_START_TIME)
         setEndTime(DEFAULT_END_TIME)
         onClose();
     }
+
     useEffect(() => { // sync the popup dates when CalendarApp opens it with a new date
         if (isOpen) {
             setSelectedStartDate(startDate)
@@ -178,6 +195,10 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
 
     if (!isOpen) {
         return null
+    }
+
+    function saveEvent() {
+
     }
 
     return (
@@ -208,10 +229,12 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                     </button>
                     <div className="event-content">
                         <input
+                            value={title}
                             className="title-input"
                             placeholder="Add title, time/location"
                             onInput={(event) => {
                                 const input = event.currentTarget.value
+                                setTitle(input);
                                 handleTitleInputChange(simpleTimeLocationExtractor(input, timeModified, locationModified))
                             }}
                         />
@@ -357,7 +380,10 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                             </svg>
                         </button>
                         <button className="text-button">More options</button>
-                        <button className="save-button">Save</button>
+                        <button className="save-button"
+                                onClick={saveEvent}
+                        >Save
+                        </button>
                     </div>
                 </div>
             </div>
