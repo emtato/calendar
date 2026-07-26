@@ -21,9 +21,10 @@ function generateTimeOptions(startMinutes: number, endMinutes: number, interval:
     }
 
     return times
-
 }
-
+//TODO: make dropdown menu pretty with times going in a grid horizontally then vertically
+//11:00 11:30 12:00 12:30
+//1:00  1:30  2:00  2:30 etc
 
 function formatTime(minutesAfterMidnight: number) {
     if (minutesAfterMidnight === 24 * 60) {
@@ -82,6 +83,9 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
     } else {
         endTimeOptions = generateTimeOptions(startTime, MINUTES_PER_DAY, 15)
     }
+    if (endTimeOptions[endTimeOptions.length - 1] !== MINUTES_PER_DAY) {
+        endTimeOptions.push(MINUTES_PER_DAY)
+    }
 
     function handleTitleInputChange([returnTime, returnLocation, returnTitle]: [string, string, string]) {
         if (returnTime != "") {
@@ -97,7 +101,6 @@ export default function Popup({isOpen, onClose, position, startDate, endDate, da
                         START_TIME_OPTIONS.splice(i, 0, nextStartTime)
                         break
                     }
-
                 }
             }
             setStartTime(nextStartTime)
