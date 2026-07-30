@@ -15,7 +15,6 @@ import interactionPlugin from '@fullcalendar/react/interaction'
 
 import timeGridPlugin from '@fullcalendar/react/timegrid'
 import multiMonthPlugin from '@fullcalendar/react/multimonth'
-import {INITIAL_EVENTS} from "./event-utils";
 
 import {Temporal} from 'temporal-polyfill'
 
@@ -68,6 +67,8 @@ export default function CalendarApp() {
     const [endTime, setEndTime] = useState(10 * 60) //default
 
     const [dateList, setDateList] = useState<string[]>([])
+    const [customTimeStart, setCustomTimeStart] = useState(0)
+    const [customTimeEnd, setCustomTimeEnd] = useState(0)
 
     function closeBigBar() {
         setSidebar(false)
@@ -140,6 +141,40 @@ export default function CalendarApp() {
         setIsPopOpen(true)
         setPopupPos({x: selectInfo.jsEvent?.clientX + 40, y: selectInfo.jsEvent?.clientY,});
         console.log("loc " + selectInfo.jsEvent.clientX)
+
+        const startDate = Temporal.PlainDate.from(selectInfo.event.startStr).toString();
+        let endDate = selectInfo.event.endStr ? Temporal.PlainDate.from(selectInfo.event.endStr).toString() : startDate;
+
+        let startTimeMinutes = 0;
+        let endTimeMinutes = 0;
+
+        if (!selectInfo.event.allDay) {
+            const startTime = Temporal.PlainTime.from(selectInfo.event.startStr).toString();
+            const endTime = Temporal.PlainTime.from(selectInfo.event.endStr).toString();
+            const [starthours, startminutes, startseconds] = startTime.split(":").map(Number);
+            const [endhours, endminutes, endseconds] = endTime.split(":").map(Number);
+            //convert time to minutes after 0
+            startTimeMinutes = starthours * 60 + startminutes;
+            endTimeMinutes = endhours * 60 + endminutes;
+        } else {
+            endDate = Temporal.PlainDate.from(selectInfo.event.endStr).subtract({days: 1}).toString();
+            endTimeMinutes = 24 * 60 - 1; //set end time to 11:59 PM
+        }
+        if(startTimeMinutes % 30 != 0 || endTimeMinutes % 15 != 0) {
+            if(startTimeMinutes % 30 != 0) {
+                setCustomTimeStart(startTimeMinutes)
+            }
+            else{
+                setCustomTimeEnd(endTimeMinutes)
+            }
+        }
+        setSelectedDate(startDate)
+        setSelectedEndDate(endDate)
+        setEndTime(endTimeMinutes)
+        setStartTime(startTimeMinutes)
+
+        const daysBetween = Temporal.PlainDate.from(startDate).until(endDate).days
+        setDateList(createDateList(startDate, daysBetween))
     }
 
     function handleEvents() {
@@ -229,7 +264,7 @@ export default function CalendarApp() {
                 dateList={dateList}
                 initialStartTime={startTime}
                 initialEndTime={endTime}
-
+                generateSpecificTimeOption={[customTimeStart, customTimeEnd]}
 
             />
             <Sidebar isOpen={isSidebar} onClose={closeBigBar}

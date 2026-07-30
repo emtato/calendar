@@ -15,10 +15,16 @@ const DEFAULT_START_TIME = 9 * 60
 const DEFAULT_END_TIME = 10 * 60
 
 
-function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number) {
+function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number, customTime? : number) {
     const times: number[] = []
     for (let minutes = startMinutes; minutes <= endMinutes; minutes += interval) {
         times.push(minutes)
+        if(customTime){
+            if(minutes +interval > customTime){
+                times.push(customTime)
+            }
+
+        }
     }
 
     return times
@@ -58,6 +64,7 @@ interface PopupInfo { // describes the information the component expects
     dateList: string[];
     initialStartTime: number;
     initialEndTime: number;
+    generateSpecificTimeOption: number[];
 
 }
 
@@ -78,7 +85,8 @@ export default function Popup({
                                   endDate,
                                   dateList,
                                   initialStartTime,
-                                  initialEndTime
+                                  initialEndTime,
+                                  generateSpecificTimeOption,
                               }: PopupInfo) {
     const [calendarType, setCalendarType] = useState('default')
     const [startTime, setStartTime] = useState(initialStartTime)
@@ -90,9 +98,11 @@ export default function Popup({
     const [allday, setAllday] = useState(false)
     const [eventID, setEventID] = useState('')
     const [description, setDescription] = useState('')
+    const [timeOptionStart, setTimeOptionStart] = useState(generateSpecificTimeOption[0])
+    const [timeOptionEnd, setTimeOptionEnd] = useState(generateSpecificTimeOption[1])
 
     const [endTimeModified, setEndTimeModified] = useState(false)
-  //  const [startTimeModified, setStartTimeModified] = useState(false)//flag to check time changed manually -> overrides automatic time set from title analysis
+    //  const [startTimeModified, setStartTimeModified] = useState(false)//flag to check time changed manually -> overrides automatic time set from title analysis
 
     const [locationModified, setLocationModified] = useState(false)
 
@@ -104,9 +114,9 @@ export default function Popup({
 
     let endTimeOptions = []
     if (selectedStartDate < selectedEndDate) {
-        endTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY, 15)
+        endTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY, 15, timeOptionEnd)
     } else {
-        endTimeOptions = generateTimeOptions(startTime, MINUTES_PER_DAY, 15)
+        endTimeOptions = generateTimeOptions(startTime, MINUTES_PER_DAY, 15, timeOptionEnd)
     }
     if (endTimeOptions[endTimeOptions.length - 1] !== MINUTES_PER_DAY) {
         endTimeOptions.push(MINUTES_PER_DAY)
@@ -167,7 +177,7 @@ export default function Popup({
     }
 
     function handleStartTimeChange(event: React.ChangeEvent<HTMLSelectElement>) {
-       // setStartTimeModified(true)
+        // setStartTimeModified(true)
         const nextStartTime = Number(event.target.value)
         const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
 
