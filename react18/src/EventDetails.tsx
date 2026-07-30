@@ -17,11 +17,13 @@ const DEFAULT_END_TIME = 10 * 60
 
 function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number, customTime?: number) {
     const times: number[] = []
+    let addedCustomAlready = false
     for (let minutes = startMinutes; minutes <= endMinutes; minutes += interval) {
         times.push(minutes)
         if (customTime) {
-            if (minutes + interval > customTime) {
+            if (minutes + interval > customTime && !addedCustomAlready) {
                 times.push(customTime)
+                addedCustomAlready = true
             }
 
         }

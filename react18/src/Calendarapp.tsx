@@ -87,6 +87,8 @@ export default function CalendarApp() {
     }
 
     function handleDateDrag(selectInfo: DateSelectInfo) {
+        setStartTime(9 * 60)
+        setEndTime(10 * 60)
         console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
 
         const startDateOnly = Temporal.PlainDate.from(selectInfo.startStr).toString();
@@ -183,6 +185,8 @@ export default function CalendarApp() {
     }
 
     function handleDateClick(clickInfo: DateClickInfo) {
+        setStartTime(9 * 60)
+        setEndTime(10 * 60)
         console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
         setPopupPos({x: clickInfo.jsEvent?.clientX + 40, y: clickInfo.jsEvent?.clientY,});
