@@ -15,12 +15,12 @@ const DEFAULT_START_TIME = 9 * 60
 const DEFAULT_END_TIME = 10 * 60
 
 
-function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number, customTime? : number) {
+function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number, customTime?: number) {
     const times: number[] = []
     for (let minutes = startMinutes; minutes <= endMinutes; minutes += interval) {
         times.push(minutes)
-        if(customTime){
-            if(minutes +interval > customTime){
+        if (customTime) {
+            if (minutes + interval > customTime) {
                 times.push(customTime)
             }
 
@@ -120,6 +120,9 @@ export default function Popup({
     }
     if (endTimeOptions[endTimeOptions.length - 1] !== MINUTES_PER_DAY) {
         endTimeOptions.push(MINUTES_PER_DAY)
+    }
+    if (timeOptionStart != 0) {
+        START_TIME_OPTIONS = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30, timeOptionStart)
     }
 
     function handleTitleInputChange([returnTime, returnLocation, returnTitle]: [string, string, string]) {
@@ -239,6 +242,11 @@ export default function Popup({
         initialStartTime,
         initialEndTime
     ]);
+
+    useEffect(() => {
+        setTimeOptionStart(generateSpecificTimeOption[0])
+        setTimeOptionEnd(generateSpecificTimeOption[1])
+    }, [generateSpecificTimeOption])
 
     if (!isOpen) {
         return null

@@ -160,11 +160,11 @@ export default function CalendarApp() {
             endDate = Temporal.PlainDate.from(selectInfo.event.endStr).subtract({days: 1}).toString();
             endTimeMinutes = 24 * 60 - 1; //set end time to 11:59 PM
         }
-        if(startTimeMinutes % 30 != 0 || endTimeMinutes % 15 != 0) {
-            if(startTimeMinutes % 30 != 0) {
+        if (startTimeMinutes % 30 != 0 || endTimeMinutes % 15 != 0) {
+            if (startTimeMinutes % 30 != 0) {
                 setCustomTimeStart(startTimeMinutes)
             }
-            else{
+            if (endTimeMinutes % 15 != 0) {
                 setCustomTimeEnd(endTimeMinutes)
             }
         }
