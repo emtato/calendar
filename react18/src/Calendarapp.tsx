@@ -70,6 +70,8 @@ export default function CalendarApp() {
     const [customTimeStart, setCustomTimeStart] = useState(0)
     const [customTimeEnd, setCustomTimeEnd] = useState(0)
 
+    const justDragged = useRef(false)
+
     function closeBigBar() {
         setSidebar(false)
         setMinibar(true)
@@ -80,7 +82,7 @@ export default function CalendarApp() {
         setMinibar(false)
     }
 
-    function displayNewEventPlaceholder(clickInfo: CalendarApi, startDate: string, endDate: string) {
+    function displayNewEventPlaceholder(clickInfo: CalendarApi, startDate: string, endDate: string, startTime?: string, endTime?: string) {
         const calendar = clickInfo.view.calendar
 
         // Remove the previous temporary banner.
@@ -95,6 +97,16 @@ export default function CalendarApp() {
                 allDay: true,
                 editable: false,
             })
+        } else {
+            calendar.addEvent({
+                id: 'draft-event',
+                title: 'New Event',
+                start: startDate + "T" + startTime,
+                end: endDate + "T" + endTime,
+                startEditable: true,
+                endEditable: true,
+                editable: true,
+            })
         }
     }
 
@@ -106,9 +118,14 @@ export default function CalendarApp() {
     }
 
     function handleDateDrag(selectInfo: DateSelectInfo) {
-        //calendarApiRef.current = selectInfo.view.calendar
+        //prevent dragging from triggering date click
+        justDragged.current = true
+        setTimeout(() => {
+            justDragged.current = false
+        }, 0)
+
+        calendarApiRef.current = selectInfo.view.calendar
         setStartTime(9 * 60)
-        setEndTime(10 * 60)
         console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
 
         const startDateOnly = Temporal.PlainDate.from(selectInfo.startStr).toString();
@@ -131,7 +148,13 @@ export default function CalendarApp() {
         let temp = String(Temporal.PlainDate.from(endDateOnly))
 
         if (currentView === 'dayGridMonth' || currentView === "multiMonthYear") {
+            if (startDateOnly === endDateOnly) {
+                setEndTime(10 * 60)
+            } else {
+                setEndTime(9 * 60)
+            }
             temp = String(Temporal.PlainDate.from(endDateOnly).subtract({days: 1}))
+            displayNewEventPlaceholder(selectInfo.view.calendar, startDateOnly, endDateOnly)
         } else {
             const startTimeOnly = Temporal.PlainTime.from(selectInfo.startStr).toString();
             const endTimeOnly = Temporal.PlainTime.from(selectInfo.endStr).toString();
@@ -139,9 +162,10 @@ export default function CalendarApp() {
             const [hours, minutes, seconds] = startTimeOnly.split(":").map(Number);
             const startTimeMinutes = hours * 60 + minutes;
             const [hr, mn, s] = endTimeOnly.split(":").map(Number);
-            const endTimeMinutes = hr * 60 + mn;
             setStartTime(startTimeMinutes)
-            setEndTime(endTimeMinutes)
+            setEndTime(hr * 60 + mn)
+            displayNewEventPlaceholder(selectInfo.view.calendar, startDateOnly, endDateOnly, startTimeOnly, endTimeOnly)
+
         }
 
         setSelectedDate(startDateOnly)
@@ -158,7 +182,6 @@ export default function CalendarApp() {
         if (currentView === 'dayGridMonth' || currentView === "multiMonthYear") {
             selectInfo.view.calendar.unselect()
         }
-        displayNewEventPlaceholder(selectInfo.view.calendar, startDateOnly, endDateOnly)
     }
 
     function handleEventClick(selectInfo: EventClickInfo) {
@@ -213,7 +236,9 @@ export default function CalendarApp() {
     }
 
     function handleDateClick(clickInfo: DateClickInfo) {
-
+        if (justDragged.current) {
+            return
+        }
         setStartTime(9 * 60)
         setEndTime(10 * 60)
         console.log("Single date:", clickInfo.dateStr)
@@ -222,7 +247,6 @@ export default function CalendarApp() {
         console.log("loc " + clickInfo.jsEvent.clientX)
 
         const dateOnly = Temporal.PlainDate.from(clickInfo.dateStr).toString();
-
         const nextDate = Temporal.PlainDate.from(dateOnly).add({days: 1}).toString()
 
         calendarApiRef.current = clickInfo.view.calendar
@@ -243,8 +267,12 @@ export default function CalendarApp() {
             const startTimeMinutes = hours * 60 + minutes;
             setStartTime(startTimeMinutes)
             setEndTime(startTimeMinutes + 60)
+            displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly, TimeOnly, Temporal.PlainTime.from(clickInfo.dateStr).add({minutes: 60}).toString())
+
+        } else {
+            displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly)
         }
-        displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly)
+
 
     }
 
