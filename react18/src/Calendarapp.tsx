@@ -80,13 +80,33 @@ export default function CalendarApp() {
         setMinibar(false)
     }
 
+    function displayNewEventPlaceholder(clickInfo: CalendarApi, startDate: string, endDate: string) {
+        const calendar = clickInfo.view.calendar
+
+        // Remove the previous temporary banner.
+        calendar.getEventById('draft-event')?.remove()
+
+        if (clickInfo.view.type === 'dayGridMonth' || clickInfo.view.type === 'multiMonthYear') {
+            calendar.addEvent({
+                id: 'draft-event',
+                title: 'New Event',
+                start: startDate,
+                end: endDate,
+                allDay: true,
+                editable: false,
+            })
+        }
+    }
+
     function closePopup() {
         setIsPopOpen(false)
         setHighlightedRange(null)
         calendarApiRef.current?.unselect()
+        calendarApiRef.current?.getEventById('draft-event')?.remove()
     }
 
     function handleDateDrag(selectInfo: DateSelectInfo) {
+        //calendarApiRef.current = selectInfo.view.calendar
         setStartTime(9 * 60)
         setEndTime(10 * 60)
         console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
@@ -135,7 +155,10 @@ export default function CalendarApp() {
 
         // The custom range remains visible while FullCalendar's internal
         // selection is cleared so another drag can begin normally.
-        selectInfo.view.calendar.unselect()
+        if (currentView === 'dayGridMonth' || currentView === "multiMonthYear") {
+            selectInfo.view.calendar.unselect()
+        }
+        displayNewEventPlaceholder(selectInfo.view.calendar, startDateOnly, endDateOnly)
     }
 
     function handleEventClick(selectInfo: EventClickInfo) {
@@ -177,6 +200,11 @@ export default function CalendarApp() {
 
         const daysBetween = Temporal.PlainDate.from(startDate).until(endDate).days
         setDateList(createDateList(startDate, daysBetween))
+        const currentView = selectInfo.view.type;
+        if (currentView === 'dayGridMonth' || currentView === "monthGridYear") {
+            selectInfo.view.calendar.unselect()
+
+        }
     }
 
     function handleEvents() {
@@ -185,6 +213,7 @@ export default function CalendarApp() {
     }
 
     function handleDateClick(clickInfo: DateClickInfo) {
+
         setStartTime(9 * 60)
         setEndTime(10 * 60)
         console.log("Single date:", clickInfo.dateStr)
@@ -215,6 +244,8 @@ export default function CalendarApp() {
             setStartTime(startTimeMinutes)
             setEndTime(startTimeMinutes + 60)
         }
+        displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly)
+
     }
 
     return (
