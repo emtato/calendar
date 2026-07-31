@@ -70,6 +70,9 @@ export default function CalendarApp() {
     const [customTimeStart, setCustomTimeStart] = useState(0)
     const [customTimeEnd, setCustomTimeEnd] = useState(0)
 
+    const [title, setTitle] = useState("")
+    const [description, setDescription] = useState("")
+
     const justDragged = useRef(false)
 
     function closeBigBar() {
@@ -148,6 +151,8 @@ export default function CalendarApp() {
         let temp = String(Temporal.PlainDate.from(endDateOnly))
 
         if (currentView === 'dayGridMonth' || currentView === "multiMonthYear") {
+            setTitle("")
+            setDescription("")
             if (startDateOnly === endDateOnly) {
                 setEndTime(10 * 60)
             } else {
@@ -190,6 +195,11 @@ export default function CalendarApp() {
         setPopupPos({x: selectInfo.jsEvent?.clientX + 40, y: selectInfo.jsEvent?.clientY,});
         console.log("loc " + selectInfo.jsEvent.clientX)
 
+        //display info: title
+        const title = selectInfo.event.title;
+        setTitle(title)
+
+        //display info: start, end time and date
         const startDate = Temporal.PlainDate.from(selectInfo.event.startStr).toString();
         let endDate = selectInfo.event.endStr ? Temporal.PlainDate.from(selectInfo.event.endStr).toString() : startDate;
 
@@ -228,6 +238,11 @@ export default function CalendarApp() {
             selectInfo.view.calendar.unselect()
 
         }
+        //display info: description
+        setDescription(selectInfo.event.extendedProps.description)
+        //display info: location TODO
+
+
     }
 
     function handleEvents() {
@@ -241,6 +256,8 @@ export default function CalendarApp() {
         }
         setStartTime(9 * 60)
         setEndTime(10 * 60)
+        setTitle("")
+        setDescription("")
         console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
         setPopupPos({x: clickInfo.jsEvent?.clientX + 40, y: clickInfo.jsEvent?.clientY,});
@@ -328,6 +345,8 @@ export default function CalendarApp() {
                 initialStartTime={startTime}
                 initialEndTime={endTime}
                 generateSpecificTimeOption={[customTimeStart, customTimeEnd]}
+                titleText={title}
+                descriptionText={description}
 
             />
             <Sidebar isOpen={isSidebar} onClose={closeBigBar}

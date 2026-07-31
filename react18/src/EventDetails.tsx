@@ -67,6 +67,8 @@ interface PopupInfo { // describes the information the component expects
     initialStartTime: number;
     initialEndTime: number;
     generateSpecificTimeOption: number[];
+    titleText: string;
+    descriptionText: string;
 
 }
 
@@ -89,6 +91,8 @@ export default function Popup({
                                   initialStartTime,
                                   initialEndTime,
                                   generateSpecificTimeOption,
+                                  titleText,
+                                  descriptionText,
                               }: PopupInfo) {
     const [calendarType, setCalendarType] = useState('default')
     const [startTime, setStartTime] = useState(initialStartTime)
@@ -96,10 +100,10 @@ export default function Popup({
     const [selectedStartDate, setSelectedStartDate] = useState(startDate)
     const [selectedEndDate, setSelectedEndDate] = useState(endDate)
     const [location, setLocation] = useState('')
-    const [title, setTitle] = useState('')
+    const [title, setTitle] = useState(titleText)
     const [allday, setAllday] = useState(false)
     const [eventID, setEventID] = useState('')
-    const [description, setDescription] = useState('')
+    const [description, setDescription] = useState(descriptionText)
     const [timeOptionStart, setTimeOptionStart] = useState(generateSpecificTimeOption[0])
     const [timeOptionEnd, setTimeOptionEnd] = useState(generateSpecificTimeOption[1])
 
@@ -206,6 +210,8 @@ export default function Popup({
     function closePopup() {
         setStartTime(DEFAULT_START_TIME)
         setEndTime(DEFAULT_END_TIME)
+        setTitle("")
+        setDescription("")
         onClose();
     }
 
@@ -236,13 +242,17 @@ export default function Popup({
             setSelectedEndDate(endDate);
             setStartTime(initialStartTime);
             setEndTime(initialEndTime);
+            setTitle(titleText);
+            setDescription(descriptionText);
         }
     }, [
         isOpen,
         startDate,
         endDate,
         initialStartTime,
-        initialEndTime
+        initialEndTime,
+        titleText,
+        descriptionText,
     ]);
 
     useEffect(() => {
@@ -453,7 +463,12 @@ export default function Popup({
                         </div>
                         <div className="form-row">
                             <span className="row-icon row-icon-shift-left">☰</span>
-                            <span className="secondary-text">Add description</span>
+                            <input
+                                value={description}
+                                className="description-input"
+                                placeholder="Add description"
+                                onChange={(event) => setDescription(event.target.value)}
+                            />
                         </div>
                     </div>
                     <div className="popup-actions">
