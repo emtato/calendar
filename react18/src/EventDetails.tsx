@@ -112,12 +112,12 @@ export default function Popup({
 
     const [locationModified, setLocationModified] = useState(false)
 
-
     const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
     const selectedCalendar = CALENDAR_OPTIONS.find(
         (calendar) => calendar.value === calendarType
     ) ?? CALENDAR_OPTIONS[0]
 
+    calcPopPosition()
     let endTimeOptions = []
     if (selectedStartDate < selectedEndDate) {
         endTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY, 15, timeOptionEnd)
@@ -168,6 +168,35 @@ export default function Popup({
         }, 1500);
     }
 
+    //calculate popup position
+    function calcPopPosition() {
+        const windowX = window.innerWidth
+        const windowY = window.innerHeight
+        let desiredX = position.x + 40
+        let desiredY = position.y - 120
+
+        const popupwdith = 0.30 * windowX
+        const popupHeight = 0.55 * windowY
+
+        const XrightEdge = desiredX + popupwdith
+        const YBottomEdge = desiredY + popupHeight
+
+
+        if (XrightEdge > windowX) {
+            //work backwards to calculate actual starting point
+            //desiredX = windowX-windowX*0.28 - 40
+            desiredX = windowX * 0.70 - 45
+            position.x = desiredX
+            console.log("cropped")
+        }
+        if (YBottomEdge > windowY) {
+            desiredY = windowY * 0.45 + 115
+            position.y = desiredY
+        }
+        console.log("popup position calculated", )
+    }
+
+    // process end time selection
     function checkTime(time: string) {
         const selectedTime = Number(time)
         let nextEndTime = selectedTime
@@ -364,7 +393,7 @@ export default function Popup({
                                     </select>
                                     <span className="range-separator">-</span>
                                     <select
-                                        className="date-input"
+                                        className="date-input end-date-input"
                                         value={selectedEndDate}
                                         onChange={(event) => {
                                             const nextEndDate = event.target.value
@@ -380,6 +409,11 @@ export default function Popup({
                                             </option>
                                         ))}
                                     </select>
+                                    <label className="all-day-option"
+                                   onClick={() => setAllday(!allday)}>
+                                <input type="checkbox"/>
+                                <span>All day</span>
+                            </label>
                                 </div>
                                 <div className="date-range">
                                     <span className="time-select-with-edit">
@@ -426,11 +460,6 @@ export default function Popup({
                                 </div>
                                 <div className="secondary-text">Does not repeat</div>
                             </div>
-                            <label className="all-day-option"
-                                   onClick={() => setAllday(!allday)}>
-                                <input type="checkbox"/>
-                                <span>All day</span>
-                            </label>
                         </div>
                         <div className="form-row">
                             <span className="row-icon">♙</span>

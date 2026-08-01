@@ -142,7 +142,7 @@ export default function CalendarApp() {
         setIsPopOpen(true)
         if (selectInfo.jsEvent) {
             setPopupPos({
-                x: selectInfo.jsEvent.clientX + 40,
+                x: selectInfo.jsEvent.clientX,
                 y: selectInfo.jsEvent.clientY,
             })
         }
@@ -192,7 +192,7 @@ export default function CalendarApp() {
     function handleEventClick(selectInfo: EventClickInfo) {
         console.log("clicked event")
         setIsPopOpen(true)
-        setPopupPos({x: selectInfo.jsEvent?.clientX + 40, y: selectInfo.jsEvent?.clientY,});
+        setPopupPos({x: selectInfo.jsEvent?.clientX, y: selectInfo.jsEvent?.clientY,});
         console.log("loc " + selectInfo.jsEvent.clientX)
 
         //display info: title
@@ -260,7 +260,7 @@ export default function CalendarApp() {
         setDescription("")
         console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
-        setPopupPos({x: clickInfo.jsEvent?.clientX + 40, y: clickInfo.jsEvent?.clientY,});
+        setPopupPos({x: clickInfo.jsEvent?.clientX, y: clickInfo.jsEvent?.clientY});
         console.log("loc " + clickInfo.jsEvent.clientX)
 
         const dateOnly = Temporal.PlainDate.from(clickInfo.dateStr).toString();

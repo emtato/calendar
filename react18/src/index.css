@@ -217,8 +217,9 @@ b { /* used for event dates/times */
 
 .event-popup {
     position: fixed;
-    width: 28vw;
-    height: 50vh;
+    width: 30vw;
+    height: 55vh;
+    box-sizing: border-box;
     padding: 28px 28px 24px;
     border: 1px solid #dadce0;
     border-radius: 30px;
@@ -289,10 +290,10 @@ b { /* used for event dates/times */
 
 .form-row {
     display: grid;
-    grid-template-columns: 48px minmax(0, 1fr) auto;
+    grid-template-columns: 32px minmax(0, 1fr) auto;
     align-items: center;
     min-height: 48px;
-    gap: 12px;
+    gap: 8px;
 }
 
 .row-icon {
@@ -358,7 +359,7 @@ b { /* used for event dates/times */
 }
 
 .time-input {
-    width: 85px;
+    width: 81px;
     border: none;
     background: transparent;
     color: inherit;
@@ -368,7 +369,7 @@ b { /* used for event dates/times */
 .time-select-with-edit {
     display: inline-flex;
     align-items: center;
-    gap: 5px;
+    gap: 2px;
 }
 
 .time-edit-icon {
@@ -389,7 +390,11 @@ b { /* used for event dates/times */
 }
 
 .range-separator {
-    margin-right: 0.25em;
+    margin-right: 0;
+}
+
+.end-date-input {
+    margin-right: 10px;
 }
 
 .all-day-option {
