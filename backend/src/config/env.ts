@@ -1,12 +1,5 @@
 /**
- * Environment configuration.
- *
- * Read process.env only here, then export typed application settings. This
- * prevents environment-variable names and fallback values from spreading
- * throughout the backend.
- *
- * Secrets belong in a local .env file or deployment environment, never in Git.
- * As you add required values, fail early with a clear message when one is absent.
+ * provides one central place for environment-dependent settings, import this file isntead of reading env
  */
 function readPort(value: string | undefined): number {
     const port = Number(value ?? 5001);

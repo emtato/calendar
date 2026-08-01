@@ -7,18 +7,14 @@
  */
 import {Router} from "express";
 import {
-    createEvent,
-    listEvents,
+    handleCreateEvent,
+    handleListEvents,
 } from "../controllers/events.controller";
 
 export const eventsRouter = Router();
 
 // GET /api/events
-eventsRouter.get("/", listEvents);
+eventsRouter.get("/", handleListEvents);
 
 // POST /api/events
-eventsRouter.post("/", createEvent);
-
-// Temporary compatibility route used by the current frontend. Prefer
-// POST /api/events for new code, then remove this alias after updating it.
-eventsRouter.post("/save", createEvent);
+eventsRouter.post("/", handleCreateEvent);

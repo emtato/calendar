@@ -46,7 +46,7 @@ export async function saveCalendarEvent(event: {
     endDate: string;
     allDay: boolean;
     extendedProps: { location: string; description: string }}) {
-    const response = await fetch(`${SERVER_URL}/api/events/save`, {
+    const response = await fetch(`${SERVER_URL}/api/events/`, {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'

@@ -10,6 +10,6 @@
  * operations. Convert database documents to domain types before returning.
  */
 
-export const eventRepository = {
+export const eventStorage = {
     // Add MongoDB-backed event operations here.
 };

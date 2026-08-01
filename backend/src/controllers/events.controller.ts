@@ -12,15 +12,17 @@
 import testEvents from "../testEvents.json";
 import {calendarService} from "../services/calendar.service";
 
-export async function listEvents(_request: any, response: any) {
-    // Temporary data source. Replace this call with calendarService.listEvents()
-    // once the MongoDB repository is connected.
+export async function handleListEvents(_request: any, response: any) {
     response.json(testEvents);
 }
 
-export async function createEvent(request: any, response: any) {
+export async function handleCreateEvent(request: any, response: any) {
     // The controller passes input inward. The service decides how Gemini and
     // MongoDB participate in creating the event.
     const event = await calendarService.createEvent(request.body);
     response.status(201).json(event);
 }
+export async function deleteEvent(_request: any, response: any) {
+
+}
+

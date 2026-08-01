@@ -3,9 +3,6 @@
  *
  * Create one MongoClient for the process and reuse it. Opening a new connection
  * inside every request handler is slow and can exhaust database connections.
- *
- * This file should manage connecting and returning a `Db`. Collection-specific
- * queries still belong in repositories/event.repository.ts.
  */
 import {Db, MongoClient} from "mongodb";
 import {env} from "./env";
