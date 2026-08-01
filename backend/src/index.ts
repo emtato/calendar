@@ -1,41 +1,17 @@
-import express from "express";
-import {CalendarEvent} from "./CalendarEvent";
-import testEvents from "./testevents.json";
-
-const cors = require('cors');
-
-const app = express();
-const PORT = 5001;
-
-app.use(cors());
-app.use(express.json());
-
-app.get('/api/hello', (req, res) => {
-    res.send({message: 'hi :>'});
-});
-
-app.listen(PORT, () => {
-    console.log(`Backend listening on http://localhost:${PORT}`);
-});
-
-// yipeee
-/*
-req.method       "GET"
-req.path         "/api/hello"
-req.query        URL query parameters
-req.body         JSON body (for POST/PUT)
-req.headers      HTTP headers
+/**
+ * Process entry point.
+ *
+ * Keep this file small. Its job is to start the backend process:
+ * 1. read startup configuration;
+ * 2. connect required infrastructure (MongoDB later);
+ * 3. begin listening for HTTP requests.
+ *
+ * Routes and business rules do not belong here. Put Express setup in app.ts
+ * and calendar behavior in services/calendar.service.ts.
  */
+import {app} from "./app";
+import {env} from "./config/env";
 
-
-app.get('/api/events', (req, res) => {
-    console.log("got request")
-        res.send(testEvents);
-    //TODO
-})
-
-app.post('/api/events/save', (req, res) => {
-    console.log("got request")
-    res.send({message: 'i got it bud'});
-    console.log(req.body)
-})
+app.listen(env.port, () => {
+    console.log(`Backend listening on http://localhost:${env.port}`);
+});

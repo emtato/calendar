@@ -53,7 +53,7 @@ export async function saveCalendarEvent(event: {
         },
         body: JSON.stringify(event)
     })
-    console.log("received response", response)
+    console.log("saving event response", response)
 }
 
 

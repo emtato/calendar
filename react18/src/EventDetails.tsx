@@ -187,13 +187,11 @@ export default function Popup({
             //desiredX = windowX-windowX*0.28 - 40
             desiredX = windowX * 0.70 - 45
             position.x = desiredX
-            console.log("cropped")
         }
         if (YBottomEdge > windowY) {
             desiredY = windowY * 0.45 + 115
             position.y = desiredY
         }
-        console.log("popup position calculated", )
     }
 
     // process end time selection
@@ -301,11 +299,11 @@ export default function Popup({
         //selectedStartDate is event start date
         //selectedEndDate is event end date
         //allDay is event alldayness :3
+        //description is description
         //TODO: implement location and description select/text inputs
         //TODO: ID impementation
         const id = "id"
         const location = "location"
-        const description = "description"
         const event = {
             id: id,
             title: title,
@@ -320,6 +318,7 @@ export default function Popup({
             }
         }
         console.log("saving event")
+        console.log(event)
         saveCalendarEvent(event)
     }
 

@@ -1,23 +1,11 @@
-/*
-export interface CreateCalendarEventInput {
-    title: string;
-    startDate: string;   // "2026-07-25"
-    endDate: string;
-    startTime: string;  // "15:00"
-    endTime: string;
-    location?: string;
-    description?: string;
-}
-*/
-
-export interface CalendarEvent {
-    id: string;
-    title: string;
-    start: string;   // "2026-07-25"
-    end: string;
-    allday: boolean;
-    extendedProps: {
-        location?: string;
-        description?: string;
-    }
-}
+/**
+ * Compatibility export.
+ *
+ * New code should import event types from `domain/calendar-event`. This file
+ * remains temporarily so older imports do not break while the backend is being
+ * reorganized. Delete it after all imports use the new location.
+ */
+export type {
+    CalendarEvent,
+    CreateCalendarEventInput,
+} from "./domain/calendar-event";
