@@ -14,6 +14,7 @@ import {calendarService} from "../services/calendar.service";
 
 export async function handleListEvents(_request: any, response: any) {
     response.json(testEvents);
+    //call getEvents
 }
 
 export async function handleCreateEvent(request: any, response: any) {

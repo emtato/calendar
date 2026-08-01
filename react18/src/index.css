@@ -350,7 +350,7 @@ b { /* used for event dates/times */
 }
 
 .date-input {
-    width: 100px;
+    width: 105px;
     border: none;
     background: transparent;
     color: inherit;

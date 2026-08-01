@@ -17,22 +17,18 @@ import type {
     CreateCalendarEventInput,
 } from "../domain/calendar-event";
 
-async function createEvent(
-    input: CreateCalendarEventInput,
-): Promise<CalendarEvent> {
+async function createEvent(input: CreateCalendarEventInput,) : Promise<CalendarEvent> {
     // Temporary result so the new structure remains runnable. Replace this
-    // with calls to geminiService and eventRepository as you build each layer.
-    return {
-        id: input.id ?? crypto.randomUUID(),
-        title: input.title,
-        start: input.start,
-        end: input.end,
-        allDay: input.allDay ?? false,
-        extendedProps: {
-            location: input.location,
-            description: input.description,
-        },
-    };
+
+
+    return
+}
+
+async function getEvents(id: string): Promise<CalendarEvent> {
+    return
+}
+async function deleteEvent(id: string): Promise<void> {
+
 }
 
 export const calendarService = {
