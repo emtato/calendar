@@ -72,6 +72,7 @@ export default function CalendarApp() {
 
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
+    const [id, setId] = useState("")
 
     const justDragged = useRef(false)
 
@@ -153,6 +154,7 @@ export default function CalendarApp() {
         if (currentView === 'dayGridMonth' || currentView === "multiMonthYear") {
             setTitle("")
             setDescription("")
+            setId("")
             if (startDateOnly === endDateOnly) {
                 setEndTime(10 * 60)
             } else {
@@ -198,6 +200,7 @@ export default function CalendarApp() {
         //display info: title
         const title = selectInfo.event.title;
         setTitle(title)
+        setId(selectInfo.event.id)
 
         //display info: start, end time and date
         const startDate = Temporal.PlainDate.from(selectInfo.event.startStr).toString();
@@ -258,6 +261,7 @@ export default function CalendarApp() {
         setEndTime(10 * 60)
         setTitle("")
         setDescription("")
+        setId("")
         console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
         setPopupPos({x: clickInfo.jsEvent?.clientX, y: clickInfo.jsEvent?.clientY});
@@ -289,8 +293,6 @@ export default function CalendarApp() {
         } else {
             displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly)
         }
-
-
     }
 
     return (
@@ -347,6 +349,7 @@ export default function CalendarApp() {
                 generateSpecificTimeOption={[customTimeStart, customTimeEnd]}
                 titleText={title}
                 descriptionText={description}
+                id={id}
 
             />
             <Sidebar isOpen={isSidebar} onClose={closeBigBar}

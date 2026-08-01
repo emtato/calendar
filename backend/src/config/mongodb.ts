@@ -21,7 +21,7 @@ export async function getDatabase(): Promise<Db> {
 
     client = new MongoClient(env.mongoUri);
     await client.connect();
-    database = client.db(env.mongoDatabase);
+    database = client.db();
 
     return database;
 }

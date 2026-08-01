@@ -20,8 +20,9 @@ export async function handleListEvents(_request: any, response: any) {
 export async function handleCreateEvent(request: any, response: any) {
     // The controller passes input inward. The service decides how Gemini and
     // MongoDB participate in creating the event.
-    const event = await calendarService.createEvent(request.body);
+    const event = await calendarService.saveEvent(request.body);
     response.status(201).json(event);
+    return event;
 }
 export async function deleteEvent(_request: any, response: any) {
 

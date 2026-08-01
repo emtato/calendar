@@ -1,5 +1,6 @@
 import type {
     CalendarEvent,
+    SaveCalendarEventInput,
 } from "../../../backend/src/CalendarEvent";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
@@ -37,15 +38,7 @@ export async function getCalendarEventById(eventId: string): Promise<CalendarEve
  * `event`: the user-entered information for the new event
  * Returns: the saved event, including the ID assigned by the backend
  */
-export async function saveCalendarEvent(event: {
-    id: string;
-    title: string;
-    startTime: number;
-    endTime: number;
-    startDate: string;
-    endDate: string;
-    allDay: boolean;
-    extendedProps: { location: string; description: string }}) {
+export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<CalendarEvent> {
     const response = await fetch(`${SERVER_URL}/api/events/`, {
         method: 'POST',
         headers: {
@@ -54,6 +47,7 @@ export async function saveCalendarEvent(event: {
         body: JSON.stringify(event)
     })
     console.log("saving event response", response)
+    return response.json() //return id inside the returned full calendarEvent object
 }
 
 

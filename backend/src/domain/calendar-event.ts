@@ -18,19 +18,16 @@ export interface CalendarEvent {
         description?: string;
     };
 }
-
-/**
- * Input accepted by the create-event use case.
- *
- * This can differ from CalendarEvent because the server may generate an ID and
- * may supply defaults. Add runtime validation before trusting request data.
- */
-export interface CreateCalendarEventInput {
-    id?: string;
+export interface SaveCalendarEventInput {
+    id: string;
     title: string;
-    start: string;
-    end: string;
-    allDay?: boolean;
-    location?: string;
-    description?: string;
+    startTime: number;
+    endTime: number;
+    startDate: string;
+    endDate: string;
+    allDay: boolean;
+    extendedProps: {
+        location: string;
+        description: string;
+    };
 }

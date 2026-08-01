@@ -1,8 +1,7 @@
 /**
  * Calendar use cases (the central backend logic).
  *
- * This is the coordination layer you were describing as "main." Put workflows
- * here, such as:
+ *  Put workflows here, such as:
  * 1. validate/normalize an incoming event;
  * 2. ask Gemini to extract missing fields;
  * 3. combine user-provided and extracted values;
@@ -12,25 +11,67 @@
  * Keep HTTP objects (`request`, `response`) out of this file. Also avoid raw
  * MongoDB calls and Gemini SDK calls; those belong behind their own adapters.
  */
-import type {
-    CalendarEvent,
-    CreateCalendarEventInput,
+import {
+    CalendarEvent, SaveCalendarEventInput,
 } from "../domain/calendar-event";
+import {eventStorage} from "../repositories/event.storage";
+import {randomUUID} from "node:crypto";
 
-async function createEvent(input: CreateCalendarEventInput,) : Promise<CalendarEvent> {
-    // Temporary result so the new structure remains runnable. Replace this
-
-
-    return
+async function saveEvent(input: SaveCalendarEventInput,): Promise<CalendarEvent> {
+    //TODO: gemini first pass layer to extract advanced location/time data first
+    if (input.id == "") { //new event
+            input.id = randomUUID();
+        const event = ConvertToCalendarEvent(input);
+        eventStorage.createEvent(event)
+        return event;
+    } //preixisting event being saved
+    const event = ConvertToCalendarEvent(input);
+    eventStorage.saveEvent(event)
+    return event
 }
 
 async function getEvents(id: string): Promise<CalendarEvent> {
     return
 }
+
 async function deleteEvent(id: string): Promise<void> {
 
 }
 
+function convertTime(Date: string, Time: number): string {
+    let [H, M, S] = ["00", "00", "00"];
+    while (Time > 60) {
+        Time -= 60;
+        H += 1
+    }
+    while (Time > 0) {
+        Time -= 1;
+        M += 1
+    }
+    const TimeFormatted = H + ":" + M + ":" + S;
+    const combinedStart = Date + "T" + TimeFormatted;
+    return combinedStart;
+}
+
+function ConvertToCalendarEvent(input: SaveCalendarEventInput): CalendarEvent {
+    const combinedStart = convertTime(input.startDate, input.startTime);
+    const combinedEnd = convertTime(input.endDate, input.endTime);
+
+    const event: CalendarEvent = {
+        id: input.id,
+        title: input.title,
+        start: combinedStart,
+        end: combinedEnd,
+        allDay: input.allDay,
+        extendedProps: {
+            location: input.extendedProps.location,
+            description: input.extendedProps.description,
+        },
+    };
+    return event;
+
+}
+
 export const calendarService = {
-    createEvent,
+    saveEvent, getEvents, deleteEvent
 };

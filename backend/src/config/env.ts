@@ -14,6 +14,5 @@ function readPort(value: string | undefined): number {
 export const env = {
     port: readPort(process.env.PORT),
     mongoUri: process.env.MONGODB_URI,
-    mongoDatabase: process.env.MONGODB_DATABASE ?? "calendar",
     geminiApiKey: process.env.GEMINI_API_KEY,
 };

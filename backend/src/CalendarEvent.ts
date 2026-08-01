@@ -7,5 +7,5 @@
  */
 export type {
     CalendarEvent,
-    CreateCalendarEventInput,
+    SaveCalendarEventInput,
 } from "./domain/calendar-event";

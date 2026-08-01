@@ -69,6 +69,7 @@ interface PopupInfo { // describes the information the component expects
     generateSpecificTimeOption: number[];
     titleText: string;
     descriptionText: string;
+    id: string;
 
 }
 
@@ -93,6 +94,7 @@ export default function Popup({
                                   generateSpecificTimeOption,
                                   titleText,
                                   descriptionText,
+                                  id,
                               }: PopupInfo) {
     const [calendarType, setCalendarType] = useState('default')
     const [startTime, setStartTime] = useState(initialStartTime)
@@ -102,7 +104,7 @@ export default function Popup({
     const [location, setLocation] = useState('')
     const [title, setTitle] = useState(titleText)
     const [allday, setAllday] = useState(false)
-    const [eventID, setEventID] = useState('')
+    const [eventID, setEventID] = useState(id)
     const [description, setDescription] = useState(descriptionText)
     const [timeOptionStart, setTimeOptionStart] = useState(generateSpecificTimeOption[0])
     const [timeOptionEnd, setTimeOptionEnd] = useState(generateSpecificTimeOption[1])
@@ -165,7 +167,7 @@ export default function Popup({
         titleCleanupTimer.current = setTimeout(() => {
             setTitle(returnTitle);
             titleCleanupTimer.current = null;
-        }, 1500);
+        }, 967);
     }
 
     //calculate popup position
@@ -239,6 +241,7 @@ export default function Popup({
         setEndTime(DEFAULT_END_TIME)
         setTitle("")
         setDescription("")
+        setEventID("")
         onClose();
     }
 
@@ -302,7 +305,6 @@ export default function Popup({
         //description is description
         //TODO: implement location and description select/text inputs
         //TODO: ID impementation
-        const id = "id"
         const location = "location"
         const event = {
             id: id,
@@ -317,7 +319,7 @@ export default function Popup({
                 description: description,
             }
         }
-        console.log("saving event")
+        console.log("saving event with id", id)
         console.log(event)
         saveCalendarEvent(event)
     }
@@ -409,10 +411,10 @@ export default function Popup({
                                         ))}
                                     </select>
                                     <label className="all-day-option"
-                                   onClick={() => setAllday(!allday)}>
-                                <input type="checkbox"/>
-                                <span>All day</span>
-                            </label>
+                                           onClick={() => setAllday(!allday)}>
+                                        <input type="checkbox"/>
+                                        <span>All day</span>
+                                    </label>
                                 </div>
                                 <div className="date-range">
                                     <span className="time-select-with-edit">

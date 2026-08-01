@@ -9,7 +9,47 @@
  * Import `getDatabase()` from config/mongodb.ts when implementing these
  * operations. Convert database documents to domain types before returning.
  */
+import mongodb from "mongodb";
+import {CalendarEvent, SaveCalendarEventInput} from "../domain/calendar-event";
+import {getDatabase} from "../config/mongodb";
 
 export const eventStorage = {
-    // Add MongoDB-backed event operations here.
+    saveEvent,
+    createEvent,
+    deleteEvent,
+    getEvents,
 };
+
+function getEvents(start: string, end: string) {
+
+}
+
+async function saveEvent(event: CalendarEvent) {
+    const db = await getDatabase()
+    const eventsCollection = db.collection<CalendarEvent>("events");
+
+    const result = await eventsCollection.updateOne(
+        {id: event.id},
+        { //whcih fields to update
+            $set: {
+                title: event.title,
+                start: event.start,
+                end: event.end,
+                allDay: event.allDay,
+                extendedProps: event.extendedProps,
+            },
+        },
+    );
+    return result;
+}
+
+async function createEvent(event: CalendarEvent) {
+    const db = await getDatabase()
+    const eventsCollection = db.collection<CalendarEvent>("events");
+
+    const result = await eventsCollection.insertOne(event);
+    return result;
+}
+
+function deleteEvent(id: string) {
+}
