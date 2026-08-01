@@ -20,7 +20,7 @@ import {randomUUID} from "node:crypto";
 async function saveEvent(input: SaveCalendarEventInput,): Promise<CalendarEvent> {
     //TODO: gemini first pass layer to extract advanced location/time data first
     if (input.id == "") { //new event
-            input.id = randomUUID();
+        input.id = randomUUID();
         const event = ConvertToCalendarEvent(input);
         eventStorage.createEvent(event)
         return event;
@@ -39,16 +39,13 @@ async function deleteEvent(id: string): Promise<void> {
 }
 
 function convertTime(Date: string, Time: number): string {
-    let [H, M, S] = ["00", "00", "00"];
-    while (Time > 60) {
-        Time -= 60;
-        H += 1
-    }
-    while (Time > 0) {
-        Time -= 1;
-        M += 1
-    }
-    const TimeFormatted = H + ":" + M + ":" + S;
+    const H = Math.floor(Time / 60);
+    const M = Time % 60;
+    const S = "00"
+    const HFormatted = H.toString().padStart(2, "0");
+    const MFormatted = M.toString().padStart(2, "0");
+
+    const TimeFormatted = HFormatted + ":" + MFormatted + ":" + S;
     const combinedStart = Date + "T" + TimeFormatted;
     return combinedStart;
 }
