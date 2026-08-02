@@ -247,8 +247,12 @@ export default function Popup({
     function handleStartTimeChange(nextStartTime: number) {
         // setStartTimeModified(true)
         console.log("start time changed to " + nextStartTime)
-        const defaultEndTime = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
-
+        let defaultEndTime = 0
+        if (nextStartTime % 15 != 0) {
+            defaultEndTime = getNextFullHour(nextStartTime);
+        } else {
+            defaultEndTime = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
+        }
         setStartTime(nextStartTime)
         //conditions for modifying end time:
         /*
@@ -259,10 +263,19 @@ export default function Popup({
             setEndTime(defaultEndTime)
         }
 
-        if (defaultEndTime % MINUTES_PER_DAY === 0 && selectedEndDate) {
+        if (defaultEndTime % MINUTES_PER_DAY === 0 && selectedEndDate && selectedStartDate === selectedEndDate && (!endTimeModified || endTime < nextStartTime)) {
             const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString()
             setSelectedEndDate(nextEndDate)
             setEndTime(0)
+        }
+    }
+
+    function handleEndTimeChange(nextEndTime: number) {
+        setEndTimeModified(true)
+        setEndTime(nextEndTime);
+
+        if (nextEndTime < startTime && selectedStartDate == selectedEndDate) {
+            setStartTime(nextEndTime)
         }
     }
 
@@ -273,6 +286,7 @@ export default function Popup({
         setDescription("")
         setEventID("")
         setAllday(false)
+        setEndTimeModified(false);
         onClose();
     }
 
@@ -477,10 +491,17 @@ export default function Popup({
                                     </span>
                                     <span className="range-separator">-</span>
                                     <span className="time-select-with-edit">
-                                        <span className="time-combobox-placeholder" aria-hidden="true"/>
+                                        <TimeComboBox
+                                            value={endTime}
+                                            options={startTimeOptions}
+                                            onChange={handleEndTimeChange}
+                                            ariaLabel="End time"
+                                            ampm={getAmPm(endTime)}
+                                        />
                                         <button
                                             className="time-period-toggle"
                                             type="button"
+                                            disabled={selectedStartDate === selectedEndDate && toggleAmPm(endTime) < startTime}
                                             aria-label="Toggle end time AM or PM"
                                             onClick={() => {
                                                 setEndTimeModified(true)
