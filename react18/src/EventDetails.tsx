@@ -70,6 +70,7 @@ interface PopupInfo { // describes the information the component expects
     titleText: string;
     descriptionText: string;
     id: string;
+    allDay: boolean;
 
 }
 
@@ -95,6 +96,7 @@ export default function Popup({
                                   titleText,
                                   descriptionText,
                                   id,
+                                  allDay,
                               }: PopupInfo) {
     const [calendarType, setCalendarType] = useState('default')
     const [startTime, setStartTime] = useState(initialStartTime)
@@ -103,7 +105,7 @@ export default function Popup({
     const [selectedEndDate, setSelectedEndDate] = useState(endDate)
     const [location, setLocation] = useState('')
     const [title, setTitle] = useState(titleText)
-    const [allday, setAllday] = useState(false)
+    const [allday, setAllday] = useState(allDay)
     const [eventID, setEventID] = useState(id)
     const [description, setDescription] = useState(descriptionText)
     const [timeOptionStart, setTimeOptionStart] = useState(generateSpecificTimeOption[0])
@@ -242,6 +244,7 @@ export default function Popup({
         setTitle("")
         setDescription("")
         setEventID("")
+        setAllday(false)
         onClose();
     }
 
@@ -274,6 +277,8 @@ export default function Popup({
             setEndTime(initialEndTime);
             setTitle(titleText);
             setDescription(descriptionText);
+            setAllday(allDay);
+            setEventID(id);
         }
     }, [
         isOpen,
@@ -283,6 +288,8 @@ export default function Popup({
         initialEndTime,
         titleText,
         descriptionText,
+        allDay,
+        id,
     ]);
 
     useEffect(() => {
@@ -410,9 +417,14 @@ export default function Popup({
                                             </option>
                                         ))}
                                     </select>
-                                    <label className="all-day-option"
-                                           onClick={() => setAllday(!allday)}>
-                                        <input type="checkbox"/>
+                                    <label className="all-day-option">
+                                        <input
+                                            type="checkbox"
+                                            checked={allday}
+                                            onChange={(event) => {
+                                                setAllday(event.target.checked);
+                                            }}
+                                        />
                                         <span>All day</span>
                                     </label>
                                 </div>

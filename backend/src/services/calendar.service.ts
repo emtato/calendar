@@ -19,6 +19,10 @@ import {randomUUID} from "node:crypto";
 
 async function saveEvent(input: SaveCalendarEventInput,): Promise<CalendarEvent> {
     //TODO: gemini first pass layer to extract advanced location/time data first
+    if(input.allDay){
+        input.endDate = addOneDay(input.endDate)
+    }
+    console.log("input in saveEvent", input)
     if (input.id == "") { //new event
         input.id = randomUUID();
         const event = ConvertToCalendarEvent(input);
@@ -32,11 +36,14 @@ async function saveEvent(input: SaveCalendarEventInput,): Promise<CalendarEvent>
 
 async function getEvents(start: string, end: string): Promise<CalendarEvent[]> {
     return eventStorage.getEvents(start, end)
+
 }
 
 async function deleteEvent(id: string): Promise<void> {
 
 }
+//                          helper functions
+// ————————————————————————————————————————————————————————————————————
 
 function convertTime(Date: string, Time: number): string {
     const H = Math.floor(Time / 60);
@@ -69,6 +76,14 @@ function ConvertToCalendarEvent(input: SaveCalendarEventInput): CalendarEvent {
 
 }
 
+//add one day to an all day event. Fullcalendar interprets exclusive end dates, while we display inclusive. re add 1 day to db so reinterpretation of the range is correct
+function addOneDay(date: string): string {
+    const value = new Date(`${date}T00:00:00Z`);
+    value.setUTCDate(value.getUTCDate() + 1);
+    return value.toISOString().slice(0, 10);
+}
+
 export const calendarService = {
     saveEvent, getEvents, deleteEvent
 };
+

@@ -75,6 +75,8 @@ export default function CalendarApp() {
     const [id, setId] = useState("")
 
     const justDragged = useRef(false)
+    const [allDay, setAllDay] = useState(false)
+
 
     function closeBigBar() {
         setSidebar(false)
@@ -121,7 +123,16 @@ export default function CalendarApp() {
         calendarApiRef.current?.getEventById('draft-event')?.remove()
     }
 
+    function resetStates() {
+        setTitle("")
+        setDescription("")
+        setId("")
+        setAllDay(false)
+    }
+
     function handleDateDrag(selectInfo: DateSelectInfo) {
+        resetStates()
+
         //prevent dragging from triggering date click
         justDragged.current = true
         setTimeout(() => {
@@ -152,9 +163,7 @@ export default function CalendarApp() {
         let temp = String(Temporal.PlainDate.from(endDateOnly))
 
         if (currentView === 'dayGridMonth' || currentView === "multiMonthYear") {
-            setTitle("")
-            setDescription("")
-            setId("")
+
             if (startDateOnly === endDateOnly) {
                 setEndTime(10 * 60)
             } else {
@@ -201,6 +210,7 @@ export default function CalendarApp() {
         const title = selectInfo.event.title;
         setTitle(title)
         setId(selectInfo.event.id)
+        setAllDay(selectInfo.event.allDay)
 
         //display info: start, end time and date
         const startDate = Temporal.PlainDate.from(selectInfo.event.startStr).toString();
@@ -218,6 +228,7 @@ export default function CalendarApp() {
             startTimeMinutes = starthours * 60 + startminutes;
             endTimeMinutes = endhours * 60 + endminutes;
         } else {
+            console.log(selectInfo.event.endStr)
             endDate = Temporal.PlainDate.from(selectInfo.event.endStr).subtract({days: 1}).toString();
             endTimeMinutes = 24 * 60 - 1; //set end time to 11:59 PM
         }
@@ -257,11 +268,11 @@ export default function CalendarApp() {
         if (justDragged.current) {
             return
         }
+                resetStates()
+
         setStartTime(9 * 60)
         setEndTime(10 * 60)
-        setTitle("")
-        setDescription("")
-        setId("")
+
         console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
         setPopupPos({x: clickInfo.jsEvent?.clientX, y: clickInfo.jsEvent?.clientY});
@@ -350,6 +361,7 @@ export default function CalendarApp() {
                 titleText={title}
                 descriptionText={description}
                 id={id}
+                allDay={allDay}
 
             />
             <Sidebar isOpen={isSidebar} onClose={closeBigBar}
