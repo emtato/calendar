@@ -367,6 +367,7 @@ export default function CalendarApp() {
                 descriptionText={description}
                 id={id}
                 allDay={allDay}
+                endTimeMod={false}
 
             />
             <Sidebar isOpen={isSidebar} onClose={closeBigBar}
