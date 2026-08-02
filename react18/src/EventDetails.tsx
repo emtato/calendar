@@ -3,6 +3,7 @@ import {useEffect} from "react";
 import {Temporal} from 'temporal-polyfill'
 import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extractor";
 import {saveCalendarEvent, deleteCalendarEvent, getCalendarEventById} from "./api/eventsAPI";
+import TimeComboBox from "./components/TimeComboBox";
 
 const CALENDAR_OPTIONS = [
     {value: 'default', label: 'Default', color: '#6F5FA7'},
@@ -52,6 +53,19 @@ function formatTime(minutesAfterMidnight: number) {
 function getNextFullHour(minutesAfterMidnight: number) {
     const nextFullHour = (Math.floor(minutesAfterMidnight / 60) + 1) * 60
     return Math.min(nextFullHour, MINUTES_PER_DAY)
+}
+
+function getAmPm(minutesAfterMidnight: number): 'AM' | 'PM' {
+    const normalizedMinutes = minutesAfterMidnight % MINUTES_PER_DAY
+    return normalizedMinutes < 12 * 60 ? 'AM' : 'PM'
+}
+
+function toggleAmPm(minutesAfterMidnight: number) {
+    console.log(minutesAfterMidnight)
+    const normalizedMinutes = minutesAfterMidnight % MINUTES_PER_DAY
+    return normalizedMinutes < 12 * 60
+        ? normalizedMinutes + 12 * 60
+        : normalizedMinutes - 12 * 60
 }
 
 interface PopupInfo { // describes the information the component expects
@@ -112,8 +126,9 @@ export default function Popup({
     const [eventID, setEventID] = useState(id)
     const [description, setDescription] = useState(descriptionText)
     const [timeOptionEnd, setTimeOptionEnd] = useState(generateSpecificTimeOption[1])
-
     const [endTimeModified, setEndTimeModified] = useState(false)
+
+
     //  const [startTimeModified, setStartTimeModified] = useState(false)//flag to check time changed manually -> overrides automatic time set from title analysis
 
     const [locationModified, setLocationModified] = useState(false)
@@ -147,7 +162,7 @@ export default function Popup({
         //these 3 fields will occupy the same space as the dropdown selected display
         //TODO: allow input of 24h time. if user's hour is 13 or more, it removes the AMPM toggle
         let nextStartTime = Number(hours) * 60 + Number(minutes)
-        if (AMPM === "PM") {
+        if (AMPM === "PM" && hours != "12") {
             nextStartTime += 12 * 60
         }
         setStartTime(nextStartTime)
@@ -228,9 +243,9 @@ export default function Popup({
         }
     }
 
-    function handleStartTimeChange(event: React.ChangeEvent<HTMLSelectElement>) {
+    function handleStartTimeChange(nextStartTime: number) {
         // setStartTimeModified(true)
-        const nextStartTime = Number(event.target.value)
+
         const defaultEndTime = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
 
         setStartTime(nextStartTime)
@@ -239,7 +254,7 @@ export default function Popup({
         1. if end time was never modified AND its same day
         2. if end time is earlier than start time AND its same day
          */
-        if ((selectedStartDate == selectedEndDate && !endTimeModified) || (endTime < startTime && selectedStartDate == selectedEndDate)) {
+        if ((selectedStartDate == selectedEndDate && !endTimeModified) || (endTime < nextStartTime && selectedStartDate == selectedEndDate)) {
             setEndTime(defaultEndTime)
         }
 
@@ -441,47 +456,39 @@ export default function Popup({
                                 </div>
                                 <div className="date-range">
                                     <span className="time-select-with-edit">
-                                    <select
-                                        className="time-input"
-                                        aria-label="Start time"
-                                        value={startTime}
-                                        onChange={handleStartTimeChange}
-                                    >
-                                        {startTimeOptions.map((minutes) => (
-                                            <option key={minutes} value={minutes}>
-                                                {formatTime(minutes)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                        <svg className="time-edit-icon" viewBox="0 0 24 24" aria-hidden="true"
-                                             onClick={editTimePressed}>
-                                            <path
-                                                d="m4 20 4.2-1 10.6-10.6a1.8 1.8 0 0 0 0-2.6l-.6-.6a1.8 1.8 0 0 0-2.6 0L5 15.8 4 20Z"/>
-                                            <path d="m14.5 6.3 3.2 3.2"/>
-
-                                        </svg>
+                                        <TimeComboBox
+                                            value={startTime}
+                                            options={startTimeOptions}
+                                            onChange={handleStartTimeChange}
+                                            ariaLabel="Start time"
+                                            ampm={getAmPm(startTime)}
+                                        />
+                                        <button
+                                            className="time-period-toggle"
+                                            type="button"
+                                            aria-label="Toggle start time AM or PM"
+                                            onClick={() => {
+                                                setStartTime((currentTime) => toggleAmPm(currentTime))
+                                            }
+                                            }
+                                        >
+                                            {getAmPm(startTime)}
+                                        </button>
                                     </span>
                                     <span className="range-separator">-</span>
                                     <span className="time-select-with-edit">
-                                    <select
-                                        className="time-input"
-                                        aria-label="End time"
-                                        value={endTime}
-                                        onChange={(event) => {
-                                            setEndTimeModified(true)
-                                            checkTime(event.target.value)
-                                        }}>
-                                        {endTimeOptions.map((minutes) => (
-                                            <option key={minutes} value={minutes}>
-                                                {formatTime(minutes)}
-                                            </option>
-                                        ))}
-                                    </select>
-                                        <svg className="time-edit-icon" viewBox="0 0 24 24" aria-hidden="true">
-                                            <path
-                                                d="m4 20 4.2-1 10.6-10.6a1.8 1.8 0 0 0 0-2.6l-.6-.6a1.8 1.8 0 0 0-2.6 0L5 15.8 4 20Z"/>
-                                            <path d="m14.5 6.3 3.2 3.2"/>
-                                        </svg>
+                                        <span className="time-combobox-placeholder" aria-hidden="true"/>
+                                        <button
+                                            className="time-period-toggle"
+                                            type="button"
+                                            aria-label="Toggle end time AM or PM"
+                                            onClick={() => {
+                                                setEndTimeModified(true)
+                                                setEndTime((currentTime) => toggleAmPm(currentTime))
+                                            }}
+                                        >
+                                            {getAmPm(endTime)}
+                                        </button>
                                     </span>
                                 </div>
                                 <div className="secondary-text">Does not repeat</div>

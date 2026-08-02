@@ -376,15 +376,45 @@ b { /* used for event dates/times */
     gap: 2px;
 }
 
-.time-edit-icon {
-    width: 14px;
-    height: 14px;
-    flex: 0 0 14px;
-    fill: none;
-    stroke: #5f6368;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
+.time-combobox-placeholder {
+    width: 81px;
+    height: 28px;
+    flex: 0 0 81px;
+}
+
+.time-period-toggle {
+    border: 0;
+    border-radius: 8px;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+}
+
+.time-period-toggle:hover {
+    background: #e0e3e7;
+}
+
+.time-period-toggle:focus-visible {
+    outline: 2px solid var(--event-color, #6f5fa7);
+    outline-offset: 1px;
+}
+
+/*.time-edit-icon {*/
+/*    width: 14px;*/
+/*    height: 14px;*/
+/*    flex: 0 0 14px;*/
+/*    fill: none;*/
+/*    stroke: #5f6368;*/
+/*    stroke-width: 1.8;*/
+/*    stroke-linecap: round;*/
+/*    stroke-linejoin: round;*/
+/*}*/
+
+.time-combobox-input{
+    width: 38px;
+    border: none;
+    font-size: 14px;
 }
 
 .date-range {
