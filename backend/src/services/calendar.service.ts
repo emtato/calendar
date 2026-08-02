@@ -30,8 +30,8 @@ async function saveEvent(input: SaveCalendarEventInput,): Promise<CalendarEvent>
     return event
 }
 
-async function getEvents(id: string): Promise<CalendarEvent> {
-    return
+async function getEvents(start: string, end: string): Promise<CalendarEvent[]> {
+    return eventStorage.getEvents(start, end)
 }
 
 async function deleteEvent(id: string): Promise<void> {

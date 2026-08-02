@@ -11,10 +11,17 @@
  */
 import testEvents from "../testEvents.json";
 import {calendarService} from "../services/calendar.service";
+import {CalendarEvent} from "../domain/calendar-event";
 
-export async function handleListEvents(_request: any, response: any) {
-    response.json(testEvents);
-    //call getEvents
+export async function handleListEvents(request: any, response: any): Promise<CalendarEvent[]> {
+
+    const startDate = request.query.start;
+    const endDate = request.query.end;
+    const events = await calendarService.getEvents(startDate, endDate)
+   // console.log("events in events controller", events)
+    response.status(200).json(events);
+
+    return events;
 }
 
 export async function handleCreateEvent(request: any, response: any) {
@@ -24,7 +31,8 @@ export async function handleCreateEvent(request: any, response: any) {
     response.status(201).json(event);
     return event;
 }
-export async function deleteEvent(_request: any, response: any) {
+
+export async function deleteEvent(request: any, response: any) {
 
 }
 

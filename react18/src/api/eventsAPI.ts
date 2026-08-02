@@ -13,7 +13,8 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL;
  * endStr is exclusive (Fullcalendar)
  */
 export async function getCalendarEvents(startDate: string, endDate: string): Promise<CalendarEvent[]> {
-    const response = await fetch(`${SERVER_URL}/api/events`);
+
+    const response = await fetch(    `${SERVER_URL}/api/events?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`)
     console.log("received response" + response)
     const events = await response.json();
     console.log("received events", events)

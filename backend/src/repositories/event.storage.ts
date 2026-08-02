@@ -20,8 +20,12 @@ export const eventStorage = {
     getEvents,
 };
 
-function getEvents(start: string, end: string) {
+async function getEvents(startDate: string, endDate: string): Promise<CalendarEvent[]> {
+    const db = await getDatabase();
+    const eventsCollection = db.collection<CalendarEvent>("events");
 
+    return eventsCollection.find({start: {$lt: endDate}, end: {$gt: startDate},}).toArray();
+    // any event end date that extends into the startDate range and any event start date that happens before endDate
 }
 
 async function saveEvent(event: CalendarEvent) {
