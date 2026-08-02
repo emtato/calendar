@@ -329,6 +329,11 @@ export default function CalendarApp() {
                     selectable={true}
                     selectMirror={true}
                     dayMaxEvents={true}
+                    singleMonthClass={(monthInfo) => { //fix small visual bug
+                        return monthInfo.multiMonthColumns === 0
+                            ? 'year-month-measuring'
+                            : ''
+                    }}
                     dayCellClass={(dayInfo) => {
                         const cellDate = toLocalDateString(dayInfo.date)
 

@@ -204,6 +204,10 @@ b { /* used for event dates/times */
     background-color: var(--fc-monarch-highlight) !important;
 }
 
+.year-month-measuring {
+    visibility: hidden;
+}
+
 /* ____________________________________________________
    Event popup section
    ____________________________________________________ */
