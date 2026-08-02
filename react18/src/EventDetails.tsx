@@ -49,7 +49,10 @@ function formatTime(minutesAfterMidnight: number) {
     return `${hour12}:${String(minutes).padStart(2, '0')} ${period}`
 }
 
-let START_TIME_OPTIONS = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30)
+function getNextFullHour(minutesAfterMidnight: number) {
+    const nextFullHour = (Math.floor(minutesAfterMidnight / 60) + 1) * 60
+    return Math.min(nextFullHour, MINUTES_PER_DAY)
+}
 
 interface PopupInfo { // describes the information the component expects
     /*
@@ -108,7 +111,6 @@ export default function Popup({
     const [allday, setAllday] = useState(allDay)
     const [eventID, setEventID] = useState(id)
     const [description, setDescription] = useState(descriptionText)
-    const [timeOptionStart, setTimeOptionStart] = useState(generateSpecificTimeOption[0])
     const [timeOptionEnd, setTimeOptionEnd] = useState(generateSpecificTimeOption[1])
 
     const [endTimeModified, setEndTimeModified] = useState(false)
@@ -122,17 +124,17 @@ export default function Popup({
     ) ?? CALENDAR_OPTIONS[0]
 
     calcPopPosition()
+    const startTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30, startTime % 30 !== 0 ? startTime : undefined,)
+
     let endTimeOptions = []
     if (selectedStartDate < selectedEndDate) {
         endTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY, 15, timeOptionEnd)
     } else {
-        endTimeOptions = generateTimeOptions(startTime, MINUTES_PER_DAY, 15, timeOptionEnd)
+        const firstEndTime = Math.ceil(startTime / 15) * 15
+        endTimeOptions = generateTimeOptions(firstEndTime, MINUTES_PER_DAY, 15, timeOptionEnd)
     }
     if (endTimeOptions[endTimeOptions.length - 1] !== MINUTES_PER_DAY) {
         endTimeOptions.push(MINUTES_PER_DAY)
-    }
-    if (timeOptionStart != 0) {
-        START_TIME_OPTIONS = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30, timeOptionStart)
     }
 
     function handleTitleInputChange([returnTime, returnLocation, returnTitle]: [string, string, string]) {
@@ -144,22 +146,12 @@ export default function Popup({
             console.log("time received " + returnTime)
             const [hours, minutes] = returnTime.split(":").map(Number)
 
-            START_TIME_OPTIONS = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30)
             const nextStartTime = hours * 60 + minutes
-            if (nextStartTime % 30 !== 0) { //chosen time isnt a multiple of 30 minutes
-                for (let i = 0; i < 49; i++) {
-                    if (nextStartTime - START_TIME_OPTIONS[i] < 30) { //were in the endgame now bitch
-                        i++
-                        START_TIME_OPTIONS.splice(i, 0, nextStartTime)
-                        break
-                    }
-                }
-            }
             setStartTime(nextStartTime)
-            const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
+            const defaultEndTime = getNextFullHour(nextStartTime)
 
             if (selectedStartDate == selectedEndDate) {
-                setEndTime(oneHourLater)
+                setEndTime(defaultEndTime)
             }
         }
         if (returnLocation != "") {
@@ -219,7 +211,7 @@ export default function Popup({
     function handleStartTimeChange(event: React.ChangeEvent<HTMLSelectElement>) {
         // setStartTimeModified(true)
         const nextStartTime = Number(event.target.value)
-        const oneHourLater = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
+        const defaultEndTime = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
 
         setStartTime(nextStartTime)
         //conditions for modifying end time:
@@ -228,10 +220,10 @@ export default function Popup({
         2. if end time is earlier than start time AND its same day
          */
         if ((selectedStartDate == selectedEndDate && !endTimeModified) || (endTime < startTime && selectedStartDate == selectedEndDate)) {
-            setEndTime(oneHourLater)
+            setEndTime(defaultEndTime)
         }
 
-        if (oneHourLater % MINUTES_PER_DAY === 0 && selectedEndDate) {
+        if (defaultEndTime % MINUTES_PER_DAY === 0 && selectedEndDate) {
             const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString()
             setSelectedEndDate(nextEndDate)
             setEndTime(0)
@@ -293,7 +285,6 @@ export default function Popup({
     ]);
 
     useEffect(() => {
-        setTimeOptionStart(generateSpecificTimeOption[0])
         setTimeOptionEnd(generateSpecificTimeOption[1])
     }, [generateSpecificTimeOption])
 
@@ -436,7 +427,7 @@ export default function Popup({
                                         value={startTime}
                                         onChange={handleStartTimeChange}
                                     >
-                                        {START_TIME_OPTIONS.map((minutes) => (
+                                        {startTimeOptions.map((minutes) => (
                                             <option key={minutes} value={minutes}>
                                                 {formatTime(minutes)}
                                             </option>
