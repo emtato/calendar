@@ -61,11 +61,12 @@ function getAmPm(minutesAfterMidnight: number): 'AM' | 'PM' {
 }
 
 function toggleAmPm(minutesAfterMidnight: number) {
-    console.log(minutesAfterMidnight)
+
     const normalizedMinutes = minutesAfterMidnight % MINUTES_PER_DAY
-    return normalizedMinutes < 12 * 60
-        ? normalizedMinutes + 12 * 60
-        : normalizedMinutes - 12 * 60
+    if (normalizedMinutes < 12 * 60) {
+        return normalizedMinutes + 12 * 60
+    }
+    return normalizedMinutes - 12 * 60
 }
 
 interface PopupInfo { // describes the information the component expects
@@ -245,7 +246,7 @@ export default function Popup({
 
     function handleStartTimeChange(nextStartTime: number) {
         // setStartTimeModified(true)
-
+        console.log("start time changed to " + nextStartTime)
         const defaultEndTime = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
 
         setStartTime(nextStartTime)
@@ -468,9 +469,8 @@ export default function Popup({
                                             type="button"
                                             aria-label="Toggle start time AM or PM"
                                             onClick={() => {
-                                                setStartTime((currentTime) => toggleAmPm(currentTime))
-                                            }
-                                            }
+                                                handleStartTimeChange(toggleAmPm(startTime));
+                                            }}
                                         >
                                             {getAmPm(startTime)}
                                         </button>
