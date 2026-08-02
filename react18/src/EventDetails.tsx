@@ -137,6 +137,26 @@ export default function Popup({
         endTimeOptions.push(MINUTES_PER_DAY)
     }
 
+    function editTimePressed() {
+        console.log("presed")
+    }
+
+    function handleUserTimeSpecification(hours: string, minutes: string, AMPM: string) {
+        //hours, minutes will be separate text fields
+        //AMPM will be a toggle that changes upon clicked
+        //these 3 fields will occupy the same space as the dropdown selected display
+        //TODO: allow input of 24h time. if user's hour is 13 or more, it removes the AMPM toggle
+        let nextStartTime = Number(hours) * 60 + Number(minutes)
+        if (AMPM === "PM") {
+            nextStartTime += 12 * 60
+        }
+        setStartTime(nextStartTime)
+        if (selectedStartDate == selectedEndDate) {
+            const defaultEndTime = getNextFullHour(nextStartTime)
+            setEndTime(defaultEndTime)
+        }
+    }
+
     function handleTitleInputChange([returnTime, returnLocation, returnTitle]: [string, string, string]) {
         if (titleCleanupTimer.current !== null) {
             clearTimeout(titleCleanupTimer.current);
@@ -148,9 +168,9 @@ export default function Popup({
 
             const nextStartTime = hours * 60 + minutes
             setStartTime(nextStartTime)
-            const defaultEndTime = getNextFullHour(nextStartTime)
 
             if (selectedStartDate == selectedEndDate) {
+                const defaultEndTime = getNextFullHour(nextStartTime)
                 setEndTime(defaultEndTime)
             }
         }
@@ -433,10 +453,12 @@ export default function Popup({
                                             </option>
                                         ))}
                                     </select>
-                                        <svg className="time-edit-icon" viewBox="0 0 24 24" aria-hidden="true">
+                                        <svg className="time-edit-icon" viewBox="0 0 24 24" aria-hidden="true"
+                                             onClick={editTimePressed}>
                                             <path
                                                 d="m4 20 4.2-1 10.6-10.6a1.8 1.8 0 0 0 0-2.6l-.6-.6a1.8 1.8 0 0 0-2.6 0L5 15.8 4 20Z"/>
                                             <path d="m14.5 6.3 3.2 3.2"/>
+
                                         </svg>
                                     </span>
                                     <span className="range-separator">-</span>
