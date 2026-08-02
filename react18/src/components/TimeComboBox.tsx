@@ -1,0 +1,122 @@
+import {useEffect, useState} from "react";
+
+function formatTime(minutesAfterMidnight: number): string {
+    const hour24 = Math.floor(minutesAfterMidnight / 60);
+    const minutes = minutesAfterMidnight % 60;
+    const hour12 = hour24 % 12 || 12;
+
+    return `${hour12}:${String(minutes).padStart(2, "0")}`;
+}
+
+interface TimeComboBoxProps {
+    value: number; //confirmed time in minutes after midnight
+    options: number[];
+    onChange: (minutes: number) => void; //sends confirmed val backto eventdets
+    ariaLabel: string; //starttime or endtime field
+    ampm: "AM" | "PM";
+}
+
+function turntoMinutes(time: string, AMPM: "AM" | "PM") {
+    const [hour, minute] = time.split(":").map(Number);
+    if (AMPM === "PM" && hour !== 12) {
+        return hour * 60 + minute + 12 * 60;
+    } else if (AMPM === "AM" && hour === 12) {
+        return minute;
+    }
+    return hour * 60 + minute;
+}
+
+//only allow certain inputs into the time input
+function filterTimeInput(previous: string, next: string): string {
+    if (next === "") return "";
+    //delete hour case
+    const previousColonIndex = previous.indexOf(":");
+    const nextColonIndex = next.indexOf(":");
+
+    if (previousColonIndex !== -1 && nextColonIndex !== -1) {
+        const previousHour = previous.slice(0, previousColonIndex);
+        const nextHour = next.slice(0, nextColonIndex);
+
+        const hourWasShortened = nextHour.length < previousHour.length;
+
+        if (hourWasShortened) {
+            const remainingPrefixIsUnchanged = previousHour.startsWith(nextHour);
+
+            return remainingPrefixIsUnchanged ? nextHour : "";
+        }
+    }
+
+    const isDeletingColon =
+        previous.endsWith(":") &&
+        next === previous.slice(0, -1);
+
+    // Reject letters, spaces, and multiple colons
+    if (!/^\d*:?\d*$/.test(next)) return previous;
+
+    const [hourText, minuteText] = next.split(":");
+
+    if (hourText.length > 2 || minuteText?.length > 2) {
+        return previous;
+    }
+
+    // the hour must be complete and valid
+    const hourIsComplete =
+        minuteText !== undefined || // A colon exists: "1:"
+        hourText.length === 2 ||    // Two-digit hour: "12"
+        /^[2-9]$/.test(hourText);   // Complete one-digit hour: "4"
+
+    if (hourIsComplete) {
+        const hour = Number(hourText);
+
+        if (hour < 1 || hour > 12) {
+            return previous;
+        }
+    }
+
+    if (
+        minuteText !== undefined &&
+        minuteText.length >= 1 &&
+        Number(minuteText[0]) > 5
+    ) {
+        return previous;
+    }
+
+    const isCompleteHour =
+        /^[2-9]$/.test(hourText) ||
+        /^0[1-9]$/.test(hourText) ||
+        /^1[0-2]$/.test(hourText);
+
+    if (!isDeletingColon && minuteText === undefined && isCompleteHour) {
+        return `${hourText}:`; //add colon automatically
+    }
+
+    return next;
+}
+
+export default function TimeComboBox(props: TimeComboBoxProps) {
+    const [draftText, setDraftText] = useState(formatTime(props.value));
+
+    useEffect(() => { //update displayed time when parent changes time using combo box selection
+        setDraftText(formatTime(props.value));
+    }, [props.value]);
+
+    return (
+        <input className="time-combobox-input"
+               type="text"
+               aria-label={props.ariaLabel}
+               value={draftText}
+               onChange={(event) => { //update displayed time when user types time in
+                   const nextDraft = filterTimeInput(draftText, event.target.value);
+                   setDraftText(nextDraft);
+                   const isCompleteTime = /^\d{1,2}:\d{2}$/.test(nextDraft);
+
+                   if (!isCompleteTime) return;
+
+                   props.onChange(
+                       turntoMinutes(nextDraft, props.ampm)
+                   );
+               }}
+
+        />
+    );
+}
