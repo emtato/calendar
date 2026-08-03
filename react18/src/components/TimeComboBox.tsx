@@ -21,7 +21,7 @@ interface TimeComboBoxProps {
     ampm: "AM" | "PM";
 }
 
-function turntoMinutes(time: string, AMPM: "AM" | "PM") {
+function turntoMinutes(time: string, AMPM: string) {
     const [hour, minute] = time.split(":").map(Number);
     if (AMPM === "PM" && hour !== 12) {
         return hour * 60 + minute + 12 * 60;
@@ -51,9 +51,7 @@ function filterTimeInput(previous: string, next: string): string {
         }
     }
 
-    const isDeletingColon =
-        previous.endsWith(":") &&
-        next === previous.slice(0, -1);
+    const isDeletingColon = previous.endsWith(":") && next === previous.slice(0, -1);
 
     // Reject letters, spaces, and multiple colons
     if (!/^\d*:?\d*$/.test(next)) return previous;
@@ -98,6 +96,32 @@ function filterTimeInput(previous: string, next: string): string {
     return next;
 }
 
+function periodDetectionToMinutesAfterMidnight(time: string): number | null {
+    const potentialperiod = time.slice(-1).toLowerCase();
+
+    if (potentialperiod !== "a" && potentialperiod !== "p") {
+        return null;
+    }
+
+    const period = potentialperiod == "a" ? "AM" : "PM";
+    const timeWithoutMarker = time.slice(0, -1);
+    const validHour = "(?:[1-9]|0[1-9]|1[0-2])"; //need t ovalidate since this happens before filterinput can catch it
+    const hourOnlyPattern = new RegExp(`^(${validHour}):?$`);
+    const completeTimePattern = new RegExp(`^(${validHour}):([0-5]\\d)$`);
+
+    const hourOnlyMatch = timeWithoutMarker.match(hourOnlyPattern);
+    if (hourOnlyMatch) {
+        return turntoMinutes(`${hourOnlyMatch[1]}:00`, period);
+    }
+
+    const completeTimeMatch = timeWithoutMarker.match(completeTimePattern);
+    if (completeTimeMatch) {
+        return turntoMinutes(`${completeTimeMatch[1]}:${completeTimeMatch[2]}`, period);
+    }
+
+    return null;
+}
+
 export default function TimeComboBox(props: TimeComboBoxProps) {
     const [draftText, setDraftText] = useState(formatTime(props.value, false));
     const [isOpen, setIsOpen] = useState(false);
@@ -136,6 +160,21 @@ export default function TimeComboBox(props: TimeComboBoxProps) {
                    aria-label={props.ariaLabel}
                    value={draftText}
                    onChange={(event) => { //update displayed time when user types time in
+
+                       const proposedText = event.target.value; //detect a/p ending to modify AMPM toggle
+                       const requestedPeriod = proposedText.slice(-1).toLowerCase();
+
+                       if (requestedPeriod === "a" || requestedPeriod === "p") {
+                           const minutesAfterMidnight =
+                               periodDetectionToMinutesAfterMidnight(proposedText);
+
+                           if (minutesAfterMidnight === null) return;
+
+                           setDraftText(formatTime(minutesAfterMidnight, false));
+                           props.onChange(minutesAfterMidnight);
+                           return;//return to not put this in draftext
+                       }
+
                        const nextDraft = filterTimeInput(draftText, event.target.value);
                        setDraftText(nextDraft);
                        const isCompleteTime = /^\d{1,2}:\d{2}$/.test(nextDraft);

@@ -527,7 +527,7 @@ export default function Popup({
                                                 handleStartTimeChange(toggleAmPm(startTime));
                                             }}
                                         >
-                                            {getAmPm(startTime)}
+                                            {getAmPm(startTime)} {/*display AM/PM*/}
                                         </button>
                                     </span>
                                     <span className="range-separator">-</span>
