@@ -400,6 +400,7 @@ b { /* used for event dates/times */
 .time-combobox-wrapper {
     position: relative;
     display: inline-block;
+
 }
 
 .time-combobox-dropdown {
@@ -411,28 +412,30 @@ b { /* used for event dates/times */
     overflow-y: auto;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
+    padding: 6px;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+    background: #f8faff;
+    box-shadow: 0 8px 24px rgba(60, 64, 67, 0.18);
 }
 
 .time-option-button {
     width: 72px;
-    height:25px;
-    background: white;
-    border-bottom-color: #e0e3e7;
-    border-width: thin;
-    border-style: groove;
-    border-radius: 3px;
+    height: 25px;
+    background: transparent;
+    border: none;
 }
 
 .time-option-button:hover {
     background: #e0e3e7;
     border-bottom-color: #e0e3e7;
-    border-radius: 0px;
 }
 
 .time-combobox-input {
     width: 35px;
     border: none;
     font-size: 14px;
+
 }
 
 .date-range {
