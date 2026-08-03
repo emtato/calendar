@@ -375,7 +375,7 @@ b { /* used for event dates/times */
 .time-select-with-edit {
     display: inline-flex;
     align-items: center;
-    gap: 2px;
+
 }
 
 .time-combobox-placeholder {
@@ -388,6 +388,7 @@ b { /* used for event dates/times */
     border: 0;
     border-radius: 8px;
     background: transparent;
+    padding-inline: 0;
     color: inherit;
     font: inherit;
     cursor: pointer;
@@ -416,7 +417,8 @@ b { /* used for event dates/times */
     display: grid;
     grid-template-columns: repeat(4, 1fr);
 }
-.time-option-button{
+
+.time-option-button {
     background: white;
     border-bottom-color: #e0e3e7;
     border-width: thin;
@@ -424,8 +426,14 @@ b { /* used for event dates/times */
     border-radius: 3px;
 }
 
+.time-option-button:hover {
+    background: #e0e3e7;
+    border-bottom-color: #e0e3e7;
+    border-radius: 0px;
+}
+
 .time-combobox-input {
-    width: 38px;
+    width: 35px;
     border: none;
     font-size: 14px;
 }

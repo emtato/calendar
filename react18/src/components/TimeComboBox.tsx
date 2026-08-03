@@ -1,11 +1,12 @@
 import {useEffect, useState} from "react";
 
-function formatTime(minutesAfterMidnight: number): string {
+function formatTime(minutesAfterMidnight: number, addAMPM: boolean): string {
     const hour24 = Math.floor(minutesAfterMidnight / 60);
     const minutes = minutesAfterMidnight % 60;
     const hour12 = hour24 % 12 || 12;
-
-    return `${hour12}:${String(minutes).padStart(2, "0")}`;
+    const AMPM = hour24 < 12 ? "AM" : "PM";
+    if (!addAMPM) return `${hour12}:${String(minutes).padStart(2, "0")}`;
+    return `${hour12}:${String(minutes).padStart(2, "0")} ${AMPM}`;
 }
 
 interface TimeComboBoxProps {
@@ -94,13 +95,17 @@ function filterTimeInput(previous: string, next: string): string {
 }
 
 export default function TimeComboBox(props: TimeComboBoxProps) {
-    const [draftText, setDraftText] = useState(formatTime(props.value));
+    const [draftText, setDraftText] = useState(formatTime(props.value, false));
     const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => { //update displayed time when parent changes time using combo box selection
-        setDraftText(formatTime(props.value));
+        setDraftText(formatTime(props.value, false));
     }, [props.value]);
 
+    function timeSelected(time: number) {
+        setIsOpen(false);
+        props.onChange(time);
+    }
     return (
         <span className="time-combobox-wrapper"
               onBlur={(event) => {
@@ -135,9 +140,11 @@ export default function TimeComboBox(props: TimeComboBoxProps) {
                     <button
                         type="button"
                         className="time-option-button"
+
+                        onClick={() => timeSelected(time)}
                         key={time}
                     >
-                        {formatTime(time)}
+                        {formatTime(time, true)/*displayed value on button}*/}
                     </button>
                 ))}
             </span>)}
