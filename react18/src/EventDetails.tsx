@@ -29,21 +29,7 @@ function generateTimeOptions(startMinutes: number, endMinutes: number, interval:
     for (let minutes = startMinutes; minutes <= endMinutes; minutes += interval) {
         times.push(minutes)
     }
-
     return times
-}
-
-function formatTime(minutesAfterMidnight: number) {
-    if (minutesAfterMidnight === 24 * 60) {
-        return '12:00 AM';
-    }
-
-    const hour24 = Math.floor(minutesAfterMidnight / 60)
-    const minutes = minutesAfterMidnight % 60
-    const hour12 = hour24 % 12 || 12
-    const period = hour24 < 12 ? 'AM' : 'PM'
-
-    return `${hour12}:${String(minutes).padStart(2, '0')} ${period}`
 }
 
 function getNextFullHour(minutesAfterMidnight: number) {
@@ -84,7 +70,6 @@ interface PopupInfo { // describes the information the component expects
     dateList: string[];
     initialStartTime: number;
     initialEndTime: number;
-    generateSpecificTimeOption: number[];
     titleText: string;
     descriptionText: string;
     id: string;
@@ -108,9 +93,8 @@ interface SidebarInfo {
 // ====================================================
 
 export default function Popup({
-                                  isOpen, onClose, position, startDate, endDate, dateList,
-                                  initialStartTime, initialEndTime, generateSpecificTimeOption, titleText,
-                                  descriptionText, id, allDay, endTimeMod, onEventsChanged,
+                                  isOpen, onClose, position, startDate, endDate, dateList, initialStartTime,
+                                  initialEndTime, titleText, descriptionText, id, allDay, endTimeMod, onEventsChanged,
                               }: PopupInfo) {
     // ------------------------------------------------
     // State and refs
@@ -126,7 +110,6 @@ export default function Popup({
     const [allday, setAllday] = useState(allDay)
     const [eventID, setEventID] = useState(id)
     const [description, setDescription] = useState(descriptionText)
-    const [timeOptionEnd, setTimeOptionEnd] = useState(generateSpecificTimeOption[1])
     const [endTimeModified, setEndTimeModified] = useState(endTimeMod)
     const [locationModified, setLocationModified] = useState(false)
 
@@ -354,20 +337,6 @@ export default function Popup({
             setSelectedEndDate(endDate)
         }
     }, [isOpen, startDate, endDate])
-
-// detect key presses
-    useEffect(() => { //run code after rendereing compoent
-        function handleKeyDown(event: KeyboardEvent) {
-            if (event.key === "Escape") {
-                closePopup()
-            }
-        }
-
-        window.addEventListener("keydown", handleKeyDown);
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [onClose]); //dependency array (rerun only if onclose changes
 
     useEffect(() => {
         if (isOpen) {
@@ -611,23 +580,6 @@ export default function Popup({
 // ====================================================
 
 export function Sidebar({isOpen, onClose}: SidebarInfo) {
-
-    // ------------------------------------------------
-    // Effects
-    // ------------------------------------------------
-
-    useEffect(() => {
-        function handleKeyDown(event: KeyboardEvent) {
-            if (event.key === "Escape") {
-                onClose();
-            }
-        }
-
-        window.addEventListener("keydown", handleKeyDown);
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [onClose]);
 
 
     // ------------------------------------------------

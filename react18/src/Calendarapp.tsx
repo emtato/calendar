@@ -18,14 +18,23 @@ import multiMonthPlugin from '@fullcalendar/react/multimonth'
 
 import {Temporal} from 'temporal-polyfill'
 
-import React, {useRef, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import Popup, {MinimizedBar, Sidebar} from './EventDetails'
 import {getCalendarEvents} from "./api/eventsAPI";
+
+
+// ----------------------------------------------------
+// Types
+// ----------------------------------------------------
 
 interface HighlightedRange {
     start: string
     end: string
 }
+
+// ----------------------------------------------------
+// Calendar data and date utils
+// ----------------------------------------------------
 
 function fetchCalendarEvents(fetchInfo: EventSourceFuncInfo) {
     return getCalendarEvents(fetchInfo.startStr, fetchInfo.endStr);
@@ -37,6 +46,11 @@ function toLocalDateString(date: Date) {
     const day = String(date.getDate()).padStart(2, '0')
 
     return `${year}-${month}-${day}`
+}
+
+function getMinutesAfterMidnight(dateTime: string) {
+    const time = Temporal.PlainTime.from(dateTime)
+    return time.hour * 60 + time.minute
 }
 
 function createDateList(startDate: string, daysBetween?: number) {
@@ -56,7 +70,15 @@ function createDateList(startDate: string, daysBetween?: number) {
     return dates
 }
 
+// ====================================================
+// calendar app
+// ====================================================
+
 export default function CalendarApp() {
+    // ------------------------------------------------
+    // state
+    // ------------------------------------------------
+
     const [isPopOpen, setIsPopOpen] = useState(false)
     const [popupPos, setPopupPos] = useState({x: 0, y: 0});
     const [highlightedRange, setHighlightedRange] = useState<HighlightedRange | null>(null)
@@ -71,8 +93,6 @@ export default function CalendarApp() {
     const [endTime, setEndTime] = useState(10 * 60) //default
 
     const [dateList, setDateList] = useState<string[]>([])
-    const [customTimeStart, setCustomTimeStart] = useState(0)
-    const [customTimeEnd, setCustomTimeEnd] = useState(0)
 
     const [title, setTitle] = useState("")
     const [description, setDescription] = useState("")
@@ -81,6 +101,10 @@ export default function CalendarApp() {
     const justDragged = useRef(false)
     const [allDay, setAllDay] = useState(false)
 
+
+    // ------------------------------------------------
+    // Sidebar functions
+    // ------------------------------------------------
 
     function closeBigBar() {
         setSidebar(false)
@@ -91,6 +115,10 @@ export default function CalendarApp() {
         setSidebar(true)
         setMinibar(false)
     }
+
+    // ------------------------------------------------
+    // Calendar refresh and temp events
+    // ------------------------------------------------
 
     function refreshCalendar() {
         calendarApiRef.current?.refetchEvents();
@@ -124,11 +152,21 @@ export default function CalendarApp() {
         }
     }
 
+    // ------------------------------------------------
+    // popup
+    // ------------------------------------------------
+
     function closePopup() {
         setIsPopOpen(false)
         setHighlightedRange(null)
         calendarApiRef.current?.unselect()
         calendarApiRef.current?.getEventById('draft-event')?.remove()
+        setStartTime(9 * 60)
+        setEndTime(10 * 60)
+        setSelectedDate("")
+        setSelectedEndDate("")
+        setTitle("")
+        setDescription("")
     }
 
     function resetStates() {
@@ -136,6 +174,76 @@ export default function CalendarApp() {
         setDescription("")
         setId("")
         setAllDay(false)
+    }
+
+    useEffect(() => {
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key !== "Escape" && event.key != "n") {
+                return;
+            }
+            if (event.key == "n") {
+                setIsPopOpen(true)
+                setPopupPos({x: 1000, y: 300})
+                return
+            }
+            if (isPopOpen) {
+                closePopup();
+                return;
+            }
+            if (isSidebar) {
+                closeBigBar();
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isPopOpen, isSidebar]);
+    // ------------------------------------------------
+    // user fullcalendar interactions
+    // ------------------------------------------------
+
+    function handleDateClick(clickInfo: DateClickInfo) {
+        if (justDragged.current) {
+            return
+        }
+        resetStates()
+
+        setStartTime(9 * 60)
+        setEndTime(10 * 60)
+
+        console.log("Single date:", clickInfo.dateStr)
+        setIsPopOpen(true)
+        setPopupPos({x: clickInfo.jsEvent?.clientX, y: clickInfo.jsEvent?.clientY});
+        console.log("loc " + clickInfo.jsEvent.clientX)
+
+        const dateOnly = Temporal.PlainDate.from(clickInfo.dateStr).toString();
+        const nextDate = Temporal.PlainDate.from(dateOnly).add({days: 1}).toString()
+
+        calendarApiRef.current = clickInfo.view.calendar
+        clickInfo.view.calendar.unselect()
+        setHighlightedRange({
+            start: dateOnly,
+            end: nextDate,
+        })
+
+        setSelectedDate(dateOnly)
+        setSelectedEndDate(dateOnly)
+        setDateList(createDateList(dateOnly))
+
+        const currentView = clickInfo.view.type;
+        if (currentView === 'timeGridWeek' || currentView === "timeGridDay") {
+            const TimeOnly = Temporal.PlainTime.from(clickInfo.dateStr).toString();
+            const startTimeMinutes = getMinutesAfterMidnight(TimeOnly);
+            setStartTime(startTimeMinutes)
+            setEndTime(startTimeMinutes + 60)
+            displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly, TimeOnly, Temporal.PlainTime.from(clickInfo.dateStr).add({minutes: 60}).toString())
+
+        } else {
+            displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly)
+        }
     }
 
     function handleDateDrag(selectInfo: DateSelectInfo) {
@@ -161,10 +269,7 @@ export default function CalendarApp() {
 
         setIsPopOpen(true)
         if (selectInfo.jsEvent) {
-            setPopupPos({
-                x: selectInfo.jsEvent.clientX,
-                y: selectInfo.jsEvent.clientY,
-            })
+            setPopupPos({x: selectInfo.jsEvent.clientX, y: selectInfo.jsEvent.clientY,})
         }
         console.log("loc " + selectInfo.jsEvent?.x)
         const currentView = selectInfo.view.type;
@@ -183,13 +288,9 @@ export default function CalendarApp() {
             const startTimeOnly = Temporal.PlainTime.from(selectInfo.startStr).toString();
             const endTimeOnly = Temporal.PlainTime.from(selectInfo.endStr).toString();
 
-            const [hours, minutes, seconds] = startTimeOnly.split(":").map(Number);
-            const startTimeMinutes = hours * 60 + minutes;
-            const [hr, mn, s] = endTimeOnly.split(":").map(Number);
-            setStartTime(startTimeMinutes)
-            setEndTime(hr * 60 + mn)
+            setStartTime(getMinutesAfterMidnight(startTimeOnly));
+            setEndTime(getMinutesAfterMidnight(endTimeOnly))
             displayNewEventPlaceholder(selectInfo.view.calendar, startDateOnly, endDateOnly, startTimeOnly, endTimeOnly)
-
         }
 
         setSelectedDate(startDateOnly)
@@ -230,23 +331,13 @@ export default function CalendarApp() {
         if (!selectInfo.event.allDay) {
             const startTime = Temporal.PlainTime.from(selectInfo.event.startStr).toString();
             const endTime = Temporal.PlainTime.from(selectInfo.event.endStr).toString();
-            const [starthours, startminutes, startseconds] = startTime.split(":").map(Number);
-            const [endhours, endminutes, endseconds] = endTime.split(":").map(Number);
             //convert time to minutes after 0
-            startTimeMinutes = starthours * 60 + startminutes;
-            endTimeMinutes = endhours * 60 + endminutes;
+            startTimeMinutes = getMinutesAfterMidnight(startTime);
+            endTimeMinutes = getMinutesAfterMidnight(endTime);
         } else {
             console.log(selectInfo.event.endStr)
             endDate = Temporal.PlainDate.from(selectInfo.event.endStr).subtract({days: 1}).toString();
             endTimeMinutes = 24 * 60 - 1; //set end time to 11:59 PM
-        }
-        if (startTimeMinutes % 30 != 0 || endTimeMinutes % 15 != 0) {
-            if (startTimeMinutes % 30 != 0) {
-                setCustomTimeStart(startTimeMinutes)
-            }
-            if (endTimeMinutes % 15 != 0) {
-                setCustomTimeEnd(endTimeMinutes)
-            }
         }
         setSelectedDate(startDate)
         setSelectedEndDate(endDate)
@@ -269,50 +360,11 @@ export default function CalendarApp() {
 
     function handleEvents() {
         //    console.log("event")
-
     }
 
-    function handleDateClick(clickInfo: DateClickInfo) {
-        if (justDragged.current) {
-            return
-        }
-        resetStates()
-
-        setStartTime(9 * 60)
-        setEndTime(10 * 60)
-
-        console.log("Single date:", clickInfo.dateStr)
-        setIsPopOpen(true)
-        setPopupPos({x: clickInfo.jsEvent?.clientX, y: clickInfo.jsEvent?.clientY});
-        console.log("loc " + clickInfo.jsEvent.clientX)
-
-        const dateOnly = Temporal.PlainDate.from(clickInfo.dateStr).toString();
-        const nextDate = Temporal.PlainDate.from(dateOnly).add({days: 1}).toString()
-
-        calendarApiRef.current = clickInfo.view.calendar
-        clickInfo.view.calendar.unselect()
-        setHighlightedRange({
-            start: dateOnly,
-            end: nextDate,
-        })
-
-        setSelectedDate(dateOnly)
-        setSelectedEndDate(dateOnly)
-        setDateList(createDateList(dateOnly))
-
-        const currentView = clickInfo.view.type;
-        if (currentView === 'timeGridWeek' || currentView === "timeGridDay") {
-            const TimeOnly = Temporal.PlainTime.from(clickInfo.dateStr).toString();
-            const [hours, minutes, seconds] = TimeOnly.split(":").map(Number);
-            const startTimeMinutes = hours * 60 + minutes;
-            setStartTime(startTimeMinutes)
-            setEndTime(startTimeMinutes + 60)
-            displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly, TimeOnly, Temporal.PlainTime.from(clickInfo.dateStr).add({minutes: 60}).toString())
-
-        } else {
-            displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly)
-        }
-    }
+    // ------------------------------------------------
+    // render
+    // ------------------------------------------------
 
     return (
         <div className={`app ${isSidebar ? '' : 'app-sidebar-collapsed'}`}>
@@ -359,24 +411,24 @@ export default function CalendarApp() {
                     events={fetchCalendarEvents}
                 />
             </div>
-            <Popup //passing info into popup
-                isOpen={isPopOpen}
-                onClose={closePopup}
-                position={popupPos}
-                startDate={selectedDate}
-                endDate={selectedEndDate}
-                dateList={dateList}
-                initialStartTime={startTime}
-                initialEndTime={endTime}
-                generateSpecificTimeOption={[customTimeStart, customTimeEnd]}
-                titleText={title}
-                descriptionText={description}
-                id={id}
-                allDay={allDay}
-                endTimeMod={false}
-                onEventsChanged={refreshCalendar}
+            {isPopOpen && (
+                <Popup //passing info into popup
+                    isOpen={isPopOpen}
+                    onClose={closePopup}
+                    position={popupPos}
+                    startDate={selectedDate}
+                    endDate={selectedEndDate}
+                    dateList={dateList}
+                    initialStartTime={startTime}
+                    initialEndTime={endTime}
+                    titleText={title}
+                    descriptionText={description}
+                    id={id}
+                    allDay={allDay}
+                    endTimeMod={false}
+                    onEventsChanged={refreshCalendar}
 
-            />
+                />)}
             <Sidebar isOpen={isSidebar} onClose={closeBigBar}
             />
             <MinimizedBar isOpen={isMiniBar} onClose={openBigBar}
