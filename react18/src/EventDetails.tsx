@@ -288,15 +288,17 @@ export default function Popup({
         setEventID("")
         setAllday(false)
         setEndTimeModified(false);
+
         onClose();
     }
 
     async function deleteEvent() {
-        if (id === "") {
+        if (eventID === "") {
             closePopup()
             return
         }
-        await deleteCalendarEvent(id)
+        //TODO: confirmation popup
+        await deleteCalendarEvent(eventID)
         onEventsChanged(); //refresh calendar events
         closePopup()
     }
@@ -312,7 +314,7 @@ export default function Popup({
         //description is description
         const location = "location"
         const event = {
-            id: id, //id is "" by default, and passed in by calendarApp if clicking on a prexisting event
+            id: eventID, //id is "" by default, and passed in by calendarApp if clicking on a prexisting event
             title: title,
             startTime: startTime,
             endTime: endTime,
@@ -324,11 +326,10 @@ export default function Popup({
                 description: description,
             }
         }
-        console.log("saving event with id", id)
-        console.log(event)
+        console.log("saving event with id:", id)
+        console.log("event object:", event)
         await saveCalendarEvent(event)
         onEventsChanged(); //refresh calendar events
-        console.log("event refrehe")
         closePopup()
     }
 
@@ -357,6 +358,25 @@ export default function Popup({
     }, [
         isOpen, startDate, endDate, initialStartTime, initialEndTime, titleText, descriptionText, allDay, id,
     ]);
+    useEffect(() => { //detect delete press
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === "Backspace" && isOpen && eventID !== "") {
+                const target = event.target;
+                const isEditing = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ||
+                    target instanceof HTMLSelectElement || (target instanceof HTMLElement && target.isContentEditable);
+
+                if (isEditing) {//make sure backspace isnt pressed during input of a typing area
+                    return;
+                }
+                deleteEvent()
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [isOpen]);
 
     // ------------------------------------------------
     // Render
@@ -392,7 +412,14 @@ export default function Popup({
                     >
                         ×
                     </button>
-                    <div className="event-content">
+                    <form
+                        className="event-content"
+                        id="event-form"
+                        onSubmit={(event) => {
+                            event.preventDefault() //prevent reload
+                            void saveEvent()
+                        }}
+                    >
                         <input
                             value={title}
                             className="title-input"
@@ -556,7 +583,7 @@ export default function Popup({
                                 onChange={(event) => setDescription(event.target.value)}
                             />
                         </div>
-                    </div>
+                    </form>
                     <div className="popup-actions">
                         <button className="delete-button"
                                 onClick={deleteEvent} type="button" aria-label="Delete event">
@@ -567,11 +594,8 @@ export default function Popup({
                                 <path d="M10 11v5M14 11v5"/>
                             </svg>
                         </button>
-                        <button className="text-button">More options</button>
-                        <button className="save-button"
-                                onClick={saveEvent}
-                        >Save
-                        </button>
+                        <button className="text-button" type="button">More options</button>
+                        <button className="save-button" type="submit" form="event-form">Save</button>
                     </div>
                 </div>
             </div>

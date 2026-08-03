@@ -229,10 +229,10 @@ export default function CalendarApp() {
         setStartTime(9 * 60)
         setEndTime(10 * 60)
 
-        console.log("Single date:", clickInfo.dateStr)
+        //console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
         setPopupPos({x: clickInfo.jsEvent?.clientX, y: clickInfo.jsEvent?.clientY});
-        console.log("loc " + clickInfo.jsEvent.clientX)
+        // console.log("loc " + clickInfo.jsEvent.clientX)
 
         const dateOnly = Temporal.PlainDate.from(clickInfo.dateStr).toString();
         const nextDate = Temporal.PlainDate.from(dateOnly).add({days: 1}).toString()
@@ -272,7 +272,7 @@ export default function CalendarApp() {
 
         calendarApiRef.current = selectInfo.view.calendar
         setStartTime(9 * 60)
-        console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
+       // console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
 
         const startDateOnly = Temporal.PlainDate.from(selectInfo.startStr).toString();
         const endDateOnly = Temporal.PlainDate.from(selectInfo.endStr).toString();
@@ -286,7 +286,7 @@ export default function CalendarApp() {
         if (selectInfo.jsEvent) {
             setPopupPos({x: selectInfo.jsEvent.clientX, y: selectInfo.jsEvent.clientY,})
         }
-        console.log("loc " + selectInfo.jsEvent?.x)
+        // console.log("loc " + selectInfo.jsEvent?.x)
         const currentView = selectInfo.view.type;
         let temp = String(Temporal.PlainDate.from(endDateOnly))
 
@@ -328,7 +328,7 @@ export default function CalendarApp() {
         calendarApiRef.current = selectInfo.view.calendar
         setIsPopOpen(true)
         setPopupPos({x: selectInfo.jsEvent?.clientX, y: selectInfo.jsEvent?.clientY,});
-        console.log("loc " + selectInfo.jsEvent.clientX)
+        // console.log("loc " + selectInfo.jsEvent.clientX)
 
         //display info: title
         const title = selectInfo.event.title;
@@ -350,7 +350,6 @@ export default function CalendarApp() {
             startTimeMinutes = getMinutesAfterMidnight(startTime);
             endTimeMinutes = getMinutesAfterMidnight(endTime);
         } else {
-            console.log(selectInfo.event.endStr)
             endDate = Temporal.PlainDate.from(selectInfo.event.endStr).subtract({days: 1}).toString();
             endTimeMinutes = 24 * 60 - 1; //set end time to 11:59 PM
         }
