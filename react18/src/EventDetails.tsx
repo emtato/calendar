@@ -6,6 +6,10 @@ import {saveCalendarEvent, deleteCalendarEvent, getCalendarEventById} from "./ap
 import TimeComboBox from "./components/TimeComboBox";
 import {CalendarEvent} from "../../backend/src/domain/calendar-event";
 
+// ----------------------------------------------------
+// Configuration
+// ----------------------------------------------------
+
 const CALENDAR_OPTIONS = [
     {value: 'default', label: 'Default', color: '#6F5FA7'},
     {value: 'work', label: 'Work', color: '#4285f4'},
@@ -16,6 +20,9 @@ const MINUTES_PER_DAY = 24 * 60
 const DEFAULT_START_TIME = 9 * 60
 const DEFAULT_END_TIME = 10 * 60
 
+// ----------------------------------------------------
+// Time utils
+// ----------------------------------------------------
 
 function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number) {
     const times: number[] = []
@@ -25,10 +32,6 @@ function generateTimeOptions(startMinutes: number, endMinutes: number, interval:
 
     return times
 }
-
-//TODO: make dropdown menu pretty with times going in a grid horizontally then vertically
-//11:00 11:30 12:00 12:30
-//1:00  1:30  2:00  2:30 etc
 
 function formatTime(minutesAfterMidnight: number) {
     if (minutesAfterMidnight === 24 * 60) {
@@ -61,6 +64,10 @@ function toggleAmPm(minutesAfterMidnight: number) {
     }
     return normalizedMinutes - 12 * 60
 }
+
+// ----------------------------------------------------
+// Component prop types
+// ----------------------------------------------------
 
 interface PopupInfo { // describes the information the component expects
     /*
@@ -96,23 +103,19 @@ interface SidebarInfo {
     onClose: () => void
 }
 
+// ====================================================
+// Event popup
+// ====================================================
+
 export default function Popup({
-                                  isOpen,
-                                  onClose,
-                                  position,
-                                  startDate,
-                                  endDate,
-                                  dateList,
-                                  initialStartTime,
-                                  initialEndTime,
-                                  generateSpecificTimeOption,
-                                  titleText,
-                                  descriptionText,
-                                  id,
-                                  allDay,
-                                  endTimeMod,
-                                  onEventsChanged,
+                                  isOpen, onClose, position, startDate, endDate, dateList,
+                                  initialStartTime, initialEndTime, generateSpecificTimeOption, titleText,
+                                  descriptionText, id, allDay, endTimeMod, onEventsChanged,
                               }: PopupInfo) {
+    // ------------------------------------------------
+    // State and refs
+    // ------------------------------------------------
+
     const [calendarType, setCalendarType] = useState('default')
     const [startTime, setStartTime] = useState(initialStartTime)
     const [endTime, setEndTime] = useState(initialEndTime)
@@ -125,13 +128,17 @@ export default function Popup({
     const [description, setDescription] = useState(descriptionText)
     const [timeOptionEnd, setTimeOptionEnd] = useState(generateSpecificTimeOption[1])
     const [endTimeModified, setEndTimeModified] = useState(endTimeMod)
+    const [locationModified, setLocationModified] = useState(false)
+
+    const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
 
 
     //  const [startTimeModified, setStartTimeModified] = useState(false)//flag to check time changed manually -> overrides automatic time set from title analysis
 
-    const [locationModified, setLocationModified] = useState(false)
+    // ------------------------------------------------
+    // Derived values
+    // ------------------------------------------------
 
-    const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
     const selectedCalendar = CALENDAR_OPTIONS.find(
         (calendar) => calendar.value === calendarType
     ) ?? CALENDAR_OPTIONS[0]
@@ -150,48 +157,11 @@ export default function Popup({
         endTimeOptions.push(MINUTES_PER_DAY)
     }
 
+    // ------------------------------------------------
+    // Popup positioning
+    // ------------------------------------------------
 
-    function handleUserTimeSpecification(hours: string, minutes: string, AMPM: string) {
-        //hours, minutes will be separate text fields
-        //AMPM will be a toggle that changes upon clicked
-        //these 3 fields will occupy the same space as the dropdown selected display
-        //TODO: allow input of 24h time. if user's hour is 13 or more, it removes the AMPM toggle
-        let nextStartTime = Number(hours) * 60 + Number(minutes)
-        if (AMPM === "PM" && hours != "12") {
-            nextStartTime += 12 * 60
-        }
-        setStartTime(nextStartTime)
-        if (selectedStartDate == selectedEndDate) {
-            const defaultEndTime = getNextFullHour(nextStartTime)
-            setEndTime(defaultEndTime)
-        }
-    }
-
-    function handleTitleInputChange([returnTime, returnLocation, returnTitle]: [string, string, string]) {
-        if (titleCleanupTimer.current !== null) {
-            clearTimeout(titleCleanupTimer.current);
-            titleCleanupTimer.current = null;
-        }
-        if (returnTime !== "") {
-            const [hours, minutes] = returnTime.split(":").map(Number);
-
-            const nextStartTime = hours * 60 + minutes;
-
-            handleStartTimeChange(nextStartTime);
-        }
-
-
-        if (returnLocation != "") {
-            //TODO
-        }
-
-        titleCleanupTimer.current = setTimeout(() => {
-            setTitle(returnTitle);
-            titleCleanupTimer.current = null;
-        }, 967);
-    }
-
-//calculate popup position
+    //calculate popup position
     function calcPopPosition() {
         const windowX = window.innerWidth
         const windowY = window.innerHeight
@@ -217,23 +187,70 @@ export default function Popup({
         }
     }
 
-// process end time selection
-    function checkTime(time: string) {
-        const selectedTime = Number(time)
-        let nextEndTime = selectedTime
-        if (selectedEndDate == selectedStartDate) {
-            nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
+    // ------------------------------------------------
+    // Input and title handlers
+    // ------------------------------------------------
+
+    // function handleUserTimeSpecification(hours: string, minutes: string, AMPM: string) {
+    //     //hours, minutes will be separate text fields
+    //     //AMPM will be a toggle that changes upon clicked
+    //     //these 3 fields will occupy the same space as the dropdown selected display
+    //     //TODO: allow input of 24h time. if user's hour is 13 or more, it removes the AMPM toggle
+    //     let nextStartTime = Number(hours) * 60 + Number(minutes)
+    //     if (AMPM === "PM" && hours != "12") {
+    //         nextStartTime += 12 * 60
+    //     }
+    //     setStartTime(nextStartTime)
+    //     if (selectedStartDate == selectedEndDate) {
+    //         const defaultEndTime = getNextFullHour(nextStartTime)
+    //         setEndTime(defaultEndTime)
+    //     }
+    // }
+
+    function handleTitleInputChange([returnTime, returnLocation, returnTitle]: [string, string, string]) {
+        if (titleCleanupTimer.current !== null) {
+            clearTimeout(titleCleanupTimer.current);
+            titleCleanupTimer.current = null;
         }
-        setEndTime(nextEndTime)
-        if (!selectedStartDate) {
-            return
+        if (returnTime !== "") {
+            const [hours, minutes] = returnTime.split(":").map(Number);
+
+            const nextStartTime = hours * 60 + minutes;
+
+            handleStartTimeChange(nextStartTime);
         }
-        if (selectedTime % MINUTES_PER_DAY === 0 && selectedEndDate && selectedTime !== 0) { //if midnight
-            const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString() //add 1 day to end date
-            setSelectedEndDate(nextEndDate)
-            setEndTime(0)
+
+        if (returnLocation != "") {
+            //TODO
         }
+
+        titleCleanupTimer.current = setTimeout(() => {
+            setTitle(returnTitle);
+            titleCleanupTimer.current = null;
+        }, 967);
     }
+
+    // ------------------------------------------------
+    // Time handlers
+    // ------------------------------------------------
+
+// process end time selection
+//     function checkTime(time: string) {
+//         const selectedTime = Number(time)
+//         let nextEndTime = selectedTime
+//         if (selectedEndDate == selectedStartDate) {
+//             nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
+//         }
+//         setEndTime(nextEndTime)
+//         if (!selectedStartDate) {
+//             return
+//         }
+//         if (selectedTime % MINUTES_PER_DAY === 0 && selectedEndDate && selectedTime !== 0) { //if midnight
+//             const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString() //add 1 day to end date
+//             setSelectedEndDate(nextEndDate)
+//             setEndTime(0)
+//         }
+//     }
 
     function handleStartTimeChange(nextStartTime: number) {
         // setStartTimeModified(true)
@@ -276,6 +293,10 @@ export default function Popup({
         }
     }
 
+    // ------------------------------------------------
+    // Popup lifecycle and persistence
+    // ------------------------------------------------
+
     function closePopup() {
         setStartTime(DEFAULT_START_TIME)
         setEndTime(DEFAULT_END_TIME)
@@ -285,54 +306,6 @@ export default function Popup({
         setAllday(false)
         setEndTimeModified(false);
         onClose();
-    }
-
-    useEffect(() => { // sync the popup dates when CalendarApp opens it with a new date
-        if (isOpen) {
-            setSelectedStartDate(startDate)
-            setSelectedEndDate(endDate)
-        }
-    }, [isOpen, startDate, endDate])
-
-// detect key presses
-    useEffect(() => { //run code after rendereing compoent
-        function handleKeyDown(event: KeyboardEvent) {
-            if (event.key === "Escape") {
-                closePopup()
-            }
-        }
-
-        window.addEventListener("keydown", handleKeyDown);
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [onClose]); //dependency array (rerun only if onclose changes
-
-    useEffect(() => {
-        if (isOpen) {
-            setSelectedStartDate(startDate);
-            setSelectedEndDate(endDate);
-            setStartTime(initialStartTime);
-            setEndTime(initialEndTime);
-            setTitle(titleText);
-            setDescription(descriptionText);
-            setAllday(allDay);
-            setEventID(id);
-        }
-    }, [
-        isOpen,
-        startDate,
-        endDate,
-        initialStartTime,
-        initialEndTime,
-        titleText,
-        descriptionText,
-        allDay,
-        id,
-    ]);
-
-    if (!isOpen) {
-        return null
     }
 
     async function deleteEvent() {
@@ -369,6 +342,54 @@ export default function Popup({
         await saveCalendarEvent(event)
         onEventsChanged(); //refresh calendar events
         closePopup()
+    }
+
+    // ------------------------------------------------
+    // Effects
+    // ------------------------------------------------
+
+    useEffect(() => { // sync the popup dates when CalendarApp opens it with a new date
+        if (isOpen) {
+            setSelectedStartDate(startDate)
+            setSelectedEndDate(endDate)
+        }
+    }, [isOpen, startDate, endDate])
+
+// detect key presses
+    useEffect(() => { //run code after rendereing compoent
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                closePopup()
+            }
+        }
+
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [onClose]); //dependency array (rerun only if onclose changes
+
+    useEffect(() => {
+        if (isOpen) {
+            setSelectedStartDate(startDate);
+            setSelectedEndDate(endDate);
+            setStartTime(initialStartTime);
+            setEndTime(initialEndTime);
+            setTitle(titleText);
+            setDescription(descriptionText);
+            setAllday(allDay);
+            setEventID(id);
+        }
+    }, [
+        isOpen, startDate, endDate, initialStartTime, initialEndTime, titleText, descriptionText, allDay, id,
+    ]);
+
+    // ------------------------------------------------
+    // Render
+    // ------------------------------------------------
+
+    if (!isOpen) {
+        return null
     }
 
     return (
@@ -585,7 +606,15 @@ export default function Popup({
 }
 
 
+// ====================================================
+// Expanded sidebar
+// ====================================================
+
 export function Sidebar({isOpen, onClose}: SidebarInfo) {
+
+    // ------------------------------------------------
+    // Effects
+    // ------------------------------------------------
 
     useEffect(() => {
         function handleKeyDown(event: KeyboardEvent) {
@@ -600,6 +629,10 @@ export function Sidebar({isOpen, onClose}: SidebarInfo) {
         };
     }, [onClose]);
 
+
+    // ------------------------------------------------
+    // Render
+    // ------------------------------------------------
 
     if (!isOpen) {
         return null
@@ -652,8 +685,16 @@ export function Sidebar({isOpen, onClose}: SidebarInfo) {
     )
 }
 
+// ====================================================
+// Minimized sidebar
+// ====================================================
+
 //onclose will js be closing this small bar -> opening big bar
 export function MinimizedBar({isOpen, onClose}: SidebarInfo) {
+
+    // ------------------------------------------------
+    // Render
+    // ------------------------------------------------
 
     if (!isOpen) {
         return null
