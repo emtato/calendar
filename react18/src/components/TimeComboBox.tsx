@@ -95,28 +95,52 @@ function filterTimeInput(previous: string, next: string): string {
 
 export default function TimeComboBox(props: TimeComboBoxProps) {
     const [draftText, setDraftText] = useState(formatTime(props.value));
+    const [isOpen, setIsOpen] = useState(false);
 
     useEffect(() => { //update displayed time when parent changes time using combo box selection
         setDraftText(formatTime(props.value));
     }, [props.value]);
 
     return (
-        <input className="time-combobox-input"
-               type="text"
-               aria-label={props.ariaLabel}
-               value={draftText}
-               onChange={(event) => { //update displayed time when user types time in
-                   const nextDraft = filterTimeInput(draftText, event.target.value);
-                   setDraftText(nextDraft);
-                   const isCompleteTime = /^\d{1,2}:\d{2}$/.test(nextDraft);
+        <span className="time-combobox-wrapper"
+              onBlur={(event) => {
+                  const nextFocusedElement = event.relatedTarget;
 
-                   if (!isCompleteTime) return;
+                  if (!event.currentTarget.contains(nextFocusedElement as Node)) {
+                      setIsOpen(false);
+                  }
+              }}>
+            <input className="time-combobox-input"
+                   type="text"
+                   aria-label={props.ariaLabel}
+                   value={draftText}
+                   onChange={(event) => { //update displayed time when user types time in
+                       const nextDraft = filterTimeInput(draftText, event.target.value);
+                       setDraftText(nextDraft);
+                       const isCompleteTime = /^\d{1,2}:\d{2}$/.test(nextDraft);
 
-                   props.onChange(
-                       turntoMinutes(nextDraft, props.ampm)
-                   );
-               }}
+                       if (!isCompleteTime) return;
 
-        />
+                       props.onChange(
+                           turntoMinutes(nextDraft, props.ampm)
+                       );
+                   }}
+                   onClick={() => setIsOpen(true)}
+
+
+            />
+            {isOpen && (
+                <span className="time-combobox-dropdown">
+                {props.options.map((time) => ( //map start/endtime options into butotns
+                    <button
+                        type="button"
+                        className="time-option-button"
+                        key={time}
+                    >
+                        {formatTime(time)}
+                    </button>
+                ))}
+            </span>)}
+        </span>
     );
 }

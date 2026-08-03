@@ -16,18 +16,10 @@ const DEFAULT_START_TIME = 9 * 60
 const DEFAULT_END_TIME = 10 * 60
 
 
-function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number, customTime?: number) {
+function generateTimeOptions(startMinutes: number, endMinutes: number, interval: number) {
     const times: number[] = []
-    let addedCustomAlready = false
     for (let minutes = startMinutes; minutes <= endMinutes; minutes += interval) {
         times.push(minutes)
-        if (customTime) {
-            if (minutes + interval > customTime && !addedCustomAlready) {
-                times.push(customTime)
-                addedCustomAlready = true
-            }
-
-        }
     }
 
     return times
@@ -142,14 +134,14 @@ export default function Popup({
     ) ?? CALENDAR_OPTIONS[0]
 
     calcPopPosition()
-    const startTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30, startTime % 30 !== 0 ? startTime : undefined,)
+    const startTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY - 30, 30)
 
     let endTimeOptions = []
     if (selectedStartDate < selectedEndDate) {
-        endTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY, 15, timeOptionEnd)
+        endTimeOptions = generateTimeOptions(0, MINUTES_PER_DAY, 15)
     } else {
         const firstEndTime = Math.ceil(startTime / 15) * 15
-        endTimeOptions = generateTimeOptions(firstEndTime, MINUTES_PER_DAY, 15, timeOptionEnd)
+        endTimeOptions = generateTimeOptions(firstEndTime, MINUTES_PER_DAY, 15)
     }
     if (endTimeOptions[endTimeOptions.length - 1] !== MINUTES_PER_DAY) {
         endTimeOptions.push(MINUTES_PER_DAY)
@@ -186,292 +178,296 @@ export default function Popup({
         }
 
 
-    if (returnLocation != "") {
-        //TODO
-    }
+        if (returnLocation != "") {
+            //TODO
+        }
 
-    titleCleanupTimer.current = setTimeout(() => {
-        setTitle(returnTitle);
-        titleCleanupTimer.current = null;
-    }, 967);
-}
+        titleCleanupTimer.current = setTimeout(() => {
+            setTitle(returnTitle);
+            titleCleanupTimer.current = null;
+        }, 967);
+    }
 
 //calculate popup position
-function calcPopPosition() {
-    const windowX = window.innerWidth
-    const windowY = window.innerHeight
-    let desiredX = position.x + 40
-    let desiredY = position.y - 120
+    function calcPopPosition() {
+        const windowX = window.innerWidth
+        const windowY = window.innerHeight
+        let desiredX = position.x + 40
+        let desiredY = position.y - 120
 
-    const popupwdith = 0.30 * windowX
-    const popupHeight = 0.55 * windowY
+        const popupwdith = 0.30 * windowX
+        const popupHeight = 0.55 * windowY
 
-    const XrightEdge = desiredX + popupwdith
-    const YBottomEdge = desiredY + popupHeight
+        const XrightEdge = desiredX + popupwdith
+        const YBottomEdge = desiredY + popupHeight
 
 
-    if (XrightEdge > windowX) {
-        //work backwards to calculate actual starting point
-        //desiredX = windowX-windowX*0.28 - 40
-        desiredX = windowX * 0.70 - 45
-        position.x = desiredX
+        if (XrightEdge > windowX) {
+            //work backwards to calculate actual starting point
+            //desiredX = windowX-windowX*0.28 - 40
+            desiredX = windowX * 0.70 - 45
+            position.x = desiredX
+        }
+        if (YBottomEdge > windowY) {
+            desiredY = windowY * 0.45 + 115
+            position.y = desiredY
+        }
     }
-    if (YBottomEdge > windowY) {
-        desiredY = windowY * 0.45 + 115
-        position.y = desiredY
-    }
-}
 
 // process end time selection
-function checkTime(time: string) {
-    const selectedTime = Number(time)
-    let nextEndTime = selectedTime
-    if (selectedEndDate == selectedStartDate) {
-        nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
-    }
-    setEndTime(nextEndTime)
-    if (!selectedStartDate) {
-        return
-    }
-    if (selectedTime % MINUTES_PER_DAY === 0 && selectedEndDate && selectedTime !== 0) { //if midnight
-        const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString() //add 1 day to end date
-        setSelectedEndDate(nextEndDate)
-        setEndTime(0)
-    }
-}
-
-function handleStartTimeChange(nextStartTime: number) {
-    // setStartTimeModified(true)
-    console.log("start time changed to " + nextStartTime)
-    let defaultEndTime = 0
-    if (nextStartTime % 15 != 0) {
-        defaultEndTime = getNextFullHour(nextStartTime);
-    } else {
-        defaultEndTime = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
-    }
-    setStartTime(nextStartTime)
-    //conditions for modifying end time:
-    /*
-    1. if end time was never modified AND its same day
-    2. if end time is earlier than start time AND its same day
-     */
-    if ((selectedStartDate == selectedEndDate && !endTimeModified) || (endTime < nextStartTime && selectedStartDate == selectedEndDate)) {
-        setEndTime(defaultEndTime)
+    function checkTime(time: string) {
+        const selectedTime = Number(time)
+        let nextEndTime = selectedTime
+        if (selectedEndDate == selectedStartDate) {
+            nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
+        }
+        setEndTime(nextEndTime)
+        if (!selectedStartDate) {
+            return
+        }
+        if (selectedTime % MINUTES_PER_DAY === 0 && selectedEndDate && selectedTime !== 0) { //if midnight
+            const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString() //add 1 day to end date
+            setSelectedEndDate(nextEndDate)
+            setEndTime(0)
+        }
     }
 
-    if (defaultEndTime % MINUTES_PER_DAY === 0 && selectedEndDate && selectedStartDate === selectedEndDate && (!endTimeModified || endTime < nextStartTime)) {
-        const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString()
-        setSelectedEndDate(nextEndDate)
-        setEndTime(0)
+    function handleStartTimeChange(nextStartTime: number) {
+        // setStartTimeModified(true)
+        console.log("start time changed to " + nextStartTime)
+        let defaultEndTime = 0
+        if (nextStartTime % 15 != 0) {
+            defaultEndTime = getNextFullHour(nextStartTime);
+        } else {
+            defaultEndTime = Math.min(nextStartTime + 60, MINUTES_PER_DAY)
+        }
+        setStartTime(nextStartTime)
+        //conditions for modifying end time:
+        /*
+        1. if end time was never modified AND its same day
+        2. if end time is earlier than start time AND its same day
+         */
+        if ((selectedStartDate == selectedEndDate && !endTimeModified) || (endTime < nextStartTime && selectedStartDate == selectedEndDate)) {
+            setEndTime(defaultEndTime)
+        }
+
+        if (defaultEndTime % MINUTES_PER_DAY === 0 && selectedEndDate && selectedStartDate === selectedEndDate && (!endTimeModified || endTime < nextStartTime)) {
+            const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString()
+            setSelectedEndDate(nextEndDate)
+            setEndTime(0)
+        }
     }
-}
 
-function handleEndTimeChange(nextEndTime: number) {
-    setEndTimeModified(true)
-    setEndTime(nextEndTime);
+    function handleEndTimeChange(nextEndTime: number) {
+        setEndTimeModified(true)
+        setEndTime(nextEndTime);
 
-    if (nextEndTime < startTime && selectedStartDate == selectedEndDate) {
-        setStartTime(nextEndTime)
+        if (nextEndTime < startTime && selectedStartDate == selectedEndDate) {
+            setStartTime(nextEndTime)
+        }
     }
-}
 
-function closePopup() {
-    setStartTime(DEFAULT_START_TIME)
-    setEndTime(DEFAULT_END_TIME)
-    setTitle("")
-    setDescription("")
-    setEventID("")
-    setAllday(false)
-    setEndTimeModified(false);
-    onClose();
-}
-
-useEffect(() => { // sync the popup dates when CalendarApp opens it with a new date
-    if (isOpen) {
-        setSelectedStartDate(startDate)
-        setSelectedEndDate(endDate)
+    function closePopup() {
+        setStartTime(DEFAULT_START_TIME)
+        setEndTime(DEFAULT_END_TIME)
+        setTitle("")
+        setDescription("")
+        setEventID("")
+        setAllday(false)
+        setEndTimeModified(false);
+        onClose();
     }
-}, [isOpen, startDate, endDate])
+
+    useEffect(() => { // sync the popup dates when CalendarApp opens it with a new date
+        if (isOpen) {
+            setSelectedStartDate(startDate)
+            setSelectedEndDate(endDate)
+        }
+    }, [isOpen, startDate, endDate])
 
 // detect key presses
-useEffect(() => { //run code after rendereing compoent
-    function handleKeyDown(event: KeyboardEvent) {
-        if (event.key === "Escape") {
-            closePopup()
+    useEffect(() => { //run code after rendereing compoent
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key === "Escape") {
+                closePopup()
+            }
         }
-    }
 
-    window.addEventListener("keydown", handleKeyDown);
-    return () => {
-        window.removeEventListener("keydown", handleKeyDown);
-    };
-}, [onClose]); //dependency array (rerun only if onclose changes
+        window.addEventListener("keydown", handleKeyDown);
+        return () => {
+            window.removeEventListener("keydown", handleKeyDown);
+        };
+    }, [onClose]); //dependency array (rerun only if onclose changes
 
-useEffect(() => {
-    if (isOpen) {
-        setSelectedStartDate(startDate);
-        setSelectedEndDate(endDate);
-        setStartTime(initialStartTime);
-        setEndTime(initialEndTime);
-        setTitle(titleText);
-        setDescription(descriptionText);
-        setAllday(allDay);
-        setEventID(id);
-    }
-}, [
-    isOpen,
-    startDate,
-    endDate,
-    initialStartTime,
-    initialEndTime,
-    titleText,
-    descriptionText,
-    allDay,
-    id,
-]);
-
-useEffect(() => {
-    setTimeOptionEnd(generateSpecificTimeOption[1])
-}, [generateSpecificTimeOption])
-
-if (!isOpen) {
-    return null
-}
-
-function saveEvent() {
-    //already given variables:
-    //title is title
-    //startTime is event starting time
-    //endTime is  event ending time
-    //selectedStartDate is event start date
-    //selectedEndDate is event end date
-    //allDay is event alldayness :3
-    //description is description
-    //TODO: implement location and description select/text inputs
-    //TODO: ID impementation
-    const location = "location"
-    const event = {
-        id: id,
-        title: title,
-        startTime: startTime,
-        endTime: endTime,
-        startDate: selectedStartDate,
-        endDate: selectedEndDate,
-        allDay: allday,
-        extendedProps: {
-            location: location,
-            description: description,
+    useEffect(() => {
+        if (isOpen) {
+            setSelectedStartDate(startDate);
+            setSelectedEndDate(endDate);
+            setStartTime(initialStartTime);
+            setEndTime(initialEndTime);
+            setTitle(titleText);
+            setDescription(descriptionText);
+            setAllday(allDay);
+            setEventID(id);
         }
+    }, [
+        isOpen,
+        startDate,
+        endDate,
+        initialStartTime,
+        initialEndTime,
+        titleText,
+        descriptionText,
+        allDay,
+        id,
+    ]);
+
+    useEffect(() => {
+        setTimeOptionEnd(generateSpecificTimeOption[1])
+    }, [generateSpecificTimeOption])
+
+    if (!isOpen) {
+        return null
     }
-    console.log("saving event with id", id)
-    console.log(event)
-    saveCalendarEvent(event)
-}
 
-return (
+    function saveEvent() {
+        //already given variables:
+        //title is title
+        //startTime is event starting time
+        //endTime is  event ending time
+        //selectedStartDate is event start date
+        //selectedEndDate is event end date
+        //allDay is event alldayness :3
+        //description is description
+        //TODO: implement location and description select/text inputs
+        //TODO: ID impementation
+        const location = "location"
+        const event = {
+            id: id,
+            title: title,
+            startTime: startTime,
+            endTime: endTime,
+            startDate: selectedStartDate,
+            endDate: selectedEndDate,
+            allDay: allday,
+            extendedProps: {
+                location: location,
+                description: description,
+            }
+        }
+        console.log("saving event with id", id)
+        console.log(event)
+        saveCalendarEvent(event)
+        closePopup()
+    }
 
-    <div className="popup-overlay">
-        <div
+    return (
 
-            style={{
-                position: "fixed",
-                left: position.x + 40,
-                top: position.y - 120,
-            }}
-        >
-
+        <div className="popup-overlay">
             <div
-                className="event-popup"
-                style={{'--event-color': selectedCalendar.color} as CSSProperties}
+
+                style={{
+                    position: "fixed",
+                    left: position.x + 40,
+                    top: position.y - 120,
+                }}
             >
-                <button className="icon-button drag-button" type="button" aria-label="Move popup">☰</button>
-                {/* TODO */}
-                <button
-                    className="icon-button close-button"
-                    type="button"
-                    aria-label="Close popup"
-                    onClick={closePopup}
+
+                <div
+                    className="event-popup"
+                    style={{'--event-color': selectedCalendar.color} as CSSProperties}
                 >
-                    ×
-                </button>
-                <div className="event-content">
-                    <input
-                        value={title}
-                        className="title-input"
-                        placeholder="Add title, time/location"
-                        onInput={(event) => {
-                            const input = event.currentTarget.value
-                            setTitle(input);
-                            //temporarily disable time modification detection
-                            const startTimeModified = false
-                            handleTitleInputChange(simpleTimeLocationExtractor(input, startTimeModified, locationModified))
-                        }}
-                    />
-                    <div className="form-row">
-                        <span className="row-icon">◷</span>
-                        <div className="row-content">
-                            {/*
+                    <button className="icon-button drag-button" type="button" aria-label="Move popup">☰</button>
+                    {/* TODO */}
+                    <button
+                        className="icon-button close-button"
+                        type="button"
+                        aria-label="Close popup"
+                        onClick={closePopup}
+                    >
+                        ×
+                    </button>
+                    <div className="event-content">
+                        <input
+                            value={title}
+                            className="title-input"
+                            placeholder="Add title, time/location"
+                            onInput={(event) => {
+                                const input = event.currentTarget.value
+                                setTitle(input);
+                                //temporarily disable time modification detection
+                                const startTimeModified = false
+                                handleTitleInputChange(simpleTimeLocationExtractor(input, startTimeModified, locationModified))
+                            }}
+                        />
+                        <div className="form-row">
+                            <span className="row-icon">◷</span>
+                            <div className="row-content">
+                                {/*
                                 <input
                                 value={dateText}
                                 onChange={(event) => setDateText(event.target.value)}
                                 />
                                 */}
-                            <div className="date-range">
-                                <select
-                                    className="date-input" value={selectedStartDate}
-                                    onChange={(event) => {
-                                        const nextStartDate = event.target.value
-                                        const nextEndDate = nextStartDate >= selectedEndDate
-                                            //only update end date if start date is after end date
-                                            ? nextStartDate
-                                            : selectedEndDate
-
-                                        setSelectedStartDate(nextStartDate)
-                                        setSelectedEndDate(nextEndDate)
-                                        if(nextStartDate == nextEndDate && endTime < startTime) {
-                                            setEndTime(startTime)
-                                        }
-                                    }}
-                                >
-                                    {dateList.map((date) => (
-                                        <option key={date} value={date}>
-                                            {date}
-                                        </option>
-                                    ))}
-                                </select>
-                                <span className="range-separator">-</span>
-                                <select
-                                    className="date-input end-date-input"
-                                    value={selectedEndDate}
-                                    onChange={(event) => {
-                                        const nextEndDate = event.target.value
-                                        setSelectedEndDate(nextEndDate)
-                                        if (nextEndDate < selectedStartDate) {
-                                            setSelectedStartDate(event.target.value)
-                                        }
-                                        if(selectedStartDate == nextEndDate && endTime < startTime) {
-                                            setEndTime(startTime)
-                                        }
-                                    }
-                                    }>
-                                    {dateList.map((date) => (
-                                        <option key={date} value={date}>
-                                            {date}
-                                        </option>
-                                    ))}
-                                </select>
-                                <label className="all-day-option">
-                                    <input
-                                        type="checkbox"
-                                        checked={allday}
+                                <div className="date-range">
+                                    <select
+                                        className="date-input" value={selectedStartDate}
                                         onChange={(event) => {
-                                            setAllday(event.target.checked);
+                                            const nextStartDate = event.target.value
+                                            const nextEndDate = nextStartDate >= selectedEndDate
+                                                //only update end date if start date is after end date
+                                                ? nextStartDate
+                                                : selectedEndDate
+
+                                            setSelectedStartDate(nextStartDate)
+                                            setSelectedEndDate(nextEndDate)
+                                            if (nextStartDate == nextEndDate && endTime < startTime) {
+                                                setEndTime(startTime)
+                                            }
                                         }}
-                                    />
-                                    <span>All day</span>
-                                </label>
-                            </div>
-                            <div className="date-range">
+                                    >
+                                        {dateList.map((date) => (
+                                            <option key={date} value={date}>
+                                                {date}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <span className="range-separator">-</span>
+                                    <select
+                                        className="date-input end-date-input"
+                                        value={selectedEndDate}
+                                        onChange={(event) => {
+                                            const nextEndDate = event.target.value
+                                            setSelectedEndDate(nextEndDate)
+                                            if (nextEndDate < selectedStartDate) {
+                                                setSelectedStartDate(event.target.value)
+                                            }
+                                            const nextStartDate = nextEndDate < selectedStartDate //use updated start date info
+                                                    ? nextEndDate
+                                                    : selectedStartDate;
+                                            if (nextStartDate == nextEndDate && endTime < startTime) {
+                                                setEndTime(startTime)
+                                            }
+                                        }
+                                        }>
+                                        {dateList.map((date) => (
+                                            <option key={date} value={date}>
+                                                {date}
+                                            </option>
+                                        ))}
+                                    </select>
+                                    <label className="all-day-option">
+                                        <input
+                                            type="checkbox"
+                                            checked={allday}
+                                            onChange={(event) => {
+                                                setAllday(event.target.checked);
+                                            }}
+                                        />
+                                        <span>All day</span>
+                                    </label>
+                                </div>
+                                <div className="date-range">
                                     <span className="time-select-with-edit">
                                         <TimeComboBox
                                             value={startTime}
@@ -491,8 +487,8 @@ return (
                                             {getAmPm(startTime)}
                                         </button>
                                     </span>
-                                <span className="range-separator">-</span>
-                                <span className="time-select-with-edit">
+                                    <span className="range-separator">-</span>
+                                    <span className="time-select-with-edit">
                                         <TimeComboBox
                                             value={endTime}
                                             options={endTimeOptions}
@@ -513,68 +509,68 @@ return (
                                             {getAmPm(endTime)}
                                         </button>
                                     </span>
+                                </div>
+                                <div className="secondary-text">Does not repeat</div>
                             </div>
-                            <div className="secondary-text">Does not repeat</div>
+                        </div>
+                        <div className="form-row">
+                            <span className="row-icon">♙</span>
+                            <span className="secondary-text">Add guests</span>
+                        </div>
+                        <div className="form-row">
+                            <span className="row-icon row-icon-shift-left">⌖</span>
+                            <span className="secondary-text">Add location</span>
+                        </div>
+                        <div className="form-row">
+                            <span className="row-icon row-icon-shift-left">▣</span>
+                            <label className="calendar-select">
+                                <select
+                                    aria-label="Calendar type"
+                                    value={calendarType}
+                                    onChange={(event) => setCalendarType(event.target.value)}
+                                >
+                                    {CALENDAR_OPTIONS.map((calendar) => (
+                                        <option key={calendar.value} value={calendar.value}>
+                                            {calendar.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                <span
+                                    className="calendar-color"
+                                    style={{backgroundColor: selectedCalendar.color}}
+                                />
+                                <span className="calendar-arrow" aria-hidden="true">▾</span>
+                            </label>
+                        </div>
+                        <div className="form-row">
+                            <span className="row-icon row-icon-shift-left">☰</span>
+                            <input
+                                value={description}
+                                className="description-input"
+                                placeholder="Add description"
+                                onChange={(event) => setDescription(event.target.value)}
+                            />
                         </div>
                     </div>
-                    <div className="form-row">
-                        <span className="row-icon">♙</span>
-                        <span className="secondary-text">Add guests</span>
+                    <div className="popup-actions">
+                        <button className="delete-button" type="button" aria-label="Delete event">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M4 7h16"/>
+                                <path d="M9 7V4h6v3"/>
+                                <path d="m6 7 1 13h10l1-13"/>
+                                <path d="M10 11v5M14 11v5"/>
+                            </svg>
+                        </button>
+                        <button className="text-button">More options</button>
+                        <button className="save-button"
+                                onClick={saveEvent}
+                        >Save
+                        </button>
                     </div>
-                    <div className="form-row">
-                        <span className="row-icon row-icon-shift-left">⌖</span>
-                        <span className="secondary-text">Add location</span>
-                    </div>
-                    <div className="form-row">
-                        <span className="row-icon row-icon-shift-left">▣</span>
-                        <label className="calendar-select">
-                            <select
-                                aria-label="Calendar type"
-                                value={calendarType}
-                                onChange={(event) => setCalendarType(event.target.value)}
-                            >
-                                {CALENDAR_OPTIONS.map((calendar) => (
-                                    <option key={calendar.value} value={calendar.value}>
-                                        {calendar.label}
-                                    </option>
-                                ))}
-                            </select>
-                            <span
-                                className="calendar-color"
-                                style={{backgroundColor: selectedCalendar.color}}
-                            />
-                            <span className="calendar-arrow" aria-hidden="true">▾</span>
-                        </label>
-                    </div>
-                    <div className="form-row">
-                        <span className="row-icon row-icon-shift-left">☰</span>
-                        <input
-                            value={description}
-                            className="description-input"
-                            placeholder="Add description"
-                            onChange={(event) => setDescription(event.target.value)}
-                        />
-                    </div>
-                </div>
-                <div className="popup-actions">
-                    <button className="delete-button" type="button" aria-label="Delete event">
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M4 7h16"/>
-                            <path d="M9 7V4h6v3"/>
-                            <path d="m6 7 1 13h10l1-13"/>
-                            <path d="M10 11v5M14 11v5"/>
-                        </svg>
-                    </button>
-                    <button className="text-button">More options</button>
-                    <button className="save-button"
-                            onClick={saveEvent}
-                    >Save
-                    </button>
                 </div>
             </div>
         </div>
-    </div>
-)
+    )
 }
 
 

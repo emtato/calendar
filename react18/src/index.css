@@ -237,6 +237,7 @@ b { /* used for event dates/times */
     BlinkMacSystemFont,
     sans-serif;
 }
+
 .description-input {
     width: 100%;
     height: 100%;
@@ -247,6 +248,7 @@ b { /* used for event dates/times */
     color: inherit;
     font: inherit;
 }
+
 /* ____________________________________________________
    Event popup content and controls section
    ____________________________________________________ */
@@ -400,18 +402,29 @@ b { /* used for event dates/times */
     outline-offset: 1px;
 }
 
-/*.time-edit-icon {*/
-/*    width: 14px;*/
-/*    height: 14px;*/
-/*    flex: 0 0 14px;*/
-/*    fill: none;*/
-/*    stroke: #5f6368;*/
-/*    stroke-width: 1.8;*/
-/*    stroke-linecap: round;*/
-/*    stroke-linejoin: round;*/
-/*}*/
+.time-combobox-wrapper {
+    position: relative;
+    display: inline-block;
+}
 
-.time-combobox-input{
+.time-combobox-dropdown {
+    position: absolute;
+    top: 100%;
+    z-index: 1500;
+    max-height: 200px;
+    overflow-y: auto;
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+}
+.time-option-button{
+    background: white;
+    border-bottom-color: #e0e3e7;
+    border-width: thin;
+    border-style: groove;
+    border-radius: 3px;
+}
+
+.time-combobox-input {
     width: 38px;
     border: none;
     font-size: 14px;
