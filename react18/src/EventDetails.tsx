@@ -114,7 +114,7 @@ export default function Popup({
     const [locationModified, setLocationModified] = useState(false)
 
     const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
-
+    const formRef = useRef<HTMLFormElement | null>(null); //for enter function
 
     //  const [startTimeModified, setStartTimeModified] = useState(false)//flag to check time changed manually -> overrides automatic time set from title analysis
 
@@ -370,6 +370,16 @@ export default function Popup({
                 }
                 deleteEvent()
             }
+            if (event.key === "Enter" && !event.defaultPrevented) {
+                const target = event.target;
+
+                const controlHasFocus = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement ||
+                    target instanceof HTMLSelectElement || target instanceof HTMLButtonElement;
+
+                if (!controlHasFocus) {
+                    formRef.current?.requestSubmit();
+                }
+            }
         }
 
         window.addEventListener("keydown", handleKeyDown);
@@ -413,6 +423,7 @@ export default function Popup({
                         ×
                     </button>
                     <form
+                        ref={formRef}
                         className="event-content"
                         id="event-form"
                         onSubmit={(event) => {

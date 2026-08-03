@@ -6,7 +6,7 @@ function formatTime(minutesAfterMidnight: number, addAMPM: boolean): string {
     const minutes = minutesAfterMidnight % 60;
     const hour12 = hour24 % 12 || 12;
     const AMPM = hour24 < 12 ? "AM" : "PM";
-    if(minutesAfterMidnight === 24 * 60) return (
+    if (minutesAfterMidnight === 24 * 60) return (
         addAMPM ? "12:00 AM" : "12:00"
     )
     if (!addAMPM) return `${hour12}:${String(minutes).padStart(2, "0")}`;
@@ -145,6 +145,14 @@ export default function TimeComboBox(props: TimeComboBoxProps) {
                        props.onChange(turntoMinutes(nextDraft, props.ampm));
                    }}
                    onClick={() => setIsOpen(true)}
+
+                   onKeyDown={(event) => { // close dropdown when enter press
+                       if (event.key === "Enter" && isOpen) {
+                           event.preventDefault(); //prevent it from saving event (default action from enter)
+                           event.stopPropagation();
+                           setIsOpen(false);
+                       }
+                   }}
 
 
             />
