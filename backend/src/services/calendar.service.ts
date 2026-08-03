@@ -26,11 +26,11 @@ async function saveEvent(input: SaveCalendarEventInput,): Promise<CalendarEvent>
     if (input.id == "") { //new event
         input.id = randomUUID();
         const event = ConvertToCalendarEvent(input);
-        eventStorage.createEvent(event)
+       await eventStorage.createEvent(event)
         return event;
     } //preixisting event being saved
     const event = ConvertToCalendarEvent(input);
-    eventStorage.saveEvent(event)
+   await eventStorage.saveEvent(event)
     return event
 }
 

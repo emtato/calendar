@@ -3,7 +3,8 @@ import FullCalendar, {
     DateClickInfo,
     DateSelectInfo,
     EventClickInfo,
-    EventSourceFuncInfo
+    EventSourceFuncInfo,
+    CalendarRef,
 } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/react/daygrid'
 
@@ -83,6 +84,7 @@ export default function CalendarApp() {
     const [popupPos, setPopupPos] = useState({x: 0, y: 0});
     const [highlightedRange, setHighlightedRange] = useState<HighlightedRange | null>(null)
     const calendarApiRef = useRef<CalendarApi | null>(null)
+    const calendarComponentRef = useRef<CalendarRef | null>(null);
 
     const [isSidebar, setSidebar] = useState(true)
     const [isMiniBar, setMinibar] = useState(false)
@@ -121,7 +123,7 @@ export default function CalendarApp() {
     // ------------------------------------------------
 
     function refreshCalendar() {
-        calendarApiRef.current?.refetchEvents();
+        calendarComponentRef.current?.getApi().refetchEvents();
     }
 
     function displayNewEventPlaceholder(clickInfo: CalendarApi, startDate: string, endDate: string, startTime?: string, endTime?: string) {
@@ -177,33 +179,46 @@ export default function CalendarApp() {
     }
 
     useEffect(() => {
-        function handleKeyDown(event: KeyboardEvent) {
-            if (event.key !== "Escape" && event.key != "n") {
-                return;
-            }
-            if (event.key == "n") {
-                setIsPopOpen(true)
-                setPopupPos({x: 1000, y: 300})
-                return
-            }
-            if (isPopOpen) {
-                closePopup();
-                return;
-            }
-            if (isSidebar) {
-                closeBigBar();
-            }
-        }
+            function handleKeyDown(event: KeyboardEvent) {
+                if (event.key !== "Escape" && event.key != "n") {
+                    return;
+                }
 
-        window.addEventListener("keydown", handleKeyDown);
+                if (event.key == "n") {
+                    if (!isPopOpen) {
+                        setIsPopOpen(true)
+                        setPopupPos({x: 1000, y: 300})
+                        const today = new Date();
+                        const todayString = today.toISOString().split('T')[0];
+                        setSelectedDate(todayString)
+                        setDateList(createDateList(todayString))
+                        setSelectedEndDate(todayString)
+                        //displayNewEventPlaceholder(calendarApiRef, todayString, todayString, "4",  todayString)
+                        //TODO
+                    }
+                    return
+                }
 
-        return () => {
-            window.removeEventListener("keydown", handleKeyDown);
-        };
-    }, [isPopOpen, isSidebar]);
-    // ------------------------------------------------
-    // user fullcalendar interactions
-    // ------------------------------------------------
+                if (isPopOpen) {
+                    closePopup();
+                    return;
+                }
+                if (isSidebar) {
+                    closeBigBar();
+                }
+            }
+
+            window.addEventListener("keydown", handleKeyDown);
+
+            return () => {
+                window.removeEventListener("keydown", handleKeyDown);
+            };
+        },
+        [isPopOpen, isSidebar]
+    );
+// ------------------------------------------------
+// user fullcalendar interactions
+// ------------------------------------------------
 
     function handleDateClick(clickInfo: DateClickInfo) {
         if (justDragged.current) {
@@ -310,7 +325,7 @@ export default function CalendarApp() {
     }
 
     function handleEventClick(selectInfo: EventClickInfo) {
-        console.log("clicked event")
+        calendarApiRef.current = selectInfo.view.calendar
         setIsPopOpen(true)
         setPopupPos({x: selectInfo.jsEvent?.clientX, y: selectInfo.jsEvent?.clientY,});
         console.log("loc " + selectInfo.jsEvent.clientX)
@@ -362,15 +377,16 @@ export default function CalendarApp() {
         //    console.log("event")
     }
 
-    // ------------------------------------------------
-    // render
-    // ------------------------------------------------
+// ------------------------------------------------
+// render
+// ------------------------------------------------
 
     return (
         <div className={`app ${isSidebar ? '' : 'app-sidebar-collapsed'}`}>
             {/* determine layout ratio depending on if sidebar is here*/}
             <div className='calendar-main'>
                 <FullCalendar
+                    ref={calendarComponentRef}
                     plugins={[
                         themePlugin,
                         dayGridPlugin,

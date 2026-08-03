@@ -292,6 +292,10 @@ export default function Popup({
     }
 
     async function deleteEvent() {
+        if (id === "") {
+            closePopup()
+            return
+        }
         await deleteCalendarEvent(id)
         onEventsChanged(); //refresh calendar events
         closePopup()
@@ -324,6 +328,7 @@ export default function Popup({
         console.log(event)
         await saveCalendarEvent(event)
         onEventsChanged(); //refresh calendar events
+        console.log("event refrehe")
         closePopup()
     }
 
