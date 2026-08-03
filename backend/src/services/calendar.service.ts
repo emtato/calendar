@@ -40,6 +40,7 @@ async function getEvents(start: string, end: string): Promise<CalendarEvent[]> {
 }
 
 async function deleteEvent(id: string): Promise<void> {
+    await eventStorage.deleteEvent(id)
 
 }
 //                          helper functions

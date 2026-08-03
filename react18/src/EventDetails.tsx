@@ -4,6 +4,7 @@ import {Temporal} from 'temporal-polyfill'
 import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extractor";
 import {saveCalendarEvent, deleteCalendarEvent, getCalendarEventById} from "./api/eventsAPI";
 import TimeComboBox from "./components/TimeComboBox";
+import {CalendarEvent} from "../../backend/src/domain/calendar-event";
 
 const CALENDAR_OPTIONS = [
     {value: 'default', label: 'Default', color: '#6F5FA7'},
@@ -82,6 +83,7 @@ interface PopupInfo { // describes the information the component expects
     id: string;
     allDay: boolean;
     endTimeMod: boolean
+    onEventsChanged: () => void
 
 }
 
@@ -109,6 +111,7 @@ export default function Popup({
                                   id,
                                   allDay,
                                   endTimeMod,
+                                  onEventsChanged,
                               }: PopupInfo) {
     const [calendarType, setCalendarType] = useState('default')
     const [startTime, setStartTime] = useState(initialStartTime)
@@ -332,7 +335,13 @@ export default function Popup({
         return null
     }
 
-    function saveEvent() {
+    async function deleteEvent() {
+        await deleteCalendarEvent(id)
+        onEventsChanged(); //refresh calendar events
+        closePopup()
+    }
+
+    async function saveEvent() {
         //already given variables:
         //title is title
         //startTime is event starting time
@@ -341,11 +350,9 @@ export default function Popup({
         //selectedEndDate is event end date
         //allDay is event alldayness :3
         //description is description
-        //TODO: implement location and description select/text inputs
-        //TODO: ID impementation
         const location = "location"
         const event = {
-            id: id,
+            id: id, //id is "" by default, and passed in by calendarApp if clicking on a prexisting event
             title: title,
             startTime: startTime,
             endTime: endTime,
@@ -359,7 +366,8 @@ export default function Popup({
         }
         console.log("saving event with id", id)
         console.log(event)
-        saveCalendarEvent(event)
+        await saveCalendarEvent(event)
+        onEventsChanged(); //refresh calendar events
         closePopup()
     }
 
@@ -555,7 +563,8 @@ export default function Popup({
                         </div>
                     </div>
                     <div className="popup-actions">
-                        <button className="delete-button" type="button" aria-label="Delete event">
+                        <button className="delete-button"
+                                onClick={deleteEvent} type="button" aria-label="Delete event">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M4 7h16"/>
                                 <path d="M9 7V4h6v3"/>

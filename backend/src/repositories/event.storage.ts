@@ -55,5 +55,9 @@ async function createEvent(event: CalendarEvent) {
     return result;
 }
 
-function deleteEvent(id: string) {
+async function deleteEvent(id: string) {
+    const db = await getDatabase()
+    const eventsCollection = db.collection<CalendarEvent>("events");
+    const result = await eventsCollection.deleteOne({id: id});
+    return result;
 }

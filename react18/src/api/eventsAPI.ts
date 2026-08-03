@@ -14,7 +14,7 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL;
  */
 export async function getCalendarEvents(startDate: string, endDate: string): Promise<CalendarEvent[]> {
 
-    const response = await fetch(    `${SERVER_URL}/api/events?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`)
+    const response = await fetch(`${SERVER_URL}/api/events?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`)
     console.log("received response" + response)
     const events = await response.json();
     console.log("received events", events)
@@ -60,5 +60,11 @@ export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<
  * Returns: nothing after the backend confirms the deletion
  */
 export async function deleteCalendarEvent(eventId: string): Promise<void> {
-    throw new Error("deleteCalendarEvent is not implemented yet");
+    const response = await fetch(`${SERVER_URL}/api/events/${eventId}`, {
+        method: 'DELETE'
+    })
+    if (!response.ok) {
+        throw new Error(`Delete failed: ${response.status}`);
+    }
+    return;
 }

@@ -7,6 +7,7 @@
  */
 import {Router} from "express";
 import {
+    deleteEvent,
     handleCreateEvent,
     handleListEvents,
 } from "../controllers/events.controller";
@@ -18,3 +19,6 @@ eventsRouter.get("/", handleListEvents);
 
 // POST /api/events
 eventsRouter.post("/", handleCreateEvent);
+
+// DELETE /api/events/:id
+eventsRouter.delete("/:id", deleteEvent);

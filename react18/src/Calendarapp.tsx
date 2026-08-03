@@ -27,6 +27,10 @@ interface HighlightedRange {
     end: string
 }
 
+function fetchCalendarEvents(fetchInfo: EventSourceFuncInfo) {
+    return getCalendarEvents(fetchInfo.startStr, fetchInfo.endStr);
+}
+
 function toLocalDateString(date: Date) {
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -86,6 +90,10 @@ export default function CalendarApp() {
     function openBigBar() {
         setSidebar(true)
         setMinibar(false)
+    }
+
+    function refreshCalendar() {
+        calendarApiRef.current?.refetchEvents();
     }
 
     function displayNewEventPlaceholder(clickInfo: CalendarApi, startDate: string, endDate: string, startTime?: string, endTime?: string) {
@@ -268,7 +276,7 @@ export default function CalendarApp() {
         if (justDragged.current) {
             return
         }
-                resetStates()
+        resetStates()
 
         setStartTime(9 * 60)
         setEndTime(10 * 60)
@@ -348,9 +356,7 @@ export default function CalendarApp() {
                     // eventContent={renderEventContent} // custom render function
                     eventClick={handleEventClick}
                     eventsSet={handleEvents} // called after events are initialized/added/changed/removed
-                    events={(fetchInfo: EventSourceFuncInfo) => {
-                        return getCalendarEvents(fetchInfo.startStr, fetchInfo.endStr)
-                    }}
+                    events={fetchCalendarEvents}
                 />
             </div>
             <Popup //passing info into popup
@@ -368,6 +374,7 @@ export default function CalendarApp() {
                 id={id}
                 allDay={allDay}
                 endTimeMod={false}
+                onEventsChanged={refreshCalendar}
 
             />
             <Sidebar isOpen={isSidebar} onClose={closeBigBar}

@@ -33,6 +33,9 @@ export async function handleCreateEvent(request: any, response: any) {
 }
 
 export async function deleteEvent(request: any, response: any) {
-
+    const id = request.params.id;
+    const event = await calendarService.deleteEvent(id);
+    response.status(204).end(event);
+    return event;
 }
 
