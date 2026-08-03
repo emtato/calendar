@@ -378,12 +378,6 @@ b { /* used for event dates/times */
 
 }
 
-.time-combobox-placeholder {
-    width: 81px;
-    height: 28px;
-    flex: 0 0 81px;
-}
-
 .time-period-toggle {
     border: 0;
     border-radius: 8px;
@@ -411,6 +405,7 @@ b { /* used for event dates/times */
 .time-combobox-dropdown {
     position: absolute;
     top: 100%;
+    left: -322%;
     z-index: 1500;
     max-height: 200px;
     overflow-y: auto;
@@ -419,6 +414,8 @@ b { /* used for event dates/times */
 }
 
 .time-option-button {
+    width: 72px;
+    height:25px;
     background: white;
     border-bottom-color: #e0e3e7;
     border-width: thin;

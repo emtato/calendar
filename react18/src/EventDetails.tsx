@@ -260,9 +260,15 @@ export default function Popup({
 
     function handleEndTimeChange(nextEndTime: number) {
         setEndTimeModified(true)
+        let nextEndDate = selectedEndDate
+        if (nextEndTime == 24 * 60) {
+            nextEndTime = 0
+            nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString()
+            setSelectedEndDate(nextEndDate)
+        }
         setEndTime(nextEndTime);
 
-        if (nextEndTime < startTime && selectedStartDate == selectedEndDate) {
+        if (nextEndTime < startTime && selectedStartDate == nextEndDate) {
             setStartTime(nextEndTime)
         }
     }
@@ -321,10 +327,6 @@ export default function Popup({
         allDay,
         id,
     ]);
-
-    useEffect(() => {
-        setTimeOptionEnd(generateSpecificTimeOption[1])
-    }, [generateSpecificTimeOption])
 
     if (!isOpen) {
         return null
@@ -443,8 +445,8 @@ export default function Popup({
                                                 setSelectedStartDate(event.target.value)
                                             }
                                             const nextStartDate = nextEndDate < selectedStartDate //use updated start date info
-                                                    ? nextEndDate
-                                                    : selectedStartDate;
+                                                ? nextEndDate
+                                                : selectedStartDate;
                                             if (nextStartDate == nextEndDate && endTime < startTime) {
                                                 setEndTime(startTime)
                                             }
