@@ -517,11 +517,11 @@ export default function Popup({
                         </div>
                         <div className="form-row">
                             <span className="row-icon">♙</span>
-                            <span className="secondary-text">Add guests</span>
+                            <span>Add guests</span>
                         </div>
                         <div className="form-row">
                             <span className="row-icon row-icon-shift-left">⌖</span>
-                            <span className="secondary-text">Add location</span>
+                            <span>Add location</span>
                         </div>
                         <div className="form-row">
                             <span className="row-icon row-icon-shift-left">▣</span>
