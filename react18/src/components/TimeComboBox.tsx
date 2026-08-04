@@ -165,14 +165,13 @@ export default function TimeComboBox(props: TimeComboBoxProps) {
                        const requestedPeriod = proposedText.slice(-1).toLowerCase();
 
                        if (requestedPeriod === "a" || requestedPeriod === "p") {
-                           const minutesAfterMidnight =
-                               periodDetectionToMinutesAfterMidnight(proposedText);
+                           const minutesAfterMidnight = periodDetectionToMinutesAfterMidnight(proposedText);
 
                            if (minutesAfterMidnight === null) return;
 
                            setDraftText(formatTime(minutesAfterMidnight, false));
-                           props.onChange(minutesAfterMidnight);
-                           return;//return to not put this in draftext
+                           props.onChange(minutesAfterMidnight); //update parent on new time selectionx
+                           return;//return to not put this (inclusion of a/p) in draftext
                        }
 
                        const nextDraft = filterTimeInput(draftText, event.target.value);

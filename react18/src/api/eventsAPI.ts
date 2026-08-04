@@ -2,6 +2,7 @@ import type {
     CalendarEvent,
     SaveCalendarEventInput,
 } from "../../../backend/src/CalendarEvent";
+import {simpleTimeLocationExtractor} from "../utils/simple_time_location_extractor";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
@@ -40,6 +41,12 @@ export async function getCalendarEventById(eventId: string): Promise<CalendarEve
  * Returns: the saved event, including the ID assigned by the backend
  */
 export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<CalendarEvent> {
+    //run time/location extractor again in case the user saved it before timer ran out
+    const [returnTime, returnlocation, returnTitle] = simpleTimeLocationExtractor(event.title, false, false)
+    event.title = returnTitle
+    const [hours, minutes] = returnTime.split(":").map(Number);
+    event.startTime = hours * 60 + minutes;
+
     const response = await fetch(`${SERVER_URL}/api/events/`, {
         method: 'POST',
         headers: {
@@ -47,7 +54,7 @@ export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<
         },
         body: JSON.stringify(event)
     })
-   // console.log("saving event response", response)
+    // console.log("saving event response", response)
     return response.json() //return id inside the returned full calendarEvent object
 }
 
