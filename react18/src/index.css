@@ -69,6 +69,8 @@ b { /* used for event dates/times */
     min-height: 100%;
     font-family: var(--font-ui);
     font-size: 14px;
+    transition: grid-template-columns 250ms ease;
+
 }
 
 .app-sidebar-collapsed {
@@ -279,8 +281,8 @@ b { /* used for event dates/times */
     width: 15vw;
     height: 4vh;
     background: #80868b;
-
 }
+
 .delete-undo button {
     width: 100%;
     height: 100%;
@@ -290,6 +292,7 @@ b { /* used for event dates/times */
     color: white;
     font-size: 18px;
 }
+
 /* ____________________________________________________
    Event popup content and controls section
    ____________________________________________________ */
