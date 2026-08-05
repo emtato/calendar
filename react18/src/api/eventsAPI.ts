@@ -3,6 +3,7 @@ import type {
     SaveCalendarEventInput,
 } from "../../../backend/src/CalendarEvent";
 import {simpleTimeLocationExtractor} from "../utils/simple_time_location_extractor";
+import {DeletedEvent} from "../Calendarapp";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
@@ -44,8 +45,13 @@ export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<
     //run time/location extractor again in case the user saved it before timer ran out
     const [returnTime, returnlocation, returnTitle] = simpleTimeLocationExtractor(event.title, false, false)
     event.title = returnTitle
-    const [hours, minutes] = returnTime.split(":").map(Number);
-    event.startTime = hours * 60 + minutes;
+    if (returnTime != "") {
+        const [hours, minutes] = returnTime.split(":").map(Number);
+        event.startTime = hours * 60 + minutes;
+    }
+    if(returnlocation != null){
+        event.extendedProps.location = returnlocation
+    }
 
     const response = await fetch(`${SERVER_URL}/api/events/`, {
         method: 'POST',
@@ -54,7 +60,7 @@ export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<
         },
         body: JSON.stringify(event)
     })
-    // console.log("saving event response", response)
+// console.log("saving event response", response)
     return response.json() //return id inside the returned full calendarEvent object
 }
 
@@ -74,4 +80,16 @@ export async function deleteCalendarEvent(eventId: string): Promise<void> {
         throw new Error(`Delete failed: ${response.status}`);
     }
     return;
+}
+
+export async function restoreEvent(input: DeletedEvent): Promise<CalendarEvent>{
+const response = await fetch(`${SERVER_URL}/api/events/restore`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(input)
+    })
+    return response.json()
+
 }

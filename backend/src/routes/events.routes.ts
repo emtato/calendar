@@ -10,6 +10,7 @@ import {
     deleteEvent,
     handleCreateEvent,
     handleListEvents,
+    handleRestoreEvent,
 } from "../controllers/events.controller";
 
 export const eventsRouter = Router();
@@ -19,6 +20,8 @@ eventsRouter.get("/", handleListEvents);
 
 // POST /api/events
 eventsRouter.post("/", handleCreateEvent);
+//POST /api/events/restore
+eventsRouter.post("/restore", handleRestoreEvent);
 
 // DELETE /api/events/:id
 eventsRouter.delete("/:id", deleteEvent);

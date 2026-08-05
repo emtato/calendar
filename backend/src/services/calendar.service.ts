@@ -33,6 +33,15 @@ async function saveEvent(input: SaveCalendarEventInput,): Promise<CalendarEvent>
    await eventStorage.saveEvent(event)
     return event
 }
+async function restoreEvent(input: SaveCalendarEventInput): Promise<CalendarEvent> {
+     if(input.allDay){
+        input.endDate = addOneDay(input.endDate)
+    }
+    console.log("event being restored", input)
+        const event = ConvertToCalendarEvent(input);
+       await eventStorage.createEvent(event)
+        return event;
+}
 
 async function getEvents(start: string, end: string): Promise<CalendarEvent[]> {
     return eventStorage.getEvents(start, end)
@@ -85,6 +94,6 @@ function addOneDay(date: string): string {
 }
 
 export const calendarService = {
-    saveEvent, getEvents, deleteEvent
+    saveEvent, getEvents, deleteEvent, restoreEvent
 };
 

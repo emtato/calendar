@@ -5,7 +5,7 @@ import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extracto
 import {saveCalendarEvent, deleteCalendarEvent, getCalendarEventById} from "./api/eventsAPI";
 import TimeComboBox from "./components/TimeComboBox";
 import {CalendarEvent} from "../../backend/src/domain/calendar-event";
-
+import type {DeletedEvent} from "./Calendarapp";
 // ----------------------------------------------------
 // Configuration
 // ----------------------------------------------------
@@ -76,6 +76,7 @@ interface PopupInfo { // describes the information the component expects
     allDay: boolean;
     endTimeMod: boolean
     onEventsChanged: () => void
+    deleteEvent: (event: DeletedEvent) => void;
 
 }
 
@@ -95,6 +96,7 @@ interface SidebarInfo {
 export default function Popup({
                                   isOpen, onClose, position, startDate, endDate, dateList, initialStartTime,
                                   initialEndTime, titleText, descriptionText, id, allDay, endTimeMod, onEventsChanged,
+                                  deleteEvent,
                               }: PopupInfo) {
     // ------------------------------------------------
     // State and refs
@@ -115,7 +117,6 @@ export default function Popup({
 
     const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
     const formRef = useRef<HTMLFormElement | null>(null); //for enter function
-
     //  const [startTimeModified, setStartTimeModified] = useState(false)//flag to check time changed manually -> overrides automatic time set from title analysis
 
     // ------------------------------------------------
@@ -292,17 +293,6 @@ export default function Popup({
         onClose();
     }
 
-    async function deleteEvent() {
-        if (eventID === "") {
-            closePopup()
-            return
-        }
-        //TODO: confirmation popup
-        await deleteCalendarEvent(eventID)
-        onEventsChanged(); //refresh calendar events
-        closePopup()
-    }
-
     async function saveEvent() {
         //already given variables:
         //title is title
@@ -331,6 +321,24 @@ export default function Popup({
         await saveCalendarEvent(event)
         onEventsChanged(); //refresh calendar events
         closePopup()
+    }
+
+    function createDeleteEventPackage() {
+        const location = "location"
+        const event: DeletedEvent = {
+            id: eventID, //id is "" by default, and passed in by calendarApp if clicking on a prexisting event
+            title: title,
+            startTime: startTime,
+            endTime: endTime,
+            startDate: selectedStartDate,
+            endDate: selectedEndDate,
+            allDay: allday,
+            extendedProps: {
+                location: location,
+                description: description,
+            }
+        }
+        deleteEvent(event)
     }
 
     // ------------------------------------------------
@@ -368,7 +376,7 @@ export default function Popup({
                 if (isEditing) {//make sure backspace isnt pressed during input of a typing area
                     return;
                 }
-                deleteEvent()
+                createDeleteEventPackage()
             }
             if (event.key === "Enter" && !event.defaultPrevented) {
                 const target = event.target;
@@ -597,7 +605,7 @@ export default function Popup({
                     </form>
                     <div className="popup-actions">
                         <button className="delete-button"
-                                onClick={deleteEvent} type="button" aria-label="Delete event">
+                                onClick={createDeleteEventPackage} type="button" aria-label="Delete event">
                             <svg viewBox="0 0 24 24" aria-hidden="true">
                                 <path d="M4 7h16"/>
                                 <path d="M9 7V4h6v3"/>

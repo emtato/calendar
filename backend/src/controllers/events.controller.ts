@@ -39,3 +39,8 @@ export async function deleteEvent(request: any, response: any) {
     return event;
 }
 
+export async function handleRestoreEvent(request: any, response: any) {
+    const event = await calendarService.restoreEvent(request.body);
+    response.status(201).json(event);
+    return event;
+}

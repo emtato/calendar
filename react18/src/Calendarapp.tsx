@@ -21,7 +21,7 @@ import {Temporal} from 'temporal-polyfill'
 
 import React, {useEffect, useRef, useState} from 'react'
 import Popup, {MinimizedBar, Sidebar} from './EventDetails'
-import {getCalendarEvents} from "./api/eventsAPI";
+import {deleteCalendarEvent, getCalendarEvents, restoreEvent} from "./api/eventsAPI";
 
 
 // ----------------------------------------------------
@@ -31,6 +31,20 @@ import {getCalendarEvents} from "./api/eventsAPI";
 interface HighlightedRange {
     start: string
     end: string
+}
+
+export interface DeletedEvent {
+    id: string;
+    title: string;
+    startTime: number;
+    endTime: number;
+    startDate: string;
+    endDate: string;
+    allDay: boolean;
+    extendedProps: {
+        location: string;
+        description: string;
+    };
 }
 
 // ----------------------------------------------------
@@ -67,7 +81,6 @@ function createDateList(startDate: string, daysBetween?: number) {
         }
     }
 
-
     return dates
 }
 
@@ -85,6 +98,7 @@ export default function CalendarApp() {
     const [highlightedRange, setHighlightedRange] = useState<HighlightedRange | null>(null)
     const calendarApiRef = useRef<CalendarApi | null>(null)
     const calendarComponentRef = useRef<CalendarRef | null>(null);
+    const deleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     const [isSidebar, setSidebar] = useState(true)
     const [isMiniBar, setMinibar] = useState(false)
@@ -93,6 +107,7 @@ export default function CalendarApp() {
     const [selectedEndDate, setSelectedEndDate] = useState("")
     const [startTime, setStartTime] = useState(9 * 60)
     const [endTime, setEndTime] = useState(10 * 60) //default
+    const [deletePopupUndo, setDeletePopup] = useState(false)
 
     const [dateList, setDateList] = useState<string[]>([])
 
@@ -102,6 +117,7 @@ export default function CalendarApp() {
 
     const justDragged = useRef(false)
     const [allDay, setAllDay] = useState(false)
+    const [justDeletedEvent, setJustDeletedEvent] = useState<DeletedEvent | null>(null);
 
 
     // ------------------------------------------------
@@ -176,6 +192,44 @@ export default function CalendarApp() {
         setDescription("")
         setId("")
         setAllDay(false)
+    }
+
+    async function startDeleteTimer(event: DeletedEvent) {
+        setDeletePopup(true);
+        closePopup();
+        setJustDeletedEvent(event)
+        await deleteCalendarEvent(id)
+        refreshCalendar();
+
+        //runs awaited function after 5 seconds
+        deleteTimer.current = setTimeout(async () => {
+            setJustDeletedEvent(null)
+            deleteTimer.current = null;
+            setDeletePopup(false);
+        }, 5000);
+    }
+
+    async function undoDelete() {
+        if (deleteTimer.current !== null && justDeletedEvent !== null) {
+            clearTimeout(deleteTimer.current); //cancel the tiemer by the identifier deletetimer.current
+            await restoreEvent(justDeletedEvent);// re save event from cache
+           // console.log("event restored", justDeletedEvent)
+
+            refreshCalendar();
+            deleteTimer.current = null;
+        }
+        setDeletePopup(false); // hide undo button
+    }
+
+    async function deleteEvent() {
+        if (id === "") {
+            closePopup()
+            return
+        }
+
+        await deleteCalendarEvent(id)
+        refreshCalendar(); //refresh calendar events
+        closePopup()
     }
 
     useEffect(() => {
@@ -272,7 +326,7 @@ export default function CalendarApp() {
 
         calendarApiRef.current = selectInfo.view.calendar
         setStartTime(9 * 60)
-       // console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
+        // console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
 
         const startDateOnly = Temporal.PlainDate.from(selectInfo.startStr).toString();
         const endDateOnly = Temporal.PlainDate.from(selectInfo.endStr).toString();
@@ -426,6 +480,12 @@ export default function CalendarApp() {
                     events={fetchCalendarEvents}
                 />
             </div>
+            {deletePopupUndo && (
+                <div className="delete-undo">
+                    <button className="text-button" type="button" onClick={undoDelete}>Undo delete pls
+                        :&lt;</button>
+                </div>
+            )}
             {isPopOpen && (
                 <Popup //passing info into popup
                     isOpen={isPopOpen}
@@ -442,6 +502,7 @@ export default function CalendarApp() {
                     allDay={allDay}
                     endTimeMod={false}
                     onEventsChanged={refreshCalendar}
+                    deleteEvent={startDeleteTimer}
 
                 />)}
             <Sidebar isOpen={isSidebar} onClose={closeBigBar}
