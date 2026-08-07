@@ -198,8 +198,8 @@ export default function CalendarApp() {
         closePopup();
         if (event.id != "") {
             setJustDeletedEvent(event)
-            setDeletePopup(true);
             await deleteCalendarEvent(id)
+            setDeletePopup(true);
             refreshCalendar();
         }
         //runs awaited function after 5 seconds
@@ -482,9 +482,11 @@ export default function CalendarApp() {
                 />
             </div>
             {deletePopupUndo && (
-                <div className="delete-undo">
-                    <button className="text-button" type="button" onClick={undoDelete}>Undo delete pls
-                        :&lt;</button>
+                <div className="delete-undo" role="status" aria-live="polite">
+                    <span className="delete-undo__message">Event deleted</span>
+                    <button className="delete-undo__button" type="button" onClick={undoDelete}>
+                        Undo
+                    </button>
                 </div>
             )}
             {isPopOpen && (
