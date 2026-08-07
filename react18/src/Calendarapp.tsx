@@ -195,12 +195,13 @@ export default function CalendarApp() {
     }
 
     async function startDeleteTimer(event: DeletedEvent) {
-        setDeletePopup(true);
         closePopup();
-        setJustDeletedEvent(event)
-        await deleteCalendarEvent(id)
-        refreshCalendar();
-
+        if (event.id != "") {
+            setJustDeletedEvent(event)
+            setDeletePopup(true);
+            await deleteCalendarEvent(id)
+            refreshCalendar();
+        }
         //runs awaited function after 5 seconds
         deleteTimer.current = setTimeout(async () => {
             setJustDeletedEvent(null)
@@ -213,7 +214,7 @@ export default function CalendarApp() {
         if (deleteTimer.current !== null && justDeletedEvent !== null) {
             clearTimeout(deleteTimer.current); //cancel the tiemer by the identifier deletetimer.current
             await restoreEvent(justDeletedEvent);// re save event from cache
-           // console.log("event restored", justDeletedEvent)
+            // console.log("event restored", justDeletedEvent)
 
             refreshCalendar();
             deleteTimer.current = null;

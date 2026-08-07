@@ -671,11 +671,7 @@ export function Sidebar({isOpen, onClose}: SidebarInfo) {
             </div>
             <div className='app-sidebar-section'>
                 <h2>Instructions</h2>
-                <ul>
-                    <li>Select dates and you will be prompted to create a new event</li>
-                    <li>Drag, drop, and resize events</li>
-                    <li>Click an event to delete it</li>
-                </ul>
+                <div className='sidebar-text'>test</div>
             </div>
             <div className='app-sidebar-section'>
 

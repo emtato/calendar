@@ -136,6 +136,19 @@ b { /* used for event dates/times */
     stroke-linejoin: round;
 }
 
+.sidebar-text {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    bottom: 0;
+    position: absolute;
+}
+
+.app-sidebar-section {
+    padding: 2em;
+    position: relative;
+}
+
 /* Minimized sidebar */
 
 .sidebar--minimized {
@@ -184,11 +197,6 @@ b { /* used for event dates/times */
     background: rgba(255, 255, 255, 0.12);
 }
 
-/* Sidebar content */
-
-.app-sidebar-section {
-    padding: 2em;
-}
 
 /* ____________________________________________________
    Calendar section
