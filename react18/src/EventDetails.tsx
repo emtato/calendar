@@ -673,9 +673,6 @@ export function Sidebar({isOpen, onClose}: SidebarInfo) {
                 <h2>Scheduling assistant</h2>
                 <div className='sidebar-chat'>ALALA</div>
             </div>
-            <div className='app-sidebar-section'>
-
-            </div>
 
         </div>
     )

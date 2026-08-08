@@ -93,6 +93,8 @@ b { /* used for event dates/times */
    ____________________________________________________ */
 
 .app-sidebar {
+    display: flex;
+    flex-direction: column;
     margin-block: 8px;
     overflow: hidden;
     border-radius: 12px 0 0 12px;
@@ -144,22 +146,23 @@ b { /* used for event dates/times */
 }
 
 .app-sidebar-section {
-    padding: 2em;
-    position: relative;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 0.7em;
+
 }
 
 .sidebar-chat {
     color: white;
     font-size: 14px;
     font-weight: 500;
-    bottom: -47vw;
-    position: absolute;
-    width: 20vw;
-    height: 10vw;
+    margin-top: auto;
+    height: 2.5vw;
     background: var(--colour-purple-medium);
     border-radius: 12px;
     box-shadow: 0 12px 30px rgba(60, 64, 67, 0.18),
-     0 4px 10px rgba(60, 64, 67, 0.1);
+    0 4px 10px rgba(60, 64, 67, 0.1);
 }
 
 /* Minimized sidebar */
@@ -665,7 +668,7 @@ b { /* used for event dates/times */
 .text-button {
     border: none;
     background: transparent;
-    color:  var(--colour-purple-vibrant);
+    color: var(--colour-purple-vibrant);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -683,5 +686,5 @@ b { /* used for event dates/times */
 }
 
 .save-button:hover {
-    background: color-mix(in srgb,  var(--colour-purple-vibrant) 86%, white);
+    background: color-mix(in srgb, var(--colour-purple-vibrant) 86%, white);
 }
