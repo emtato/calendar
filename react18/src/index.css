@@ -20,6 +20,13 @@
 
 :root {
     --font-ui: "Nunito Variable", system-ui, sans-serif;
+    --colour-purple-dark: #625b72;
+    --colour-purple-medium: #6f697f;
+    --colour-purple-light: #948f9f;
+    --colour-purple-vibrant: #6f5fa7;
+    --colour-off-white: #fdfdfd;
+    --colour-accent-secondary: #d6a85f;
+    --colour-neutral-grey: #5f6368;
 }
 
 html,
@@ -28,7 +35,7 @@ body > div { /* the react root */
     margin: 0;
     padding: 0;
     height: 100%;
-    background: #948f9f;
+    background: var(--colour-purple-light);
     font-family: var(--font-ui);
 }
 
@@ -90,7 +97,7 @@ b { /* used for event dates/times */
     overflow: hidden;
     border-radius: 12px 0 0 12px;
     line-height: 1.5;
-    background: #625B72;
+    background: var(--colour-purple-dark);
     color: white;
 }
 
@@ -136,17 +143,23 @@ b { /* used for event dates/times */
     stroke-linejoin: round;
 }
 
-.sidebar-text {
-    color: white;
-    font-size: 14px;
-    font-weight: 500;
-    bottom: 0;
-    position: absolute;
-}
-
 .app-sidebar-section {
     padding: 2em;
     position: relative;
+}
+
+.sidebar-chat {
+    color: white;
+    font-size: 14px;
+    font-weight: 500;
+    bottom: -47vw;
+    position: absolute;
+    width: 20vw;
+    height: 10vw;
+    background: var(--colour-purple-medium);
+    border-radius: 12px;
+    box-shadow: 0 12px 30px rgba(60, 64, 67, 0.18),
+     0 4px 10px rgba(60, 64, 67, 0.1);
 }
 
 /* Minimized sidebar */
@@ -163,7 +176,7 @@ b { /* used for event dates/times */
     align-items: center;
     overflow: hidden;
     border-radius: 12px 0 0 12px;
-    background: #625b72;
+    background: var(--colour-purple-dark);
     color: white;
 }
 
@@ -225,7 +238,7 @@ b { /* used for event dates/times */
     padding: 14px 24px;
     border: 0;
     border-radius: 0;
-    background: #948f9f !important;
+    background: var(--colour-purple-light) !important;
 }
 
 .calendar-main > div > div:first-child button[aria-label^='This '],
@@ -271,7 +284,7 @@ b { /* used for event dates/times */
     border: 2px solid;
     border-radius: 30px;
     border-color: #dadce0;
-    background: #fdfdfd;
+    background: var(--colour-off-white);
     box-shadow: 0 12px 30px rgba(60, 64, 67, 0.18),
     0 4px 10px rgba(60, 64, 67, 0.1);
     color: #3c4043;
@@ -291,7 +304,7 @@ b { /* used for event dates/times */
     box-sizing: border-box;
     padding: 12px 12px 12px 18px;
     border-radius: 14px;
-    background: #5f6368;
+    background: var(--colour-purple-light);
     box-shadow: 0 8px 24px rgba(60, 64, 67, 0.24),
     0 2px 8px rgba(60, 64, 67, 0.16);
     color: white;
@@ -309,7 +322,7 @@ b { /* used for event dates/times */
     border: none;
     border-radius: 999px;
     background: #f1eef8;
-    color: #625b72;
+    color: var(--colour-purple-dark);
     font: inherit;
     font-size: 14px;
     font-weight: 700;
@@ -370,7 +383,7 @@ b { /* used for event dates/times */
     padding: 4px 0 5px;
     margin-bottom: 18px;
     border: none;
-    border-bottom: 4px solid var(--event-color, #6f5fa7);
+    border-bottom: 4px solid var(--colour-purple-vibrant);
     outline: none;
     background: transparent;
     color: #3c4043;
@@ -458,7 +471,7 @@ b { /* used for event dates/times */
     width: 18px;
     height: 18px;
     margin: 0;
-    accent-color: var(--event-color, #6f5fa7);
+    accent-color: var(--colour-purple-vibrant);
     cursor: pointer;
 }
 
@@ -467,7 +480,7 @@ b { /* used for event dates/times */
 .time-input {
     width: 81px;
     border: none;
-    background: #fdfdfd;
+    background: var(--colour-off-white);
     color: inherit;
     font: inherit;
 }
@@ -493,7 +506,7 @@ b { /* used for event dates/times */
 }
 
 .time-period-toggle:focus-visible {
-    outline: 2px solid var(--event-color, #6f5fa7);
+    outline: 2px solid var(--colour-purple-vibrant);
     outline-offset: 1px;
 }
 
@@ -515,7 +528,7 @@ b { /* used for event dates/times */
     padding: 6px;
     border: 1px solid #dadce0;
     border-radius: 8px;
-    background: #fdfdfd;
+    background: var(--colour-off-white);
     box-shadow: 0 8px 24px rgba(60, 64, 67, 0.18);
     scrollbar-color: #cbd0d7 transparent;
     scrollbar-width: thin;
@@ -606,7 +619,7 @@ b { /* used for event dates/times */
     border: 2px solid #80868b;
     border-radius: 999px;
     background: transparent;
-    color: var(--event-color, #6f5fa7);
+    color: var(--colour-purple-vibrant);
     font-size: 13px;
     cursor: pointer;
 }
@@ -652,7 +665,7 @@ b { /* used for event dates/times */
 .text-button {
     border: none;
     background: transparent;
-    color: var(--event-color, #6f5fa7);
+    color:  var(--colour-purple-vibrant);
     font-size: 14px;
     font-weight: 600;
     cursor: pointer;
@@ -662,7 +675,7 @@ b { /* used for event dates/times */
     padding: 10px 25px;
     border: none;
     border-radius: 999px;
-    background: var(--event-color, #6f5fa7);
+    background: var(--colour-purple-vibrant);
     color: white;
     font-size: 14px;
     font-weight: 600;
@@ -670,5 +683,5 @@ b { /* used for event dates/times */
 }
 
 .save-button:hover {
-    background: color-mix(in srgb, var(--event-color, #6f5fa7) 86%, white);
+    background: color-mix(in srgb,  var(--colour-purple-vibrant) 86%, white);
 }

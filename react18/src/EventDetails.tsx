@@ -670,8 +670,8 @@ export function Sidebar({isOpen, onClose}: SidebarInfo) {
                 </div>
             </div>
             <div className='app-sidebar-section'>
-                <h2>Instructions</h2>
-                <div className='sidebar-text'>test</div>
+                <h2>Scheduling assistant</h2>
+                <div className='sidebar-chat'>ALALA</div>
             </div>
             <div className='app-sidebar-section'>
 
