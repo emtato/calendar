@@ -89,9 +89,20 @@ b { /* used for event dates/times */
 }
 
 .calendar-toolbar-title {
-        font-size: 1.6em;
-        font-weight: 700;
+    font-size: 1.6em;
+    font-weight: 700;
+}
 
+.scrolling-month-view .calendar-month-divider,
+.scrolling-month-view .calendar-month-weekdays {
+    position: static !important;
+    top: auto !important;
+    margin-bottom: 0 !important;
+}
+
+.scrolling-month-view .calendar-month-table,
+.scrolling-month-view .calendar-month-weeks {
+    margin-top: 0 !important;
 }
 
 /* ____________________________________________________

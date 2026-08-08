@@ -63,6 +63,18 @@ function toLocalDateString(date: Date) {
     return `${year}-${month}-${day}`
 }
 
+const monthTitleFormatter = new Intl.DateTimeFormat(undefined, {month: 'long', year: 'numeric'})
+
+function formatMonthTitle(date: Date) {
+    return monthTitleFormatter.format(date)
+}
+
+function isMonthGridView(viewType: string) {
+    return viewType === 'dayGridMonth' ||
+        viewType === 'multiMonthYear' ||
+        viewType === 'scrollingMonth'
+}
+
 function getMinutesAfterMidnight(dateTime: string) {
     const time = Temporal.PlainTime.from(dateTime)
     return time.hour * 60 + time.minute
@@ -118,11 +130,9 @@ export default function CalendarApp() {
     const justDragged = useRef(false)
     const [allDay, setAllDay] = useState(false)
     const [justDeletedEvent, setJustDeletedEvent] = useState<DeletedEvent | null>(null);
-    const [visibleMonthTitle] = useState(() => new Intl.DateTimeFormat(undefined, {
-            month: 'long',
-            year: 'numeric'
-        }).format(new Date())
-    )
+    const calendarMainRef = useRef<HTMLDivElement | null>(null)
+    const monthScrollCleanupRef = useRef<(() => void) | null>(null)
+
 
     // ------------------------------------------------
     // Sidebar functions
@@ -152,7 +162,7 @@ export default function CalendarApp() {
         // Remove the previous temporary banner.
         calendar.getEventById('draft-event')?.remove()
 
-        if (clickInfo.view.type === 'dayGridMonth' || clickInfo.view.type === 'multiMonthYear') {
+        if (isMonthGridView(clickInfo.view.type)) {
             calendar.addEvent({
                 id: 'draft-event',
                 title: 'New Event',
@@ -224,17 +234,6 @@ export default function CalendarApp() {
             deleteTimer.current = null;
         }
         setDeletePopup(false); // hide undo button
-    }
-
-    async function deleteEvent() {
-        if (id === "") {
-            closePopup()
-            return
-        }
-
-        await deleteCalendarEvent(id)
-        refreshCalendar(); //refresh calendar events
-        closePopup()
     }
 
     useEffect(() => {
@@ -349,7 +348,7 @@ export default function CalendarApp() {
         const currentView = selectInfo.view.type;
         let temp = String(Temporal.PlainDate.from(endDateOnly))
 
-        if (currentView === 'dayGridMonth' || currentView === "multiMonthYear") {
+        if (isMonthGridView(currentView)) {
 
             if (startDateOnly === endDateOnly) {
                 setEndTime(10 * 60)
@@ -378,7 +377,7 @@ export default function CalendarApp() {
 
         // The custom range remains visible while FullCalendar's internal
         // selection is cleared so another drag can begin normally.
-        if (currentView === 'dayGridMonth' || currentView === "multiMonthYear") {
+        if (isMonthGridView(currentView)) {
             selectInfo.view.calendar.unselect()
         }
     }
@@ -420,7 +419,7 @@ export default function CalendarApp() {
         const daysBetween = Temporal.PlainDate.from(startDate).until(endDate).days
         setDateList(createDateList(startDate, daysBetween))
         const currentView = selectInfo.view.type;
-        if (currentView === 'dayGridMonth' || currentView === "monthGridYear") {
+        if (isMonthGridView(currentView)) {
             selectInfo.view.calendar.unselect()
 
         }
@@ -442,7 +441,7 @@ export default function CalendarApp() {
     return (
         <div className={`app ${isSidebar ? '' : 'app-sidebar-collapsed'}`}>
             {/* determine layout ratio depending on if sidebar is here*/}
-            <div className='calendar-main'>
+            <div ref={calendarMainRef} className='calendar-main'>
                 <FullCalendar
                     ref={calendarComponentRef}
                     plugins={[
@@ -454,10 +453,9 @@ export default function CalendarApp() {
 
                     ]}
                     initialView="scrollingMonth"
-
                     headerToolbar={{
                         left: 'prev,next today',
-                        center: 'currentMonthTitle',
+                        center: 'title',
                         right: 'timeGridDay,timeGridWeek,scrollingMonth,multiMonthYear'
                     }}
                     views={{ //custom scrollable month view
@@ -471,22 +469,73 @@ export default function CalendarApp() {
                                 const end = new Date(currentDate)
                                 end.setDate(1)
                                 end.setMonth(end.getMonth() + 7)
+                                end.setDate(0)
 
                                 return {start, end}
                             },
                             dateIncrement: {months: 1},
-                            multiMonthMaxColumns: 1
+                            multiMonthMaxColumns: 1,
+                            className: 'scrolling-month-view',
+                            singleMonthHeaderClass: 'calendar-month-divider',
+                            tableClass: 'calendar-month-table',
+                            tableHeaderClass: 'calendar-month-weekdays',
+                            tableBodyClass: 'calendar-month-weeks'
                         }
                     }} buttons={{ //rename scrollingmonth button
                     scrollingMonth: {
                         text: 'Month'
                     }
-                }} toolbarElements={{
-                    currentMonthTitle: () => (
-                        <span className="calendar-toolbar-title">
-                         {visibleMonthTitle}
-                        </span>
-                    )
+                }} viewDidMount={(viewInfo) => {
+                    if (viewInfo.view.type !== 'scrollingMonth') return
+
+                    const scroller = [...viewInfo.el.querySelectorAll<HTMLElement>('*')]
+                        .find((element) => ['auto', 'scroll'].includes(getComputedStyle(element).overflowY))
+                    const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
+
+                    if (!scroller || !toolbarTitle) return
+
+                    toolbarTitle.classList.add('calendar-toolbar-title')
+
+                    const updateTitle = () => {
+                        const bounds = scroller.getBoundingClientRect()
+                        const element = document.elementFromPoint(
+                            bounds.left + bounds.width / 2,
+                            bounds.top + Math.min(100, bounds.height / 4)
+                        )
+                        const month = element?.closest<HTMLElement>('[role="grid"][data-date]')?.dataset.date
+
+                        if (month) {
+                            const [year, monthIndex] = month.split('-').map(Number)
+                            toolbarTitle.textContent = formatMonthTitle(new Date(year, monthIndex - 1, 1))
+                        }
+                    }
+
+                    scroller.addEventListener('scroll', updateTitle, {passive: true})
+
+                    let frame = 0
+                    const timer = window.setTimeout(() => {
+                        frame = window.requestAnimationFrame(() => {
+                            const currentMonth = toLocalDateString(viewInfo.view.calendar.getDate()).slice(0, 7)
+                            const monthGrid = scroller.querySelector<HTMLElement>(`[role="grid"][data-date="${currentMonth}"]`)
+                            const monthHeader = monthGrid?.querySelector<HTMLElement>('.calendar-month-divider')
+
+                            if (monthGrid?.parentElement) {
+                                scroller.scrollTop = monthGrid.parentElement.offsetTop + (monthHeader?.offsetHeight ?? 0)
+                            }
+                            updateTitle()
+                        })
+                    }, 0)
+
+                    monthScrollCleanupRef.current = () => {
+                        scroller.removeEventListener('scroll', updateTitle)
+                        window.clearTimeout(timer)
+                        window.cancelAnimationFrame(frame)
+                    }
+                }} viewWillUnmount={(viewInfo) => {
+                    if (viewInfo.view.type === 'scrollingMonth') {
+                        monthScrollCleanupRef.current?.()
+                        monthScrollCleanupRef.current = null
+                    }
                 }}
                     editable={true} selectMinDistance={10}
                     selectable={true}
