@@ -3,6 +3,7 @@ import FullCalendar, {
     DateClickInfo,
     DateSelectInfo,
     EventClickInfo,
+    EventDisplayInfo,
     EventSourceFuncInfo,
     CalendarRef,
 } from '@fullcalendar/react'
@@ -69,10 +70,34 @@ function formatMonthTitle(date: Date) {
     return monthTitleFormatter.format(date)
 }
 
+function formatEventTime(date: Date) {
+    const hour = date.getHours()
+    const minute = date.getMinutes()
+    const minuteText = minute ? `:${String(minute).padStart(2, '0')}` : ''
+
+    return `${hour % 12 || 12}${minuteText}${hour < 12 ? 'a' : 'p'}`
+}
+
 function isMonthGridView(viewType: string) {
     return viewType === 'dayGridMonth' ||
         viewType === 'multiMonthYear' ||
         viewType === 'scrollingMonth'
+}
+
+function renderCalendarEventContent(eventInfo: EventDisplayInfo) {
+    if (!isMonthGridView(eventInfo.view.type)) return true
+
+    const fallbackTime = !eventInfo.event.allDay && eventInfo.isStart && eventInfo.event.start
+        ? formatEventTime(eventInfo.event.start)
+        : ''
+    const timeText = eventInfo.timeText || fallbackTime
+
+    return <>
+        {timeText && <div className='calendar-event-time'>{timeText}</div>}
+        <div className={`calendar-event-title ${eventInfo.event.allDay ? '' : 'calendar-event-title-timed'}`}>
+            {eventInfo.event.title || '\u00a0'}
+        </div>
+    </>
 }
 
 function getMinutesAfterMidnight(dateTime: string) {
@@ -495,11 +520,18 @@ export default function CalendarApp() {
                             dateIncrement: {months: 1},
                             multiMonthMaxColumns: 1,
                             aspectRatio: 2.1,
+                            dayNarrowWidth: 0,
+                            scrollTimeReset: false,
                             className: 'scrolling-month-view',
                             singleMonthHeaderClass: 'calendar-month-divider',
                             tableClass: 'calendar-month-table',
                             tableHeaderClass: 'calendar-month-weekdays',
                             tableBodyClass: 'calendar-month-weeks'
+                        },
+                        multiMonthYear: {
+                            className: 'calendar-year-view',
+                            dayNarrowWidth: 0,
+                            multiMonthMaxColumns: 2
                         }
                     }} buttons={{ //rename scrollingmonth button
                     scrollingMonth: {
@@ -539,16 +571,25 @@ export default function CalendarApp() {
                         }
                     }
                 }} viewDidMount={(viewInfo) => {
-                    if (viewInfo.view.type !== 'scrollingMonth') return
+                    const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
+
+                    toolbarTitle?.classList.add('calendar-toolbar-title')
+
+                    if (viewInfo.view.type !== 'scrollingMonth') {
+                        if (toolbarTitle) {
+                            toolbarTitle.textContent = viewInfo.view.type === 'multiMonthYear'
+                                ? String(viewInfo.view.currentStart.getFullYear())
+                                : viewInfo.view.title
+                        }
+                        return
+                    }
 
                     const monthList = viewInfo.el.querySelector<HTMLElement>('[role="list"]')
                     const scroller = monthList?.parentElement
-                    const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
 
                     if (!monthList || !scroller || !toolbarTitle) return
 
                     const today = new Date()
-                    toolbarTitle.classList.add('calendar-toolbar-title')
                     toolbarTitle.textContent = formatMonthTitle(today)
 
                     const updateTitle = () => {
@@ -661,7 +702,6 @@ export default function CalendarApp() {
                         window.requestAnimationFrame(() => alignMonthViewRef.current())
                     }
                 }}
-                    scrollTimeReset={false}
                     editable={true} selectMinDistance={10}
                     selectable={true}
                     selectMirror={true}
@@ -682,7 +722,7 @@ export default function CalendarApp() {
                     }}
                     dateClick={handleDateClick}
                     select={handleDateDrag}
-                    // eventContent={renderEventContent} // custom render function
+                    eventContent={renderCalendarEventContent}
                     eventClick={handleEventClick}
                     eventsSet={handleEvents} // called after events are initialized/added/changed/removed
                     events={fetchCalendarEvents}
