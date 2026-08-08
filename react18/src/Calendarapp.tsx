@@ -1,29 +1,27 @@
-import FullCalendar, {
+import FullCalendar from '@fullcalendar/react'
+import type {
     CalendarApi,
+    CalendarOptions,
+    CalendarRef,
     DateClickInfo,
     DateSelectInfo,
     EventClickInfo,
     EventDisplayInfo,
     EventSourceFuncInfo,
-    CalendarRef,
+    SingleMonthInfo,
 } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/react/daygrid'
-
 import themePlugin from '@fullcalendar/react/themes/monarch'
 import '@fullcalendar/react/themes/monarch/theme.css'
 import '@fullcalendar/react/themes/monarch/palettes/purple.css'
 import '@fullcalendar/react/skeleton.css'
 import interactionPlugin from '@fullcalendar/react/interaction'
-
 import timeGridPlugin from '@fullcalendar/react/timegrid'
 import multiMonthPlugin from '@fullcalendar/react/multimonth'
-
 import {Temporal} from 'temporal-polyfill'
-
-import React, {useEffect, useRef, useState} from 'react'
+import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import Popup, {MinimizedBar, Sidebar} from './EventDetails'
-import {deleteCalendarEvent, getCalendarEvents, restoreEvent} from "./api/eventsAPI";
-
+import {deleteCalendarEvent, getCalendarEvents, restoreEvent} from './api/eventsAPI'
 
 // ----------------------------------------------------
 // Types
@@ -35,17 +33,17 @@ interface HighlightedRange {
 }
 
 export interface DeletedEvent {
-    id: string;
-    title: string;
-    startTime: number;
-    endTime: number;
-    startDate: string;
-    endDate: string;
-    allDay: boolean;
+    id: string
+    title: string
+    startTime: number
+    endTime: number
+    startDate: string
+    endDate: string
+    allDay: boolean
     extendedProps: {
-        location: string;
-        description: string;
-    };
+        location: string
+        description: string
+    }
 }
 
 // ----------------------------------------------------
@@ -53,7 +51,7 @@ export interface DeletedEvent {
 // ----------------------------------------------------
 
 function fetchCalendarEvents(fetchInfo: EventSourceFuncInfo) {
-    return getCalendarEvents(fetchInfo.startStr, fetchInfo.endStr);
+    return getCalendarEvents(fetchInfo.startStr, fetchInfo.endStr)
 }
 
 function toLocalDateString(date: Date) {
@@ -65,6 +63,57 @@ function toLocalDateString(date: Date) {
 }
 
 const monthTitleFormatter = new Intl.DateTimeFormat(undefined, {month: 'long', year: 'numeric'})
+const DEFAULT_START_TIME = 9 * 60
+const DEFAULT_END_TIME = 10 * 60
+const DRAFT_EVENT_ID = 'draft-event'
+const SCROLLING_MONTH_VIEW = 'scrollingMonth'
+
+const CALENDAR_PLUGINS = [
+    themePlugin,
+    dayGridPlugin,
+    timeGridPlugin,
+    multiMonthPlugin,
+    interactionPlugin,
+]
+
+const CALENDAR_HEADER_TOOLBAR = {
+    left: 'prev,next scrollToday',
+    center: 'title',
+    right: 'timeGridDay,timeGridWeek,scrollingMonth,multiMonthYear',
+} satisfies CalendarOptions['headerToolbar']
+
+const CALENDAR_VIEWS = {
+    scrollingMonth: {
+        type: 'multiMonth',
+        visibleRange: (currentDate: Date) => {
+            const start = new Date(currentDate)
+            start.setDate(1)
+            start.setMonth(start.getMonth() - 6)
+
+            const end = new Date(currentDate)
+            end.setDate(1)
+            end.setMonth(end.getMonth() + 7)
+            end.setDate(0)
+
+            return {start, end}
+        },
+        dateIncrement: {months: 1},
+        multiMonthMaxColumns: 1,
+        aspectRatio: 2.1,
+        dayNarrowWidth: 0,
+        scrollTimeReset: false,
+        className: 'scrolling-month-view',
+        singleMonthHeaderClass: 'calendar-month-divider',
+        tableClass: 'calendar-month-table',
+        tableHeaderClass: 'calendar-month-weekdays',
+        tableBodyClass: 'calendar-month-weeks',
+    },
+    multiMonthYear: {
+        className: 'calendar-year-view',
+        dayNarrowWidth: 0,
+        multiMonthMaxColumns: 2,
+    },
+} satisfies NonNullable<CalendarOptions['views']>
 
 function formatMonthTitle(date: Date) {
     return monthTitleFormatter.format(date)
@@ -81,7 +130,39 @@ function formatEventTime(date: Date) {
 function isMonthGridView(viewType: string) {
     return viewType === 'dayGridMonth' ||
         viewType === 'multiMonthYear' ||
-        viewType === 'scrollingMonth'
+        viewType === SCROLLING_MONTH_VIEW
+}
+
+function displayNewEventPlaceholder(
+    calendar: CalendarApi,
+    startDate: string,
+    endDate: string,
+    startTime?: string,
+    endTime?: string,
+) {
+    calendar.getEventById(DRAFT_EVENT_ID)?.remove()
+
+    if (isMonthGridView(calendar.view.type)) {
+        calendar.addEvent({
+            id: DRAFT_EVENT_ID,
+            title: 'New Event',
+            start: startDate,
+            end: endDate,
+            allDay: true,
+            editable: false,
+        })
+        return
+    }
+
+    calendar.addEvent({
+        id: DRAFT_EVENT_ID,
+        title: 'New Event',
+        start: `${startDate}T${startTime}`,
+        end: `${endDate}T${endTime}`,
+        startEditable: true,
+        endEditable: true,
+        editable: true,
+    })
 }
 
 function renderCalendarEventContent(eventInfo: EventDisplayInfo) {
@@ -100,6 +181,12 @@ function renderCalendarEventContent(eventInfo: EventDisplayInfo) {
     </>
 }
 
+function hideUnmeasuredMonth(monthInfo: SingleMonthInfo) {
+    return monthInfo.multiMonthColumns === 0
+        ? 'year-month-measuring'
+        : ''
+}
+
 function getMinutesAfterMidnight(dateTime: string) {
     const time = Temporal.PlainTime.from(dateTime)
     return time.hour * 60 + time.minute
@@ -111,7 +198,7 @@ function createDateList(startDate: string, daysBetween?: number) {
 
     for (let i = -7; i < 8; i++) {
         dates.push(selected.add({days: i}).toString())
-        if (daysBetween && i == 7) {
+        if (daysBetween && i === 7) {
             for (let j = 1; j < daysBetween; j++) {
                 dates.push(selected.add({days: i + j}).toString())
             }
@@ -131,30 +218,28 @@ export default function CalendarApp() {
     // ------------------------------------------------
 
     const [isPopOpen, setIsPopOpen] = useState(false)
-    const [popupPos, setPopupPos] = useState({x: 0, y: 0});
+    const [popupPos, setPopupPos] = useState({x: 0, y: 0})
     const [highlightedRange, setHighlightedRange] = useState<HighlightedRange | null>(null)
-    const calendarApiRef = useRef<CalendarApi | null>(null)
-    const calendarComponentRef = useRef<CalendarRef | null>(null);
-    const deleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const calendarComponentRef = useRef<CalendarRef | null>(null)
+    const deleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null)
 
     const [isSidebar, setSidebar] = useState(true)
-    const [isMiniBar, setMinibar] = useState(false)
 
-    const [selectedDate, setSelectedDate] = useState("")
-    const [selectedEndDate, setSelectedEndDate] = useState("")
-    const [startTime, setStartTime] = useState(9 * 60)
-    const [endTime, setEndTime] = useState(10 * 60) //default
+    const [selectedDate, setSelectedDate] = useState('')
+    const [selectedEndDate, setSelectedEndDate] = useState('')
+    const [startTime, setStartTime] = useState(DEFAULT_START_TIME)
+    const [endTime, setEndTime] = useState(DEFAULT_END_TIME)
     const [deletePopupUndo, setDeletePopup] = useState(false)
 
     const [dateList, setDateList] = useState<string[]>([])
 
-    const [title, setTitle] = useState("")
-    const [description, setDescription] = useState("")
-    const [id, setId] = useState("")
+    const [title, setTitle] = useState('')
+    const [description, setDescription] = useState('')
+    const [id, setId] = useState('')
 
     const justDragged = useRef(false)
     const [allDay, setAllDay] = useState(false)
-    const [justDeletedEvent, setJustDeletedEvent] = useState<DeletedEvent | null>(null);
+    const [justDeletedEvent, setJustDeletedEvent] = useState<DeletedEvent | null>(null)
     const calendarMainRef = useRef<HTMLDivElement | null>(null)
     const monthScrollCleanupRef = useRef<() => void>(() => undefined)
     const scrollToMonthRef = useRef<(date: Date, behavior?: ScrollBehavior) => void>(() => undefined)
@@ -164,7 +249,7 @@ export default function CalendarApp() {
     const arrowTargetMonthRef = useRef<Date | null>(null)
     const arrowTargetTimerRef = useRef(0)
 
-    function scrollVisibleMonth(offset: number) {
+    const scrollVisibleMonth = useCallback((offset: number) => {
         const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
         targetMonth.setDate(1)
         targetMonth.setMonth(targetMonth.getMonth() + offset)
@@ -174,21 +259,57 @@ export default function CalendarApp() {
             arrowTargetMonthRef.current = null
         }, 400)
         scrollToMonthRef.current(targetMonth, 'smooth')
-    }
+    }, [])
 
+    const calendarButtons = useMemo<NonNullable<CalendarOptions['buttons']>>(() => ({
+        scrollingMonth: {
+            text: 'Month',
+        },
+        prev: {
+            click: (event) => {
+                if (calendarComponentRef.current?.getApi().view.type === SCROLLING_MONTH_VIEW) {
+                    event.preventDefault()
+                    scrollVisibleMonth(-1)
+                }
+            },
+        },
+        next: {
+            click: (event) => {
+                if (calendarComponentRef.current?.getApi().view.type === SCROLLING_MONTH_VIEW) {
+                    event.preventDefault()
+                    scrollVisibleMonth(1)
+                }
+            },
+        },
+        scrollToday: {
+            text: 'Today',
+            hint: 'Today',
+            click: (event) => {
+                event.preventDefault()
+
+                const calendar = calendarComponentRef.current?.getApi()
+
+                if (calendar?.view.type === SCROLLING_MONTH_VIEW) {
+                    arrowTargetMonthRef.current = null
+                    window.clearTimeout(arrowTargetTimerRef.current)
+                    scrollToMonthRef.current(new Date(), 'smooth')
+                } else {
+                    calendar?.today()
+                }
+            },
+        },
+    }), [scrollVisibleMonth])
 
     // ------------------------------------------------
     // Sidebar functions
     // ------------------------------------------------
 
-    function closeBigBar() {
+    function closeSidebar() {
         setSidebar(false)
-        setMinibar(true)
     }
 
-    function openBigBar() {
+    function openSidebar() {
         setSidebar(true)
-        setMinibar(false)
     }
 
     // ------------------------------------------------
@@ -196,35 +317,7 @@ export default function CalendarApp() {
     // ------------------------------------------------
 
     function refreshCalendar() {
-        calendarComponentRef.current?.getApi().refetchEvents();
-    }
-
-    function displayNewEventPlaceholder(clickInfo: CalendarApi, startDate: string, endDate: string, startTime?: string, endTime?: string) {
-        const calendar = clickInfo.view.calendar
-
-        // Remove the previous temporary banner.
-        calendar.getEventById('draft-event')?.remove()
-
-        if (isMonthGridView(clickInfo.view.type)) {
-            calendar.addEvent({
-                id: 'draft-event',
-                title: 'New Event',
-                start: startDate,
-                end: endDate,
-                allDay: true,
-                editable: false,
-            })
-        } else {
-            calendar.addEvent({
-                id: 'draft-event',
-                title: 'New Event',
-                start: startDate + "T" + startTime,
-                end: endDate + "T" + endTime,
-                startEditable: true,
-                endEditable: true,
-                editable: true,
-            })
-        }
+        calendarComponentRef.current?.getApi().refetchEvents()
     }
 
     // ------------------------------------------------
@@ -232,94 +325,95 @@ export default function CalendarApp() {
     // ------------------------------------------------
 
     function closePopup() {
+        const calendar = calendarComponentRef.current?.getApi()
+
         setIsPopOpen(false)
         setHighlightedRange(null)
-        calendarApiRef.current?.unselect()
-        calendarApiRef.current?.getEventById('draft-event')?.remove()
-        setStartTime(9 * 60)
-        setEndTime(10 * 60)
-        setSelectedDate("")
-        setSelectedEndDate("")
-        setTitle("")
-        setDescription("")
+        calendar?.unselect()
+        calendar?.getEventById(DRAFT_EVENT_ID)?.remove()
+        setStartTime(DEFAULT_START_TIME)
+        setEndTime(DEFAULT_END_TIME)
+        setSelectedDate('')
+        setSelectedEndDate('')
+        resetStates()
     }
 
     function resetStates() {
-        setTitle("")
-        setDescription("")
-        setId("")
+        setTitle('')
+        setDescription('')
+        setId('')
         setAllDay(false)
     }
 
     async function startDeleteTimer(event: DeletedEvent) {
-        closePopup();
-        if (event.id != "") {
-            setJustDeletedEvent(event)
-            await deleteCalendarEvent(id)
-            setDeletePopup(true);
-            refreshCalendar();
+        closePopup()
+        if (!event.id) return
+
+        if (deleteTimer.current !== null) {
+            clearTimeout(deleteTimer.current)
         }
-        //runs awaited function after 5 seconds
-        deleteTimer.current = setTimeout(async () => {
+
+        setJustDeletedEvent(event)
+        await deleteCalendarEvent(event.id)
+        setDeletePopup(true)
+        refreshCalendar()
+
+        deleteTimer.current = setTimeout(() => {
             setJustDeletedEvent(null)
-            deleteTimer.current = null;
-            setDeletePopup(false);
-        }, 5000);
+            deleteTimer.current = null
+            setDeletePopup(false)
+        }, 5000)
     }
 
     async function undoDelete() {
         if (deleteTimer.current !== null && justDeletedEvent !== null) {
-            clearTimeout(deleteTimer.current); //cancel the tiemer by the identifier deletetimer.current
-            await restoreEvent(justDeletedEvent);// re save event from cache
-            // console.log("event restored", justDeletedEvent)
-
-            refreshCalendar();
-            deleteTimer.current = null;
+            clearTimeout(deleteTimer.current)
+            await restoreEvent(justDeletedEvent)
+            refreshCalendar()
+            deleteTimer.current = null
+            setJustDeletedEvent(null)
         }
-        setDeletePopup(false); // hide undo button
+        setDeletePopup(false)
     }
 
     useEffect(() => {
-            function handleKeyDown(event: KeyboardEvent) {
-                if (event.key !== "Escape" && event.key != "n") {
-                    return;
-                }
+        function handleKeyDown(event: KeyboardEvent) {
+            if (event.key !== 'Escape' && event.key !== 'n') return
 
-                if (event.key == "n") {
-                    if (!isPopOpen) {
-                        setIsPopOpen(true)
-                        setPopupPos({x: 1000, y: 300})
-                        const today = new Date();
-                        const todayString = today.toISOString().split('T')[0];
-                        setSelectedDate(todayString)
-                        setDateList(createDateList(todayString))
-                        setSelectedEndDate(todayString)
-                        //displayNewEventPlaceholder(calendarApiRef, todayString, todayString, "4",  todayString)
-                        //TODO
-                    }
-                    return
+            if (event.key === 'n') {
+                if (!isPopOpen) {
+                    resetStates()
+                    setIsPopOpen(true)
+                    setPopupPos({x: 1000, y: 300})
+                    const todayString = toLocalDateString(new Date())
+                    setSelectedDate(todayString)
+                    setDateList(createDateList(todayString))
+                    setSelectedEndDate(todayString)
                 }
-
-                if (isPopOpen) {
-                    closePopup();
-                    return;
-                }
-                if (isSidebar) {
-                    closeBigBar();
-                }
+                return
             }
 
-            window.addEventListener("keydown", handleKeyDown);
+            if (isPopOpen) {
+                closePopup()
+                return
+            }
+            if (isSidebar) closeSidebar()
+        }
 
-            return () => {
-                window.removeEventListener("keydown", handleKeyDown);
-            };
-        },
-        [isPopOpen, isSidebar]
-    );
-// ------------------------------------------------
-// user fullcalendar interactions
-// ------------------------------------------------
+        window.addEventListener('keydown', handleKeyDown)
+
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    }, [isPopOpen, isSidebar])
+
+    useEffect(() => {
+        return () => {
+            if (deleteTimer.current !== null) clearTimeout(deleteTimer.current)
+        }
+    }, [])
+
+    // ------------------------------------------------
+    // user fullcalendar interactions
+    // ------------------------------------------------
 
     function handleDateClick(clickInfo: DateClickInfo) {
         if (justDragged.current) {
@@ -327,18 +421,15 @@ export default function CalendarApp() {
         }
         resetStates()
 
-        setStartTime(9 * 60)
-        setEndTime(10 * 60)
+        setStartTime(DEFAULT_START_TIME)
+        setEndTime(DEFAULT_END_TIME)
 
-        //console.log("Single date:", clickInfo.dateStr)
         setIsPopOpen(true)
-        setPopupPos({x: clickInfo.jsEvent?.clientX, y: clickInfo.jsEvent?.clientY});
-        // console.log("loc " + clickInfo.jsEvent.clientX)
+        setPopupPos({x: clickInfo.jsEvent.clientX, y: clickInfo.jsEvent.clientY})
 
-        const dateOnly = Temporal.PlainDate.from(clickInfo.dateStr).toString();
+        const dateOnly = Temporal.PlainDate.from(clickInfo.dateStr).toString()
         const nextDate = Temporal.PlainDate.from(dateOnly).add({days: 1}).toString()
 
-        calendarApiRef.current = clickInfo.view.calendar
         clickInfo.view.calendar.unselect()
         setHighlightedRange({
             start: dateOnly,
@@ -349,14 +440,18 @@ export default function CalendarApp() {
         setSelectedEndDate(dateOnly)
         setDateList(createDateList(dateOnly))
 
-        const currentView = clickInfo.view.type;
-        if (currentView === 'timeGridWeek' || currentView === "timeGridDay") {
-            const TimeOnly = Temporal.PlainTime.from(clickInfo.dateStr).toString();
-            const startTimeMinutes = getMinutesAfterMidnight(TimeOnly);
+        if (!isMonthGridView(clickInfo.view.type)) {
+            const timeOnly = Temporal.PlainTime.from(clickInfo.dateStr).toString()
+            const startTimeMinutes = getMinutesAfterMidnight(timeOnly)
             setStartTime(startTimeMinutes)
             setEndTime(startTimeMinutes + 60)
-            displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly, TimeOnly, Temporal.PlainTime.from(clickInfo.dateStr).add({minutes: 60}).toString())
-
+            displayNewEventPlaceholder(
+                clickInfo.view.calendar,
+                dateOnly,
+                dateOnly,
+                timeOnly,
+                Temporal.PlainTime.from(clickInfo.dateStr).add({minutes: 60}).toString(),
+            )
         } else {
             displayNewEventPlaceholder(clickInfo.view.calendar, dateOnly, dateOnly)
         }
@@ -365,18 +460,16 @@ export default function CalendarApp() {
     function handleDateDrag(selectInfo: DateSelectInfo) {
         resetStates()
 
-        //prevent dragging from triggering date click
+        // Prevent dragging from triggering a second date click.
         justDragged.current = true
         setTimeout(() => {
             justDragged.current = false
         }, 0)
 
-        calendarApiRef.current = selectInfo.view.calendar
-        setStartTime(9 * 60)
-        // console.log("Date range:", selectInfo.startStr, selectInfo.endStr)
+        setStartTime(DEFAULT_START_TIME)
 
-        const startDateOnly = Temporal.PlainDate.from(selectInfo.startStr).toString();
-        const endDateOnly = Temporal.PlainDate.from(selectInfo.endStr).toString();
+        const startDateOnly = Temporal.PlainDate.from(selectInfo.startStr).toString()
+        const endDateOnly = Temporal.PlainDate.from(selectInfo.endStr).toString()
 
         setHighlightedRange({
             start: selectInfo.startStr,
@@ -387,30 +480,28 @@ export default function CalendarApp() {
         if (selectInfo.jsEvent) {
             setPopupPos({x: selectInfo.jsEvent.clientX, y: selectInfo.jsEvent.clientY,})
         }
-        // console.log("loc " + selectInfo.jsEvent?.x)
-        const currentView = selectInfo.view.type;
-        let temp = String(Temporal.PlainDate.from(endDateOnly))
+        const currentView = selectInfo.view.type
+        let selectedEndDate = endDateOnly
 
         if (isMonthGridView(currentView)) {
-
             if (startDateOnly === endDateOnly) {
-                setEndTime(10 * 60)
+                setEndTime(DEFAULT_END_TIME)
             } else {
-                setEndTime(9 * 60)
+                setEndTime(DEFAULT_START_TIME)
             }
-            temp = String(Temporal.PlainDate.from(endDateOnly).subtract({days: 1}))
+            selectedEndDate = Temporal.PlainDate.from(endDateOnly).subtract({days: 1}).toString()
             displayNewEventPlaceholder(selectInfo.view.calendar, startDateOnly, endDateOnly)
         } else {
-            const startTimeOnly = Temporal.PlainTime.from(selectInfo.startStr).toString();
-            const endTimeOnly = Temporal.PlainTime.from(selectInfo.endStr).toString();
+            const startTimeOnly = Temporal.PlainTime.from(selectInfo.startStr).toString()
+            const endTimeOnly = Temporal.PlainTime.from(selectInfo.endStr).toString()
 
-            setStartTime(getMinutesAfterMidnight(startTimeOnly));
+            setStartTime(getMinutesAfterMidnight(startTimeOnly))
             setEndTime(getMinutesAfterMidnight(endTimeOnly))
             displayNewEventPlaceholder(selectInfo.view.calendar, startDateOnly, endDateOnly, startTimeOnly, endTimeOnly)
         }
 
         setSelectedDate(startDateOnly)
-        setSelectedEndDate(temp)
+        setSelectedEndDate(selectedEndDate)
 
         const start = Temporal.PlainDate.from(selectInfo.startStr)
         const end = Temporal.PlainDate.from(selectInfo.endStr)
@@ -426,33 +517,27 @@ export default function CalendarApp() {
     }
 
     function handleEventClick(selectInfo: EventClickInfo) {
-        calendarApiRef.current = selectInfo.view.calendar
         setIsPopOpen(true)
-        setPopupPos({x: selectInfo.jsEvent?.clientX, y: selectInfo.jsEvent?.clientY,});
-        // console.log("loc " + selectInfo.jsEvent.clientX)
+        setPopupPos({x: selectInfo.jsEvent.clientX, y: selectInfo.jsEvent.clientY})
 
-        //display info: title
-        const title = selectInfo.event.title;
-        setTitle(title)
+        setTitle(selectInfo.event.title)
         setId(selectInfo.event.id)
         setAllDay(selectInfo.event.allDay)
 
-        //display info: start, end time and date
-        const startDate = Temporal.PlainDate.from(selectInfo.event.startStr).toString();
-        let endDate = selectInfo.event.endStr ? Temporal.PlainDate.from(selectInfo.event.endStr).toString() : startDate;
+        const startDate = Temporal.PlainDate.from(selectInfo.event.startStr).toString()
+        let endDate = selectInfo.event.endStr ? Temporal.PlainDate.from(selectInfo.event.endStr).toString() : startDate
 
-        let startTimeMinutes = 0;
-        let endTimeMinutes = 0;
+        let startTimeMinutes = 0
+        let endTimeMinutes = 0
 
         if (!selectInfo.event.allDay) {
-            const startTime = Temporal.PlainTime.from(selectInfo.event.startStr).toString();
-            const endTime = Temporal.PlainTime.from(selectInfo.event.endStr).toString();
-            //convert time to minutes after 0
-            startTimeMinutes = getMinutesAfterMidnight(startTime);
-            endTimeMinutes = getMinutesAfterMidnight(endTime);
+            const startTime = Temporal.PlainTime.from(selectInfo.event.startStr).toString()
+            const endTime = Temporal.PlainTime.from(selectInfo.event.endStr).toString()
+            startTimeMinutes = getMinutesAfterMidnight(startTime)
+            endTimeMinutes = getMinutesAfterMidnight(endTime)
         } else {
-            endDate = Temporal.PlainDate.from(selectInfo.event.endStr).subtract({days: 1}).toString();
-            endTimeMinutes = 24 * 60 - 1; //set end time to 11:59 PM
+            endDate = Temporal.PlainDate.from(selectInfo.event.endStr).subtract({days: 1}).toString()
+            endTimeMinutes = 24 * 60 - 1
         }
         setSelectedDate(startDate)
         setSelectedEndDate(endDate)
@@ -461,128 +546,33 @@ export default function CalendarApp() {
 
         const daysBetween = Temporal.PlainDate.from(startDate).until(endDate).days
         setDateList(createDateList(startDate, daysBetween))
-        const currentView = selectInfo.view.type;
-        if (isMonthGridView(currentView)) {
+        if (isMonthGridView(selectInfo.view.type)) {
             selectInfo.view.calendar.unselect()
-
         }
-        //display info: description
         setDescription(selectInfo.event.extendedProps.description)
-        //display info: location TODO
-
-
     }
 
-    function handleEvents() {
-        //    console.log("event")
-    }
-
-// ------------------------------------------------
-// render
-// ------------------------------------------------
+    // ------------------------------------------------
+    // render
+    // ------------------------------------------------
 
     return (
-        <div className={`app ${isSidebar ? '' : 'app-sidebar-collapsed'}`}>
-            {/* determine layout ratio depending on if sidebar is here*/}
+        <div className={isSidebar ? 'app' : 'app app-sidebar-collapsed'}>
             <div ref={calendarMainRef} className='calendar-main'>
                 <FullCalendar
                     ref={calendarComponentRef}
-                    plugins={[
-                        themePlugin,
-                        dayGridPlugin,
-                        timeGridPlugin,
-                        multiMonthPlugin,
-                        interactionPlugin
-
-                    ]}
-                    initialView="scrollingMonth"
+                    plugins={CALENDAR_PLUGINS}
+                    initialView={SCROLLING_MONTH_VIEW}
                     height="100%"
-                    headerToolbar={{
-                        left: 'prev,next scrollToday',
-                        center: 'title',
-                        right: 'timeGridDay,timeGridWeek,scrollingMonth,multiMonthYear'
-                    }}
-                    views={{ //custom scrollable month view
-                        scrollingMonth: {
-                            type: 'multiMonth',
-                            visibleRange: (currentDate) => {
-                                const start = new Date(currentDate)
-                                start.setDate(1)
-                                start.setMonth(start.getMonth() - 6)
-
-                                const end = new Date(currentDate)
-                                end.setDate(1)
-                                end.setMonth(end.getMonth() + 7)
-                                end.setDate(0)
-
-                                return {start, end}
-                            },
-                            dateIncrement: {months: 1},
-                            multiMonthMaxColumns: 1,
-                            aspectRatio: 2.1,
-                            dayNarrowWidth: 0,
-                            scrollTimeReset: false,
-                            className: 'scrolling-month-view',
-                            singleMonthHeaderClass: 'calendar-month-divider',
-                            tableClass: 'calendar-month-table',
-                            tableHeaderClass: 'calendar-month-weekdays',
-                            tableBodyClass: 'calendar-month-weeks'
-                        },
-                        multiMonthYear: {
-                            className: 'calendar-year-view',
-                            dayNarrowWidth: 0,
-                            multiMonthMaxColumns: 2
-                        }
-                    }} buttons={{ //rename scrollingmonth button
-                    scrollingMonth: {
-                        text: 'Month'
-                    },
-                    prev: {
-                        click: (event) => {
-                            if (calendarComponentRef.current?.getApi().view.type === 'scrollingMonth') {
-                                event.preventDefault()
-                                scrollVisibleMonth(-1)
-                            }
-                        }
-                    },
-                    next: {
-                        click: (event) => {
-                            if (calendarComponentRef.current?.getApi().view.type === 'scrollingMonth') {
-                                event.preventDefault()
-                                scrollVisibleMonth(1)
-                            }
-                        }
-                    },
-                    scrollToday: {
-                        text: 'Today',
-                        hint: 'Today',
-                        click: (event) => {
-                            event.preventDefault()
-
-                            const calendar = calendarComponentRef.current?.getApi()
-
-                            if (calendar?.view.type === 'scrollingMonth') {
-                                arrowTargetMonthRef.current = null
-                                window.clearTimeout(arrowTargetTimerRef.current)
-                                scrollToMonthRef.current(new Date(), 'smooth')
-                            } else {
-                                calendar?.today()
-                            }
-                        }
-                    }
-                }} viewDidMount={(viewInfo) => {
+                    headerToolbar={CALENDAR_HEADER_TOOLBAR}
+                    views={CALENDAR_VIEWS}
+                    buttons={calendarButtons}
+                    viewDidMount={(viewInfo) => {
                     const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
 
                     toolbarTitle?.classList.add('calendar-toolbar-title')
 
-                    if (viewInfo.view.type !== 'scrollingMonth') {
-                        if (toolbarTitle) {
-                            toolbarTitle.textContent = viewInfo.view.type === 'multiMonthYear'
-                                ? String(viewInfo.view.currentStart.getFullYear())
-                                : viewInfo.view.title
-                        }
-                        return
-                    }
+                    if (viewInfo.view.type !== SCROLLING_MONTH_VIEW) return
 
                     const monthList = viewInfo.el.querySelector<HTMLElement>('[role="list"]')
                     const scroller = monthList?.parentElement
@@ -663,6 +653,9 @@ export default function CalendarApp() {
                         let framesRemaining = 12
 
                         const align = () => {
+                            if (lastCalendarViewRef.current &&
+                                lastCalendarViewRef.current !== SCROLLING_MONTH_VIEW) return
+
                             scrollToMonth(today)
 
                             if (framesRemaining-- > 0) {
@@ -688,29 +681,47 @@ export default function CalendarApp() {
                         arrowTargetMonthRef.current = null
                         scroller.removeEventListener('scroll', handleScroll)
                     }
-                }} viewWillUnmount={(viewInfo) => {
-                    if (viewInfo.view.type === 'scrollingMonth') {
-                        monthScrollCleanupRef.current()
-                    }
-                }} datesSet={(dateInfo) => {
-                    const enteredScrollingMonth = dateInfo.view.type === 'scrollingMonth' &&
-                        lastCalendarViewRef.current !== 'scrollingMonth'
-
-                    lastCalendarViewRef.current = dateInfo.view.type
-
-                    if (enteredScrollingMonth) {
-                        window.requestAnimationFrame(() => alignMonthViewRef.current())
-                    }
-                }}
-                    editable={true} selectMinDistance={10}
-                    selectable={true}
-                    selectMirror={true}
-                    dayMaxEvents={true}
-                    singleMonthClass={(monthInfo) => { //fix small visual bug
-                        return monthInfo.multiMonthColumns === 0
-                            ? 'year-month-measuring'
-                            : ''
                     }}
+                    viewWillUnmount={(viewInfo) => {
+                        if (viewInfo.view.type === SCROLLING_MONTH_VIEW) {
+                            monthScrollCleanupRef.current()
+                        }
+                    }}
+                    datesSet={(dateInfo) => {
+                        const enteredScrollingMonth = dateInfo.view.type === SCROLLING_MONTH_VIEW &&
+                            lastCalendarViewRef.current !== SCROLLING_MONTH_VIEW
+
+                        lastCalendarViewRef.current = dateInfo.view.type
+
+                        if (dateInfo.view.type !== SCROLLING_MONTH_VIEW) {
+                            window.requestAnimationFrame(() => {
+                                if (lastCalendarViewRef.current !== dateInfo.view.type) return
+
+                                const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
+                                if (!toolbarTitle) return
+
+                                toolbarTitle.classList.add('calendar-toolbar-title')
+                                toolbarTitle.textContent = dateInfo.view.type === 'multiMonthYear'
+                                    ? String(dateInfo.view.currentStart.getFullYear())
+                                    : dateInfo.view.title
+                            })
+                            return
+                        }
+
+                        if (enteredScrollingMonth) {
+                            window.requestAnimationFrame(() => {
+                                if (lastCalendarViewRef.current === SCROLLING_MONTH_VIEW) {
+                                    alignMonthViewRef.current()
+                                }
+                            })
+                        }
+                    }}
+                    editable
+                    selectMinDistance={10}
+                    selectable
+                    selectMirror
+                    dayMaxEvents
+                    singleMonthClass={hideUnmeasuredMonth}
                     dayCellClass={(dayInfo) => {
                         const cellDate = toLocalDateString(dayInfo.date)
 
@@ -724,7 +735,6 @@ export default function CalendarApp() {
                     select={handleDateDrag}
                     eventContent={renderCalendarEventContent}
                     eventClick={handleEventClick}
-                    eventsSet={handleEvents} // called after events are initialized/added/changed/removed
                     events={fetchCalendarEvents}
                 />
             </div>
@@ -737,7 +747,7 @@ export default function CalendarApp() {
                 </div>
             )}
             {isPopOpen && (
-                <Popup //passing info into popup
+                <Popup
                     isOpen={isPopOpen}
                     onClose={closePopup}
                     position={popupPos}
@@ -753,12 +763,10 @@ export default function CalendarApp() {
                     endTimeMod={false}
                     onEventsChanged={refreshCalendar}
                     deleteEvent={startDeleteTimer}
-
-                />)}
-            <Sidebar isOpen={isSidebar} onClose={closeBigBar}
-            />
-            <MinimizedBar isOpen={isMiniBar} onClose={openBigBar}
-            />
+                />
+            )}
+            <Sidebar isOpen={isSidebar} onClose={closeSidebar}/>
+            <MinimizedBar isOpen={!isSidebar} onClose={openSidebar}/>
         </div>
     )
 

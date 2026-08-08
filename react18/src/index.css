@@ -25,8 +25,11 @@
     --colour-purple-light: #948f9f;
     --colour-purple-vibrant: #6f5fa7;
     --colour-off-white: #fdfdfd;
-    --colour-accent-secondary: #d6a85f;
     --colour-neutral-grey: #5f6368;
+    --colour-text: #3c4043;
+    --colour-border: #dadce0;
+    --colour-hover-grey: #e0e3e7;
+    --colour-scrollbar: #cbd0d7;
 }
 
 html,
@@ -51,20 +54,6 @@ h2 {
     font-size: 16px;
 }
 
-ul {
-    margin: 0;
-    padding: 0 0 0 1.5em;
-}
-
-li {
-    margin: 1.5em 0;
-    padding: 0;
-}
-
-b { /* used for event dates/times */
-    margin-right: 3px;
-}
-
 /* ____________________________________________________
    Main layout section
    ____________________________________________________ */
@@ -74,18 +63,12 @@ b { /* used for event dates/times */
     grid-template-columns: 3fr 1fr;
     column-gap: 8px;
     min-height: 100%;
-    font-family: var(--font-ui);
     font-size: 14px;
     transition: grid-template-columns 250ms ease;
-
 }
 
 .app-sidebar-collapsed {
-    display: grid;
     grid-template-columns: 27fr 1fr;
-    min-height: 100%;
-    font-family: var(--font-ui);
-    font-size: 14px;
 }
 
 .calendar-toolbar-title {
@@ -215,13 +198,15 @@ b { /* used for event dates/times */
 .sidebar-icon-button {
     width: 40px;
     height: 40px;
-    padding: 8px;
+    padding: 0;
     display: grid;
     place-items: center;
     border: 0;
     border-radius: 50%;
     background: transparent;
     color: white;
+    font-size: 20px;
+    cursor: pointer;
 }
 
 .sidebar-icon-button svg {
@@ -239,7 +224,6 @@ b { /* used for event dates/times */
     display: flex;
     flex-direction: column;
     padding: 0.7em;
-
 }
 
 .sidebar-chat {
@@ -284,20 +268,6 @@ b { /* used for event dates/times */
     margin-top: 20px;
 }
 
-.sidebar-icon-button {
-    width: 40px;
-    height: 40px;
-    padding: 0;
-    display: grid;
-    place-items: center;
-    border: 0;
-    border-radius: 50%;
-    background: transparent;
-    color: white;
-    font-size: 20px;
-    cursor: pointer;
-}
-
 .sidebar-icon-button:hover {
     background: rgba(255, 255, 255, 0.12);
 }
@@ -306,11 +276,6 @@ b { /* used for event dates/times */
 /* ____________________________________________________
    Calendar section
    ____________________________________________________ */
-
-.demo-app-main {
-    flex-grow: 1;
-    padding: 3em;
-}
 
 .fc { /* the calendar root */
     max-width: 1100px;
@@ -352,6 +317,7 @@ b { /* used for event dates/times */
     background-color: var(--fc-monarch-highlight) !important;
 }
 
+/* Prevent FullCalendar's pre-measurement year layout from flashing onscreen. */
 .year-month-measuring {
     visibility: hidden;
 }
@@ -373,14 +339,12 @@ b { /* used for event dates/times */
     height: 55vh;
     box-sizing: border-box;
     padding: 28px 28px 24px;
-    border: 2px solid;
+    border: 2px solid var(--colour-border);
     border-radius: 30px;
-    border-color: #dadce0;
     background: var(--colour-off-white);
     box-shadow: 0 12px 30px rgba(60, 64, 67, 0.18),
-    0 4px 10px rgba(60, 64, 67, 0.1);
-    color: #3c4043;
-    font-family: var(--font-ui);
+        0 4px 10px rgba(60, 64, 67, 0.1);
+    color: var(--colour-text);
 }
 
 .delete-undo {
@@ -398,9 +362,8 @@ b { /* used for event dates/times */
     border-radius: 14px;
     background: var(--colour-purple-light);
     box-shadow: 0 8px 24px rgba(60, 64, 67, 0.24),
-    0 2px 8px rgba(60, 64, 67, 0.16);
+        0 2px 8px rgba(60, 64, 67, 0.16);
     color: white;
-    font-family: var(--font-ui);
     transform: translateX(-50%);
 }
 
@@ -452,7 +415,7 @@ b { /* used for event dates/times */
     position: absolute;
     border: none;
     background: transparent;
-    color: #5f6368;
+    color: var(--colour-neutral-grey);
     font-size: 22px;
     cursor: pointer;
 }
@@ -478,7 +441,7 @@ b { /* used for event dates/times */
     border-bottom: 4px solid var(--colour-purple-vibrant);
     outline: none;
     background: transparent;
-    color: #3c4043;
+    color: var(--colour-text);
     font-size: 20px;
 }
 
@@ -506,7 +469,7 @@ b { /* used for event dates/times */
 }
 
 .row-icon {
-    color: #5f6368;
+    color: var(--colour-neutral-grey);
     font-size: 18px;
 }
 
@@ -520,7 +483,7 @@ b { /* used for event dates/times */
 }
 
 .secondary-text {
-    color: #5f6368;
+    color: var(--colour-neutral-grey);
     font-size: 12px;
 }
 
@@ -538,15 +501,10 @@ b { /* used for event dates/times */
     background: transparent;
     color: inherit;
     font: inherit;
-    border: transparent;
 }
 
 .end-date-input {
     margin-right: 10px;
-}
-
-.range-separator {
-    margin-right: 0;
 }
 
 .all-day-option {
@@ -554,7 +512,7 @@ b { /* used for event dates/times */
     align-items: center;
     gap: 8px;
     white-space: nowrap;
-    color: #3c4043;
+    color: var(--colour-text);
     font-size: 14px;
     cursor: pointer;
 }
@@ -569,18 +527,9 @@ b { /* used for event dates/times */
 
 /* Time controls */
 
-.time-input {
-    width: 81px;
-    border: none;
-    background: var(--colour-off-white);
-    color: inherit;
-    font: inherit;
-}
-
 .time-select-with-edit {
     display: inline-flex;
     align-items: center;
-
 }
 
 .time-period-toggle {
@@ -594,7 +543,7 @@ b { /* used for event dates/times */
 }
 
 .time-period-toggle:hover {
-    background: #e0e3e7;
+    background: var(--colour-hover-grey);
 }
 
 .time-period-toggle:focus-visible {
@@ -605,7 +554,6 @@ b { /* used for event dates/times */
 .time-combobox-wrapper {
     position: relative;
     display: inline-block;
-
 }
 
 .time-combobox-dropdown {
@@ -618,11 +566,11 @@ b { /* used for event dates/times */
     display: grid;
     grid-template-columns: repeat(4, 1fr);
     padding: 6px;
-    border: 1px solid #dadce0;
+    border: 1px solid var(--colour-border);
     border-radius: 8px;
     background: var(--colour-off-white);
     box-shadow: 0 8px 24px rgba(60, 64, 67, 0.18);
-    scrollbar-color: #cbd0d7 transparent;
+    scrollbar-color: var(--colour-scrollbar) transparent;
     scrollbar-width: thin;
 }
 
@@ -637,7 +585,7 @@ b { /* used for event dates/times */
 .time-combobox-dropdown::-webkit-scrollbar-thumb {
     border: 2px solid transparent;
     border-radius: 999px;
-    background: #cbd0d7;
+    background: var(--colour-scrollbar);
     background-clip: padding-box;
 }
 
@@ -655,15 +603,13 @@ b { /* used for event dates/times */
 }
 
 .time-option-button:hover {
-    background: #e0e3e7;
-    border-bottom-color: #e0e3e7;
+    background: var(--colour-hover-grey);
 }
 
 .time-combobox-input {
     width: 38px;
     border: none;
     font-size: 14px;
-
 }
 
 /* Calendar colour (type of event) */
@@ -673,7 +619,7 @@ b { /* used for event dates/times */
     align-items: center;
     width: max-content;
     gap: 8px;
-    color: #3c4043;
+    color: var(--colour-text);
     cursor: pointer;
 }
 
@@ -696,7 +642,7 @@ b { /* used for event dates/times */
 }
 
 .calendar-arrow {
-    color: #5f6368;
+    color: var(--colour-neutral-grey);
     font-size: 12px;
     line-height: 1;
     pointer-events: none;
@@ -705,16 +651,6 @@ b { /* used for event dates/times */
 /* ____________________________________________________
    Event popup action buttons section
    ____________________________________________________ */
-
-.outline-button {
-    padding: 10px 18px;
-    border: 2px solid #80868b;
-    border-radius: 999px;
-    background: transparent;
-    color: var(--colour-purple-vibrant);
-    font-size: 13px;
-    cursor: pointer;
-}
 
 .popup-actions {
     display: flex;
