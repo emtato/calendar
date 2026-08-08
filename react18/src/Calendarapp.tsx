@@ -454,9 +454,10 @@ export default function CalendarApp() {
 
                     ]}
                     initialView="scrollingMonth"
+
                     headerToolbar={{
                         left: 'prev,next today',
-                        center: 'title',
+                        center: 'currentMonthTitle',
                         right: 'timeGridDay,timeGridWeek,scrollingMonth,multiMonthYear'
                     }}
                     views={{ //custom scrollable month view
@@ -483,8 +484,8 @@ export default function CalendarApp() {
                 }} toolbarElements={{
                     currentMonthTitle: () => (
                         <span className="calendar-toolbar-title">
-            {visibleMonthTitle}
-        </span>
+                         {visibleMonthTitle}
+                        </span>
                     )
                 }}
                     editable={true} selectMinDistance={10}

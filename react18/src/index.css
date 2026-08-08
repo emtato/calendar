@@ -88,6 +88,12 @@ b { /* used for event dates/times */
     font-size: 14px;
 }
 
+.calendar-toolbar-title {
+        font-size: 1.6em;
+        font-weight: 700;
+
+}
+
 /* ____________________________________________________
    Sidebar section
    ____________________________________________________ */
