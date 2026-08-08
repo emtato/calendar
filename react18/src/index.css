@@ -105,6 +105,18 @@ b { /* used for event dates/times */
     margin-top: 0 !important;
 }
 
+.scrolling-month-view .calendar-month-weeks:has([role='row']:nth-child(4):last-child) {
+    aspect-ratio: 2.1 !important;
+}
+
+.scrolling-month-view .calendar-month-weeks:has([role='row']:nth-child(5):last-child) {
+    aspect-ratio: 1.68 !important;
+}
+
+.scrolling-month-view .calendar-month-weeks:has([role='row']:nth-child(6):last-child) {
+    aspect-ratio: 1.4 !important;
+}
+
 /* ____________________________________________________
    Sidebar section
    ____________________________________________________ */

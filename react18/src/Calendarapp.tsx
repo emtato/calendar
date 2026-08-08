@@ -131,7 +131,25 @@ export default function CalendarApp() {
     const [allDay, setAllDay] = useState(false)
     const [justDeletedEvent, setJustDeletedEvent] = useState<DeletedEvent | null>(null);
     const calendarMainRef = useRef<HTMLDivElement | null>(null)
-    const monthScrollCleanupRef = useRef<(() => void) | null>(null)
+    const monthScrollCleanupRef = useRef<() => void>(() => undefined)
+    const scrollToMonthRef = useRef<(date: Date, behavior?: ScrollBehavior) => void>(() => undefined)
+    const alignMonthViewRef = useRef<() => void>(() => undefined)
+    const visibleMonthRef = useRef(new Date())
+    const lastCalendarViewRef = useRef('')
+    const arrowTargetMonthRef = useRef<Date | null>(null)
+    const arrowTargetTimerRef = useRef(0)
+
+    function scrollVisibleMonth(offset: number) {
+        const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
+        targetMonth.setDate(1)
+        targetMonth.setMonth(targetMonth.getMonth() + offset)
+        arrowTargetMonthRef.current = targetMonth
+        window.clearTimeout(arrowTargetTimerRef.current)
+        arrowTargetTimerRef.current = window.setTimeout(() => {
+            arrowTargetMonthRef.current = null
+        }, 400)
+        scrollToMonthRef.current(targetMonth, 'smooth')
+    }
 
 
     // ------------------------------------------------
@@ -453,8 +471,9 @@ export default function CalendarApp() {
 
                     ]}
                     initialView="scrollingMonth"
+                    height="100%"
                     headerToolbar={{
-                        left: 'prev,next today',
+                        left: 'prev,next scrollToday',
                         center: 'title',
                         right: 'timeGridDay,timeGridWeek,scrollingMonth,multiMonthYear'
                     }}
@@ -475,6 +494,7 @@ export default function CalendarApp() {
                             },
                             dateIncrement: {months: 1},
                             multiMonthMaxColumns: 1,
+                            aspectRatio: 2.1,
                             className: 'scrolling-month-view',
                             singleMonthHeaderClass: 'calendar-month-divider',
                             tableClass: 'calendar-month-table',
@@ -484,17 +504,52 @@ export default function CalendarApp() {
                     }} buttons={{ //rename scrollingmonth button
                     scrollingMonth: {
                         text: 'Month'
+                    },
+                    prev: {
+                        click: (event) => {
+                            if (calendarComponentRef.current?.getApi().view.type === 'scrollingMonth') {
+                                event.preventDefault()
+                                scrollVisibleMonth(-1)
+                            }
+                        }
+                    },
+                    next: {
+                        click: (event) => {
+                            if (calendarComponentRef.current?.getApi().view.type === 'scrollingMonth') {
+                                event.preventDefault()
+                                scrollVisibleMonth(1)
+                            }
+                        }
+                    },
+                    scrollToday: {
+                        text: 'Today',
+                        hint: 'Today',
+                        click: (event) => {
+                            event.preventDefault()
+
+                            const calendar = calendarComponentRef.current?.getApi()
+
+                            if (calendar?.view.type === 'scrollingMonth') {
+                                arrowTargetMonthRef.current = null
+                                window.clearTimeout(arrowTargetTimerRef.current)
+                                scrollToMonthRef.current(new Date(), 'smooth')
+                            } else {
+                                calendar?.today()
+                            }
+                        }
                     }
                 }} viewDidMount={(viewInfo) => {
                     if (viewInfo.view.type !== 'scrollingMonth') return
 
-                    const scroller = [...viewInfo.el.querySelectorAll<HTMLElement>('*')]
-                        .find((element) => ['auto', 'scroll'].includes(getComputedStyle(element).overflowY))
+                    const monthList = viewInfo.el.querySelector<HTMLElement>('[role="list"]')
+                    const scroller = monthList?.parentElement
                     const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
 
-                    if (!scroller || !toolbarTitle) return
+                    if (!monthList || !scroller || !toolbarTitle) return
 
+                    const today = new Date()
                     toolbarTitle.classList.add('calendar-toolbar-title')
+                    toolbarTitle.textContent = formatMonthTitle(today)
 
                     const updateTitle = () => {
                         const bounds = scroller.getBoundingClientRect()
@@ -506,37 +561,107 @@ export default function CalendarApp() {
 
                         if (month) {
                             const [year, monthIndex] = month.split('-').map(Number)
-                            toolbarTitle.textContent = formatMonthTitle(new Date(year, monthIndex - 1, 1))
+                            const activeMonth = new Date(year, monthIndex - 1, 1)
+                            visibleMonthRef.current = activeMonth
+                            toolbarTitle.textContent = formatMonthTitle(activeMonth)
                         }
                     }
 
-                    scroller.addEventListener('scroll', updateTitle, {passive: true})
+                    const scrollToMonth = (date: Date, behavior: ScrollBehavior = 'auto') => {
+                        const month = toLocalDateString(date).slice(0, 7)
+                        const grid = scroller.querySelector<HTMLElement>(`[role="grid"][data-date="${month}"]`)
+                        const divider = grid?.querySelector<HTMLElement>('.calendar-month-divider')
 
-                    let frame = 0
-                    const timer = window.setTimeout(() => {
-                        frame = window.requestAnimationFrame(() => {
-                            const currentMonth = toLocalDateString(viewInfo.view.calendar.getDate()).slice(0, 7)
-                            const monthGrid = scroller.querySelector<HTMLElement>(`[role="grid"][data-date="${currentMonth}"]`)
-                            const monthHeader = monthGrid?.querySelector<HTMLElement>('.calendar-month-divider')
+                        if (!grid?.parentElement ||
+                            (grid.parentElement.offsetTop === 0 && grid.parentElement.previousElementSibling)) {
+                            return
+                        }
 
-                            if (monthGrid?.parentElement) {
-                                scroller.scrollTop = monthGrid.parentElement.offsetTop + (monthHeader?.offsetHeight ?? 0)
+                        const activeMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+                        const top = grid.parentElement.offsetTop + (divider?.offsetHeight ?? 0)
+                        visibleMonthRef.current = activeMonth
+                        toolbarTitle.textContent = formatMonthTitle(activeMonth)
+
+                        if (behavior === 'smooth') {
+                            scroller.scrollTo({
+                                top,
+                                behavior
+                            })
+                        } else {
+                            scroller.scrollTop = top
+                        }
+                    }
+
+                    const hideUnneededDivider = () => {
+                        const scrollerTop = scroller.getBoundingClientRect().top
+                        const divider = [...scroller.querySelectorAll<HTMLElement>('.calendar-month-divider')]
+                            .find((element) => {
+                                const bounds = element.getBoundingClientRect()
+                                return bounds.top > scrollerTop - bounds.height &&
+                                    bounds.top < scrollerTop + bounds.height
+                            })
+
+                        if (divider) {
+                            scroller.scrollBy({
+                                top: divider.getBoundingClientRect().bottom - scrollerTop,
+                                behavior: 'smooth'
+                            })
+                        }
+                    }
+
+                    let scrollEndTimer = 0
+                    const handleScroll = () => {
+                        updateTitle()
+                        window.clearTimeout(scrollEndTimer)
+                        scrollEndTimer = window.setTimeout(hideUnneededDivider, 180)
+                    }
+
+                    let alignmentFrame = 0
+                    const alignCurrentMonth = () => {
+                        window.cancelAnimationFrame(alignmentFrame)
+                        let framesRemaining = 12
+
+                        const align = () => {
+                            scrollToMonth(today)
+
+                            if (framesRemaining-- > 0) {
+                                alignmentFrame = window.requestAnimationFrame(align)
                             }
-                            updateTitle()
-                        })
-                    }, 0)
+                        }
+
+                        align()
+                    }
+
+                    scroller.addEventListener('scroll', handleScroll, {passive: true})
+                    alignMonthViewRef.current = alignCurrentMonth
+                    scrollToMonthRef.current = (date, behavior) => {
+                        window.cancelAnimationFrame(alignmentFrame)
+                        scrollToMonth(date, behavior)
+                    }
+                    alignCurrentMonth()
 
                     monthScrollCleanupRef.current = () => {
-                        scroller.removeEventListener('scroll', updateTitle)
-                        window.clearTimeout(timer)
-                        window.cancelAnimationFrame(frame)
+                        window.cancelAnimationFrame(alignmentFrame)
+                        window.clearTimeout(scrollEndTimer)
+                        window.clearTimeout(arrowTargetTimerRef.current)
+                        arrowTargetMonthRef.current = null
+                        scroller.removeEventListener('scroll', handleScroll)
                     }
                 }} viewWillUnmount={(viewInfo) => {
                     if (viewInfo.view.type === 'scrollingMonth') {
-                        monthScrollCleanupRef.current?.()
-                        monthScrollCleanupRef.current = null
+                        monthScrollCleanupRef.current()
+                    }
+                }} datesSet={(dateInfo) => {
+                    const enteredScrollingMonth = dateInfo.view.type === 'scrollingMonth' &&
+                        lastCalendarViewRef.current !== 'scrollingMonth'
+
+                    lastCalendarViewRef.current = dateInfo.view.type
+
+                    if (enteredScrollingMonth) {
+                        window.requestAnimationFrame(() => alignMonthViewRef.current())
                     }
                 }}
+                    scrollTimeReset={false}
                     editable={true} selectMinDistance={10}
                     selectable={true}
                     selectMirror={true}
