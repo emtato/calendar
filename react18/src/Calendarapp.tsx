@@ -118,7 +118,11 @@ export default function CalendarApp() {
     const justDragged = useRef(false)
     const [allDay, setAllDay] = useState(false)
     const [justDeletedEvent, setJustDeletedEvent] = useState<DeletedEvent | null>(null);
-
+    const [visibleMonthTitle] = useState(() => new Intl.DateTimeFormat(undefined, {
+            month: 'long',
+            year: 'numeric'
+        }).format(new Date())
+    )
 
     // ------------------------------------------------
     // Sidebar functions
@@ -449,12 +453,40 @@ export default function CalendarApp() {
                         interactionPlugin
 
                     ]}
-                    initialView="dayGridMonth"
+                    initialView="scrollingMonth"
                     headerToolbar={{
                         left: 'prev,next today',
                         center: 'title',
-                        right: 'timeGridDay,timeGridWeek,dayGridMonth,multiMonthYear'
+                        right: 'timeGridDay,timeGridWeek,scrollingMonth,multiMonthYear'
                     }}
+                    views={{ //custom scrollable month view
+                        scrollingMonth: {
+                            type: 'multiMonth',
+                            visibleRange: (currentDate) => {
+                                const start = new Date(currentDate)
+                                start.setDate(1)
+                                start.setMonth(start.getMonth() - 6)
+
+                                const end = new Date(currentDate)
+                                end.setDate(1)
+                                end.setMonth(end.getMonth() + 7)
+
+                                return {start, end}
+                            },
+                            dateIncrement: {months: 1},
+                            multiMonthMaxColumns: 1
+                        }
+                    }} buttons={{ //rename scrollingmonth button
+                    scrollingMonth: {
+                        text: 'Month'
+                    }
+                }} toolbarElements={{
+                    currentMonthTitle: () => (
+                        <span className="calendar-toolbar-title">
+            {visibleMonthTitle}
+        </span>
+                    )
+                }}
                     editable={true} selectMinDistance={10}
                     selectable={true}
                     selectMirror={true}
