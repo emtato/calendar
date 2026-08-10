@@ -290,30 +290,28 @@ h2 {
 }
 
 .month-boundary-cell {
-    position: relative;
+
+}
+
+.month-boundary-label {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: 1000;
+    transform: translate(-50%, 25%);
+    opacity: 0;
     font-size: 24px;
+    font-weight: 500;
+    pointer-events: none;
+    transition: opacity 1000ms ease;
 
-    &::before {
-        position: absolute;
-        top: 0;
-        left: 0;
-        bottom: 0;
-        content: attr(data-month-label);
-        z-index: 1000;
-        transform: translate(-50%, 25%);
-        opacity: 0;
-        font-weight: 500;
-        transition: opacity 1000ms ease
-    }
+}
+.month-boundary-cell:first-child .month-boundary-label {    { /* shift month label if its the first child of parent (first in row)  */}
 
-    &[data-month-label-visible='true']::before {
-        opacity: 0.5;
-    }
-
-    &:first-child::before {
-    { /* shift month label if its the first child of parent (first in row)  */
-    } transform: translate(10%, 25%);
-    }
+    transform: translate(10%, 35%);
+}
+.month-boundary-cell[data-month-label-visible='true'] .month-boundary-label { {/*transition to visible*/}
+    opacity: 0.5;
 }
 
 /* ____________________________________________________

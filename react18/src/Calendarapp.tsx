@@ -112,6 +112,17 @@ const CALENDAR_VIEWS = {
             })
         },
         dayCellClass: (info) => info.date.getDate() === 1 ? 'month-boundary-cell' : '', //turn every 1st into a css month boundary cell to target
+
+        dayCellTopContent: (info) => (
+            <>
+                {info.date.getDate() === 1 && (
+                    <span className="month-boundary-label">
+                {info.date.toLocaleString(undefined, {month: 'long'})}
+            </span>
+                )}
+                {info.text}
+            </>
+        ),
     },
     multiMonthYear: {
         className: 'calendar-year-view',
