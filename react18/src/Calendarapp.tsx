@@ -102,6 +102,17 @@ const CALENDAR_VIEWS = {
         dayNarrowWidth: 0,
         className: 'scrolling-month-measuring',
         tableBodyClass: 'calendar-month-weeks',
+        monthStartFormat: {
+            day: 'numeric',
+        },
+        dayCellDidMount: (info) => {
+            if (info.date.getDate() !== 1) return
+
+            info.el.classList.add('month-boundary-cell') //turn every 1st into a css month boundary cell to target
+            info.el.dataset.monthLabel = info.date.toLocaleString(undefined, {
+                month: 'long',
+            })
+        },
     },
     multiMonthYear: {
         className: 'calendar-year-view',
@@ -587,9 +598,18 @@ export default function CalendarApp() {
                             const monthStartCells = scroller.querySelectorAll<HTMLElement>('[role="gridcell"][data-date$="-01"]')
                             let activeMonthCell: HTMLElement | null = null
 
+                            const scrollerBounds = scroller.getBoundingClientRect()
                             for (const cell of monthStartCells) {
                                 const monthStartRow = cell.closest<HTMLElement>('[role="row"]')//check every cell
+                                if (monthStartRow === null) return
+                                const rowBounds = monthStartRow.getBoundingClientRect()
 
+                                const distanceFromTop = rowBounds.top - scrollerBounds.top
+                                if (distanceFromTop > 2 && rowBounds.top + rowHeight * 2 < scrollerBounds.bottom) {
+                                    cell.classList.toggle('month-label-visible', true) //if cell is visible, add class to show month label
+                                } else {
+                                    cell.classList.toggle('month-label-visible', false)
+                                }
                                 if (monthStartRow && monthStartRow.getBoundingClientRect().top < switchingLine) {
                                     activeMonthCell = cell //determine title month display
                                 }
@@ -637,7 +657,7 @@ export default function CalendarApp() {
                                     '[role="gridcell"][data-date$="-01"]'
                                 )
 
-                                const nearbyMonthCell = [...monthStartCells].find((cell) => {
+                                const nearbyMonthCell = [...monthStartCells].find((cell) => { //search month start cells andfind one whose below return statement is true
                                     const monthStartRow = cell.closest<HTMLElement>('[role="row"]')
 
                                     if (!monthStartRow) return false
@@ -645,7 +665,7 @@ export default function CalendarApp() {
                                     const rowBounds = monthStartRow.getBoundingClientRect()
                                     const distanceFromTop = rowBounds.top - scrollerTop
 
-                                    return Math.abs(distanceFromTop) <= rowBounds.height
+                                    return Math.abs(distanceFromTop) <= rowBounds.height/1.3 //return true if within 1 row height of top of scroller
                                 })
 
                                 const nearbyDate = nearbyMonthCell?.dataset.date

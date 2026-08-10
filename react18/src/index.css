@@ -289,6 +289,32 @@ h2 {
     visibility: hidden;
 }
 
+.month-boundary-cell {
+    position: relative;
+    font-size: 24px;
+
+    &::before {
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        content: attr(data-month-label);
+        z-index: 1000;
+        transform: translate(-50%, 25%);
+        opacity: 0;
+        font-weight: 500;
+        transition: opacity 1000ms ease
+    }
+
+    &.month-label-visible::before {
+        opacity: 0.5;
+    }
+
+    &:first-child::before {
+        transform: translate(10%, 25%);
+    }
+}
+
 /* ____________________________________________________
    Event popup section
    ____________________________________________________ */
