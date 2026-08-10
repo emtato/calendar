@@ -105,20 +105,13 @@ const CALENDAR_VIEWS = {
         monthStartFormat: {
             day: 'numeric',
         },
-        dayCellDidMount: (info) => {
-            if (info.date.getDate() !== 1) return
-            info.el.dataset.monthLabel = info.date.toLocaleString(undefined, {
-                month: 'long',
-            })
-        },
         dayCellClass: (info) => info.date.getDate() === 1 ? 'month-boundary-cell' : '', //turn every 1st into a css month boundary cell to target
-
         dayCellTopContent: (info) => (
             <>
                 {info.date.getDate() === 1 && (
                     <span className="month-boundary-label">
-                {info.date.toLocaleString(undefined, {month: 'long'})}
-            </span>
+                        {info.date.toLocaleString(undefined, {month: 'long'})}
+                    </span>
                 )}
                 {info.text}
             </>
@@ -617,10 +610,8 @@ export default function CalendarApp() {
                                 const distanceFromTop = rowBounds.top - scrollerBounds.top
                                 if (distanceFromTop > 1.9 && rowBounds.bottom + rowHeight * 0.9 < scrollerBounds.bottom) {
                                     cell.dataset.monthLabelVisible = 'true'//if cell is visible, add class to show month label
-                                    cell.classList.toggle('month-label-visible', true)
                                 } else {
                                     cell.dataset.monthLabelVisible = 'false'
-                                    cell.classList.toggle('month-label-visible', false)
                                 }
                                 if (monthStartRow && monthStartRow.getBoundingClientRect().top < switchingLine) {
                                     activeMonthCell = cell //determine title month display

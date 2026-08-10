@@ -289,10 +289,6 @@ h2 {
     visibility: hidden;
 }
 
-.month-boundary-cell {
-
-}
-
 .month-boundary-label {
     position: absolute;
     top: 0;
@@ -304,14 +300,16 @@ h2 {
     font-weight: 500;
     pointer-events: none;
     transition: opacity 1000ms ease;
-
 }
-.month-boundary-cell:first-child .month-boundary-label {    { /* shift month label if its the first child of parent (first in row)  */}
 
-    transform: translate(10%, 35%);
+.month-boundary-cell:first-child .month-boundary-label {
+{ /* shift month label if its the first child of parent (first in row)  */
+} transform: translate(10%, 35%);
 }
-.month-boundary-cell[data-month-label-visible='true'] .month-boundary-label { {/*transition to visible*/}
-    opacity: 0.5;
+
+.month-boundary-cell[data-month-label-visible='true'] .month-boundary-label {
+{ /*transition to visible*/
+} opacity: 0.5;
 }
 
 /* ____________________________________________________
