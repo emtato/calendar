@@ -107,12 +107,11 @@ const CALENDAR_VIEWS = {
         },
         dayCellDidMount: (info) => {
             if (info.date.getDate() !== 1) return
-
-            info.el.classList.add('month-boundary-cell') //turn every 1st into a css month boundary cell to target
             info.el.dataset.monthLabel = info.date.toLocaleString(undefined, {
                 month: 'long',
             })
         },
+        dayCellClass: (info) => info.date.getDate() === 1 ? 'month-boundary-cell' : '', //turn every 1st into a css month boundary cell to target
     },
     multiMonthYear: {
         className: 'calendar-year-view',
@@ -605,9 +604,11 @@ export default function CalendarApp() {
                                 const rowBounds = monthStartRow.getBoundingClientRect()
 
                                 const distanceFromTop = rowBounds.top - scrollerBounds.top
-                                if (distanceFromTop > 2 && rowBounds.top + rowHeight * 2 < scrollerBounds.bottom) {
-                                    cell.classList.toggle('month-label-visible', true) //if cell is visible, add class to show month label
+                                if (distanceFromTop > 1.9 && rowBounds.bottom + rowHeight * 0.9 < scrollerBounds.bottom) {
+                                    cell.dataset.monthLabelVisible = 'true'//if cell is visible, add class to show month label
+                                    cell.classList.toggle('month-label-visible', true)
                                 } else {
+                                    cell.dataset.monthLabelVisible = 'false'
                                     cell.classList.toggle('month-label-visible', false)
                                 }
                                 if (monthStartRow && monthStartRow.getBoundingClientRect().top < switchingLine) {
@@ -665,7 +666,7 @@ export default function CalendarApp() {
                                     const rowBounds = monthStartRow.getBoundingClientRect()
                                     const distanceFromTop = rowBounds.top - scrollerTop
 
-                                    return Math.abs(distanceFromTop) <= rowBounds.height/1.3 //return true if within 1 row height of top of scroller
+                                    return Math.abs(distanceFromTop) <= rowBounds.height / 1.3 //return true if within 1 row height of top of scroller
                                 })
 
                                 const nearbyDate = nearbyMonthCell?.dataset.date

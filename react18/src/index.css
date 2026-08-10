@@ -306,12 +306,13 @@ h2 {
         transition: opacity 1000ms ease
     }
 
-    &.month-label-visible::before {
+    &[data-month-label-visible='true']::before {
         opacity: 0.5;
     }
 
-    &:first-child::before { {/* shift month label if its the first child of parent (first in row)  */}
-        transform: translate(10%, 25%);
+    &:first-child::before {
+    { /* shift month label if its the first child of parent (first in row)  */
+    } transform: translate(10%, 25%);
     }
 }
 
