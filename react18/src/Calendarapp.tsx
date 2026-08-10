@@ -631,29 +631,13 @@ export default function CalendarApp() {
                                 firstDayCell.getBoundingClientRect().width * 0.75
                         }
 
-                        const hideUnneededDivider = () => {
-
-                            const scrollerTop = scroller.getBoundingClientRect().top
-                            const divider = [...scroller.querySelectorAll<HTMLElement>('.calendar-month-divider')]
-                                .find((element) => {
-                                    const bounds = element.getBoundingClientRect()
-                                    return bounds.top > scrollerTop - bounds.height &&
-                                        bounds.top < scrollerTop + bounds.height
-                                })
-
-                            if (divider) {
-                                scroller.scrollBy({
-                                    top: divider.getBoundingClientRect().bottom - scrollerTop,
-                                    behavior: 'smooth'
-                                })
-                            }
-                        }
-
                         let scrollEndTimer = 0
                         const handleScroll = () => {
                             updateTitle()
                             window.clearTimeout(scrollEndTimer)
-                            scrollEndTimer = window.setTimeout(hideUnneededDivider, 180)
+                            scrollEndTimer = window.setTimeout(() => {
+                                scrollToMonth(visibleMonthRef.current, 'smooth')
+                            }, 180)
                         }
 
                         let alignmentFrame = 0
@@ -691,11 +675,11 @@ export default function CalendarApp() {
 
                         monthScrollCleanupRef.current = () => {
                             window.cancelAnimationFrame(alignmentFrame)
-                            window.clearTimeout(scrollEndTimer)
                             window.clearTimeout(arrowTargetTimerRef.current)
                             arrowTargetMonthRef.current = null
-                            viewInfo.el.classList.remove('scrolling-month-measuring')
+                            viewInfo.el.classList.add('scrolling-month-measuring')
                             scroller.removeEventListener('scroll', handleScroll)
+                            window.clearTimeout(scrollEndTimer)
                         }
                     }}
                     viewWillUnmount={(viewInfo) => {
