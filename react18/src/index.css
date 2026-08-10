@@ -322,6 +322,11 @@ h2 {
     visibility: hidden;
 }
 
+/* Hide the continuous month view until FullCalendar finishes sizing its rows. */
+.scrolling-month-measuring {
+    visibility: hidden;
+}
+
 /* ____________________________________________________
    Event popup section
    ____________________________________________________ */

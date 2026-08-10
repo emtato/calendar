@@ -84,7 +84,7 @@ const CALENDAR_HEADER_TOOLBAR = {
 
 const CALENDAR_VIEWS = {
     scrollingMonth: {
-        type: 'multiMonth',
+        type: 'dayGrid',
         visibleRange: (currentDate: Date) => {
             const start = new Date(currentDate)
             start.setDate(1)
@@ -99,10 +99,10 @@ const CALENDAR_VIEWS = {
         },
         dateIncrement: {months: 1},
         multiMonthMaxColumns: 1,
-        aspectRatio: 2.1,
+        aspectRatio: 1.4,
         dayNarrowWidth: 0,
         scrollTimeReset: false,
-        className: 'scrolling-month-view',
+        className: 'scrolling-month-view scrolling-month-measuring',
         singleMonthHeaderClass: 'calendar-month-divider',
         tableClass: 'calendar-month-table',
         tableHeaderClass: 'calendar-month-weekdays',
@@ -568,119 +568,118 @@ export default function CalendarApp() {
                     views={CALENDAR_VIEWS}
                     buttons={calendarButtons}
                     viewDidMount={(viewInfo) => {
-                    const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
+                        const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
 
-                    toolbarTitle?.classList.add('calendar-toolbar-title')
+                        toolbarTitle?.classList.add('calendar-toolbar-title')
 
-                    if (viewInfo.view.type !== SCROLLING_MONTH_VIEW) return
+                        if (viewInfo.view.type !== SCROLLING_MONTH_VIEW) return
 
-                    const monthList = viewInfo.el.querySelector<HTMLElement>('[role="list"]')
-                    const scroller = monthList?.parentElement
+                        // const monthList = viewInfo.el.querySelector<HTMLElement>('[role="list"]')
+                        const scroller = viewInfo.el.querySelector<HTMLElement>('.calendar-month-weeks')
 
-                    if (!monthList || !scroller || !toolbarTitle) return
+                        if (!scroller || !toolbarTitle) return
 
-                    const today = new Date()
-                    toolbarTitle.textContent = formatMonthTitle(today)
+                        const today = new Date()
+                        toolbarTitle.textContent = formatMonthTitle(today)
 
-                    const updateTitle = () => {
-                        const bounds = scroller.getBoundingClientRect()
-                        const element = document.elementFromPoint(
-                            bounds.left + bounds.width / 2,
-                            bounds.top + Math.min(100, bounds.height / 4)
-                        )
-                        const month = element?.closest<HTMLElement>('[role="grid"][data-date]')?.dataset.date
+                        const updateTitle = () => {
+                            const bounds = scroller.getBoundingClientRect()
+                            const element = document.elementFromPoint(bounds.left + bounds.width / 2,
+                                bounds.top + Math.min(100, bounds.height / 4)
+                            )
+                            const month = element?.closest<HTMLElement>('[role="grid"][data-date]')?.dataset.date
 
-                        if (month) {
-                            const [year, monthIndex] = month.split('-').map(Number)
-                            const activeMonth = new Date(year, monthIndex - 1, 1)
-                            visibleMonthRef.current = activeMonth
-                            toolbarTitle.textContent = formatMonthTitle(activeMonth)
-                        }
-                    }
-
-                    const scrollToMonth = (date: Date, behavior: ScrollBehavior = 'auto') => {
-                        const month = toLocalDateString(date).slice(0, 7)
-                        const grid = scroller.querySelector<HTMLElement>(`[role="grid"][data-date="${month}"]`)
-                        const divider = grid?.querySelector<HTMLElement>('.calendar-month-divider')
-
-                        if (!grid?.parentElement ||
-                            (grid.parentElement.offsetTop === 0 && grid.parentElement.previousElementSibling)) {
-                            return
-                        }
-
-                        const activeMonth = new Date(date.getFullYear(), date.getMonth(), 1)
-                        const top = grid.parentElement.offsetTop + (divider?.offsetHeight ?? 0)
-                        visibleMonthRef.current = activeMonth
-                        toolbarTitle.textContent = formatMonthTitle(activeMonth)
-
-                        if (behavior === 'smooth') {
-                            scroller.scrollTo({
-                                top,
-                                behavior
-                            })
-                        } else {
-                            scroller.scrollTop = top
-                        }
-                    }
-
-                    const hideUnneededDivider = () => {
-                        const scrollerTop = scroller.getBoundingClientRect().top
-                        const divider = [...scroller.querySelectorAll<HTMLElement>('.calendar-month-divider')]
-                            .find((element) => {
-                                const bounds = element.getBoundingClientRect()
-                                return bounds.top > scrollerTop - bounds.height &&
-                                    bounds.top < scrollerTop + bounds.height
-                            })
-
-                        if (divider) {
-                            scroller.scrollBy({
-                                top: divider.getBoundingClientRect().bottom - scrollerTop,
-                                behavior: 'smooth'
-                            })
-                        }
-                    }
-
-                    let scrollEndTimer = 0
-                    const handleScroll = () => {
-                        updateTitle()
-                        window.clearTimeout(scrollEndTimer)
-                        scrollEndTimer = window.setTimeout(hideUnneededDivider, 180)
-                    }
-
-                    let alignmentFrame = 0
-                    const alignCurrentMonth = () => {
-                        window.cancelAnimationFrame(alignmentFrame)
-                        let framesRemaining = 12
-
-                        const align = () => {
-                            if (lastCalendarViewRef.current &&
-                                lastCalendarViewRef.current !== SCROLLING_MONTH_VIEW) return
-
-                            scrollToMonth(today)
-
-                            if (framesRemaining-- > 0) {
-                                alignmentFrame = window.requestAnimationFrame(align)
+                            if (month) {
+                                const [year, monthIndex] = month.split('-').map(Number)
+                                const activeMonth = new Date(year, monthIndex - 1, 1)
+                                visibleMonthRef.current = activeMonth
+                                toolbarTitle.textContent = formatMonthTitle(activeMonth)
                             }
                         }
 
-                        align()
-                    }
+                        const scrollToMonth = (date: Date, behavior: ScrollBehavior = 'auto') => {
+                            const month = toLocalDateString(date).slice(0, 7)
 
-                    scroller.addEventListener('scroll', handleScroll, {passive: true})
-                    alignMonthViewRef.current = alignCurrentMonth
-                    scrollToMonthRef.current = (date, behavior) => {
-                        window.cancelAnimationFrame(alignmentFrame)
-                        scrollToMonth(date, behavior)
-                    }
-                    alignCurrentMonth()
+                            const firstDayCell = scroller.querySelector<HTMLElement>(`[role="gridcell"][data-date="${month}-01"]`)
+                            const monthStartRow = firstDayCell?.closest<HTMLElement>('[role="row"]')
 
-                    monthScrollCleanupRef.current = () => {
-                        window.cancelAnimationFrame(alignmentFrame)
-                        window.clearTimeout(scrollEndTimer)
-                        window.clearTimeout(arrowTargetTimerRef.current)
-                        arrowTargetMonthRef.current = null
-                        scroller.removeEventListener('scroll', handleScroll)
-                    }
+                            if (!firstDayCell || !monthStartRow) return
+                            const activeMonth = new Date(date.getFullYear(), date.getMonth(), 1)
+                            const top = monthStartRow.offsetTop
+                            visibleMonthRef.current = activeMonth
+                            toolbarTitle.textContent = formatMonthTitle(activeMonth)
+
+                            if (behavior === 'smooth') {
+                                scroller.scrollTo({top, behavior})
+                            } else {
+                                scroller.scrollTop = top
+                            }
+
+                            return monthStartRow.getBoundingClientRect().height >=
+                                firstDayCell.getBoundingClientRect().width * 0.75
+                        }
+
+                        const hideUnneededDivider = () => {
+                            const scrollerTop = scroller.getBoundingClientRect().top
+                            const divider = [...scroller.querySelectorAll<HTMLElement>('.calendar-month-divider')]
+                                .find((element) => {
+                                    const bounds = element.getBoundingClientRect()
+                                    return bounds.top > scrollerTop - bounds.height &&
+                                        bounds.top < scrollerTop + bounds.height
+                                })
+
+                            if (divider) {
+                                scroller.scrollBy({
+                                    top: divider.getBoundingClientRect().bottom - scrollerTop,
+                                    behavior: 'smooth'
+                                })
+                            }
+                        }
+
+                        let scrollEndTimer = 0
+                        const handleScroll = () => {
+                            updateTitle()
+                            window.clearTimeout(scrollEndTimer)
+                            scrollEndTimer = window.setTimeout(hideUnneededDivider, 180)
+                        }
+
+                        let alignmentFrame = 0
+                        const alignCurrentMonth = () => {
+                            window.cancelAnimationFrame(alignmentFrame)
+                            let framesRemaining = 12
+
+                            const align = () => {
+                                if (lastCalendarViewRef.current &&
+                                    lastCalendarViewRef.current !== SCROLLING_MONTH_VIEW) return
+
+                                const rowsAreSized = scrollToMonth(today)
+
+                                if (!rowsAreSized && framesRemaining-- > 0) {
+                                    alignmentFrame = window.requestAnimationFrame(align)
+                                } else {
+                                    viewInfo.el.classList.remove('scrolling-month-measuring')
+                                }
+                            }
+
+                            align()
+                        }
+
+                        scroller.addEventListener('scroll', handleScroll, {passive: true})
+                        alignMonthViewRef.current = alignCurrentMonth
+                        scrollToMonthRef.current = (date, behavior) => {
+                            window.cancelAnimationFrame(alignmentFrame)
+                            scrollToMonth(date, behavior)
+                        }
+                        alignCurrentMonth()
+
+                        monthScrollCleanupRef.current = () => {
+                            window.cancelAnimationFrame(alignmentFrame)
+                            window.clearTimeout(scrollEndTimer)
+                            window.clearTimeout(arrowTargetTimerRef.current)
+                            arrowTargetMonthRef.current = null
+                            viewInfo.el.classList.remove('scrolling-month-measuring')
+                            scroller.removeEventListener('scroll', handleScroll)
+                        }
                     }}
                     viewWillUnmount={(viewInfo) => {
                         if (viewInfo.view.type === SCROLLING_MONTH_VIEW) {
