@@ -126,6 +126,12 @@ h2 {
    Sidebar section
    ____________________________________________________ */
 
+.app-sidebar,
+.sidebar--minimized {
+    box-shadow: 0 4px 6px rgba(45, 38, 61, 0.18),
+    -2px 0 8px rgba(45, 38, 61, 0.16);
+}
+
 .app-sidebar {
     display: flex;
     flex-direction: column;

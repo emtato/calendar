@@ -22,6 +22,7 @@ import {Temporal} from 'temporal-polyfill'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import Popup, {MinimizedBar, Sidebar} from './EventDetails'
 import {deleteCalendarEvent, getCalendarEvents, restoreEvent} from './api/eventsAPI'
+import type {TransitionEvent} from 'react'
 
 // ----------------------------------------------------
 // Types
@@ -258,6 +259,8 @@ export default function CalendarApp() {
     const lastCalendarViewRef = useRef('')
     const arrowTargetMonthRef = useRef<Date | null>(null)
     const arrowTargetTimerRef = useRef(0)
+    const initialSidebarResizeHandledRef = useRef(false)
+    const initialSidebarScrollRatioRef = useRef(0)
 
     const scrollVisibleMonth = useCallback((offset: number) => {
         const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
@@ -315,6 +318,12 @@ export default function CalendarApp() {
     // ------------------------------------------------
 
     function closeSidebar() {
+        if (!initialSidebarResizeHandledRef.current) { //not resized yet (this is to fix an initial resize bug)
+            const scroller = calendarMainRef.current?.querySelector<HTMLElement>('.calendar-month-weeks')
+            if (scroller) {
+                initialSidebarScrollRatioRef.current = scroller.scrollTop / scroller.scrollHeight
+            }
+        }
         setSidebar(false)
     }
 
@@ -322,17 +331,45 @@ export default function CalendarApp() {
         setSidebar(true)
     }
 
-    // ------------------------------------------------
-    // Calendar refresh and temp events
-    // ------------------------------------------------
+    function handleSidebarTransitionEnd(event: TransitionEvent<HTMLDivElement>) {
+        if (event.target !== event.currentTarget) return
+        if (event.propertyName !== 'grid-template-columns') return
+        //  handler continues only when .app element itself finished transitioning (sdebar)
+        if (initialSidebarResizeHandledRef.current) return
+
+        const scroller = calendarMainRef.current?.querySelector<HTMLElement>('.calendar-month-weeks')
+        if (!scroller) return
+
+        const targetTop = initialSidebarScrollRatioRef.current * scroller.scrollHeight //restore scroll position
+        let framesRemaining = 12
+        const align = () => { //continuously adjusts position to restore initial scorlled month bug
+            if (Math.abs(scroller.scrollTop - targetTop) > 1) {
+                scroller.scrollTo({
+                    top: targetTop,
+                    behavior: 'auto',
+                })
+            }
+            if (framesRemaining-- > 0) {
+                window.requestAnimationFrame(align)
+            } else {
+                initialSidebarResizeHandledRef.current = true
+            }
+        }
+        align()
+
+    }
+
+// ------------------------------------------------
+// Calendar refresh and temp events
+// ------------------------------------------------
 
     function refreshCalendar() {
         calendarComponentRef.current?.getApi().refetchEvents()
     }
 
-    // ------------------------------------------------
-    // popup
-    // ------------------------------------------------
+// ------------------------------------------------
+// popup
+// ------------------------------------------------
 
     function closePopup() {
         const calendar = calendarComponentRef.current?.getApi()
@@ -421,9 +458,9 @@ export default function CalendarApp() {
         }
     }, [])
 
-    // ------------------------------------------------
-    // user fullcalendar interactions
-    // ------------------------------------------------
+// ------------------------------------------------
+// user fullcalendar interactions
+// ------------------------------------------------
 
     function handleDateClick(clickInfo: DateClickInfo) {
         if (justDragged.current) {
@@ -562,12 +599,13 @@ export default function CalendarApp() {
         setDescription(selectInfo.event.extendedProps.description)
     }
 
-    // ------------------------------------------------
-    // render
-    // ------------------------------------------------
+// ------------------------------------------------
+// render
+// ------------------------------------------------
 
     return (
-        <div className={isSidebar ? 'app' : 'app app-sidebar-collapsed'}>
+        <div className={isSidebar ? 'app' : 'app app-sidebar-collapsed'}
+             onTransitionEnd={handleSidebarTransitionEnd}>
             <div ref={calendarMainRef} className='calendar-main'>
                 <FullCalendar
                     ref={calendarComponentRef}
@@ -645,8 +683,7 @@ export default function CalendarApp() {
                                 scroller.scrollTop = top
                             }
 
-                            return monthStartRow.getBoundingClientRect().height >=
-                                firstDayCell.getBoundingClientRect().width * 0.75
+                            return monthStartRow.getBoundingClientRect().height >= firstDayCell.getBoundingClientRect().width * 0.75
                         }
 
                         let scrollEndTimer = 0
