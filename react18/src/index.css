@@ -77,10 +77,10 @@ h2 {
 }
 
 .calendar-year-view [role='grid'][data-date] [role='button'] > div:has(> .calendar-event-title) {
-    min-height: 20px !important;
-    padding-block: 2px !important;
+    min-height: 14px !important;
+    padding-block: 0 !important;
     font-size: 12px !important;
-    line-height: 16px !important;
+    line-height: 12px !important;
 }
 
 .calendar-event-time {
@@ -310,7 +310,7 @@ h2 {
     border-radius: 30px;
     background: var(--colour-off-white);
     box-shadow: 0 12px 30px rgba(60, 64, 67, 0.18),
-        0 4px 10px rgba(60, 64, 67, 0.1);
+    0 4px 10px rgba(60, 64, 67, 0.1);
     color: var(--colour-text);
 }
 
@@ -329,7 +329,7 @@ h2 {
     border-radius: 14px;
     background: var(--colour-purple-light);
     box-shadow: 0 8px 24px rgba(60, 64, 67, 0.24),
-        0 2px 8px rgba(60, 64, 67, 0.16);
+    0 2px 8px rgba(60, 64, 67, 0.16);
     color: white;
     transform: translateX(-50%);
 }

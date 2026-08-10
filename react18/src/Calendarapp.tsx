@@ -108,6 +108,7 @@ const CALENDAR_VIEWS = {
         dayNarrowWidth: 0,
         multiMonthMaxColumns: 2,
     },
+
 } satisfies NonNullable<CalendarOptions['views']>
 
 function formatMonthTitle(date: Date) {
