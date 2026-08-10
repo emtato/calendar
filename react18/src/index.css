@@ -76,45 +76,7 @@ h2 {
     font-weight: 700;
 }
 
-.scrolling-month-view .calendar-month-divider,
-.scrolling-month-view .calendar-month-weekdays {
-    position: static !important;
-    top: auto !important;
-    margin-bottom: 0 !important;
-}
-
-.scrolling-month-view .calendar-month-table,
-.scrolling-month-view .calendar-month-weeks {
-    margin-top: 0 !important;
-}
-
-.scrolling-month-view .calendar-month-weeks:has([role='row']:nth-child(4):last-child) {
-    aspect-ratio: 2.1 !important;
-}
-
-.scrolling-month-view .calendar-month-weeks:has([role='row']:nth-child(5):last-child) {
-    aspect-ratio: 1.68 !important;
-}
-
-.scrolling-month-view .calendar-month-weeks:has([role='row']:nth-child(6):last-child) {
-    aspect-ratio: 1.4 !important;
-}
-
-/* Keep FullCalendar's pre-measurement and final layouts visually identical. */
-.scrolling-month-view [role='grid'][data-date] [role='gridcell'] > div:first-child {
-    min-height: 2px !important;
-    justify-content: center !important;
-}
-
-.scrolling-month-view [role='grid'][data-date] [role='gridcell'] > div:first-child > div:first-child {
-    width: 24px !important;
-    height: 24px !important;
-    margin: 6px !important;
-    font-size: 14px !important;
-    line-height: 20px !important;
-}
-
-:is(.scrolling-month-view, .calendar-year-view) [role='grid'][data-date] [role='button'] > div:has(> .calendar-event-title) {
+.calendar-year-view [role='grid'][data-date] [role='button'] > div:has(> .calendar-event-title) {
     min-height: 20px !important;
     padding-block: 2px !important;
     font-size: 12px !important;
@@ -139,11 +101,11 @@ h2 {
     font-weight: 700;
 }
 
-:is(.scrolling-month-view, .calendar-year-view) [role='grid'][data-date] [role='button']:has(.calendar-event-time):not(:has(> :nth-child(3))) {
+.calendar-year-view [role='grid'][data-date] [role='button']:has(.calendar-event-time):not(:has(> :nth-child(3))) {
     margin-inline: 2px !important;
 }
 
-:is(.scrolling-month-view, .calendar-year-view) [role='grid'][data-date] [role='button']:has(.calendar-event-time):not(:has(> :nth-child(3))) > div:first-child {
+.calendar-year-view [role='grid'][data-date] [role='button']:has(.calendar-event-time):not(:has(> :nth-child(3))) > div:first-child {
     margin-inline-start: 4px !important;
 }
 

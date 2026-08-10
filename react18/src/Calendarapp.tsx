@@ -98,14 +98,9 @@ const CALENDAR_VIEWS = {
             return {start, end}
         },
         dateIncrement: {months: 1},
-        multiMonthMaxColumns: 1,
         aspectRatio: 1.4,
         dayNarrowWidth: 0,
-        scrollTimeReset: false,
-        className: 'scrolling-month-view scrolling-month-measuring',
-        singleMonthHeaderClass: 'calendar-month-divider',
-        tableClass: 'calendar-month-table',
-        tableHeaderClass: 'calendar-month-weekdays',
+        className: 'scrolling-month-measuring',
         tableBodyClass: 'calendar-month-weeks',
     },
     multiMonthYear: {
@@ -574,7 +569,6 @@ export default function CalendarApp() {
 
                         if (viewInfo.view.type !== SCROLLING_MONTH_VIEW) return
 
-                        // const monthList = viewInfo.el.querySelector<HTMLElement>('[role="list"]')
                         const scroller = viewInfo.el.querySelector<HTMLElement>('.calendar-month-weeks')
 
                         if (!scroller || !toolbarTitle) return
@@ -635,9 +629,30 @@ export default function CalendarApp() {
                         const handleScroll = () => {
                             updateTitle()
                             window.clearTimeout(scrollEndTimer)
-                            scrollEndTimer = window.setTimeout(() => {
-                                scrollToMonth(visibleMonthRef.current, 'smooth')
-                            }, 180)
+                            scrollEndTimer = window.setTimeout(() => { //scroll snap to start of months
+                                const scrollerTop = scroller.getBoundingClientRect().top
+
+                                const monthStartCells = scroller.querySelectorAll<HTMLElement>(
+                                    '[role="gridcell"][data-date$="-01"]'
+                                )
+
+                                const nearbyMonthCell = [...monthStartCells].find((cell) => {
+                                    const monthStartRow = cell.closest<HTMLElement>('[role="row"]')
+
+                                    if (!monthStartRow) return false
+
+                                    const rowBounds = monthStartRow.getBoundingClientRect()
+                                    const distanceFromTop = rowBounds.top - scrollerTop
+
+                                    return Math.abs(distanceFromTop) <= rowBounds.height
+                                })
+
+                                const nearbyDate = nearbyMonthCell?.dataset.date
+                                if (!nearbyDate) return
+
+                                const [year, monthIndex] = nearbyDate.split('-').map(Number)
+                                scrollToMonth(new Date(year, monthIndex - 1, 1), 'smooth')
+                            }, 100)
                         }
 
                         let alignmentFrame = 0
