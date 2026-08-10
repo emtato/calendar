@@ -583,11 +583,23 @@ export default function CalendarApp() {
                         toolbarTitle.textContent = formatMonthTitle(today)
 
                         const updateTitle = () => {
-                            const bounds = scroller.getBoundingClientRect()
-                            const element = document.elementFromPoint(bounds.left + bounds.width / 2,
-                                bounds.top + Math.min(100, bounds.height / 4)
-                            )
-                            const month = element?.closest<HTMLElement>('[role="grid"][data-date]')?.dataset.date
+                            const scrollerTop = scroller.getBoundingClientRect().top //screen position at top of calendar edge
+
+                            const firstRow = scroller.querySelector<HTMLElement>('[role="row"]') //first visible row
+                            const rowHeight = firstRow?.getBoundingClientRect().height ?? 0
+                            const switchingLine = scrollerTop + rowHeight
+                            //cells that head a month
+                            const monthStartCells = scroller.querySelectorAll<HTMLElement>('[role="gridcell"][data-date$="-01"]')
+                            let activeMonthCell: HTMLElement | null = null
+
+                            for (const cell of monthStartCells) {
+                                const monthStartRow = cell.closest<HTMLElement>('[role="row"]')//check every cell
+
+                                if (monthStartRow && monthStartRow.getBoundingClientRect().top < switchingLine) {
+                                    activeMonthCell = cell //determine title month display
+                                }
+                            }
+                            const month = activeMonthCell?.dataset.date
 
                             if (month) {
                                 const [year, monthIndex] = month.split('-').map(Number)
@@ -620,6 +632,7 @@ export default function CalendarApp() {
                         }
 
                         const hideUnneededDivider = () => {
+
                             const scrollerTop = scroller.getBoundingClientRect().top
                             const divider = [...scroller.querySelectorAll<HTMLElement>('.calendar-month-divider')]
                                 .find((element) => {
@@ -654,7 +667,11 @@ export default function CalendarApp() {
 
                                 const rowsAreSized = scrollToMonth(today)
 
-                                if (!rowsAreSized && framesRemaining-- > 0) {
+                                if (rowsAreSized) {
+                                    viewInfo.el.classList.remove('scrolling-month-measuring')
+                                }
+
+                                if (framesRemaining-- > 0) {
                                     alignmentFrame = window.requestAnimationFrame(align)
                                 } else {
                                     viewInfo.el.classList.remove('scrolling-month-measuring')
