@@ -452,7 +452,7 @@ h2 {
 }
 
 .description-row {
-    margin-top: 0.5em;
+    margin-top: -0.5em;
     align-items: start;
 }
 .guests_location-input{
@@ -474,6 +474,7 @@ h2 {
     background: transparent;
     color: inherit;
     font: inherit;
+    margin-top:1.62em;
 }
 
 .form-row {
