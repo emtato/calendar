@@ -9,16 +9,14 @@
  *
  * Do not put MongoDB queries or Gemini prompts directly in controllers.
  */
-import testEvents from "../testEvents.json";
 import {calendarService} from "../services/calendar.service";
-import {CalendarEvent} from "../domain/calendar-event";
+import type {CalendarEvent} from "../domain/calendar-event";
 
 export async function handleListEvents(request: any, response: any): Promise<CalendarEvent[]> {
 
     const startDate = request.query.start;
     const endDate = request.query.end;
     const events = await calendarService.getEvents(startDate, endDate)
-   // console.log("events in events controller", events)
     response.status(200).json(events);
 
     return events;

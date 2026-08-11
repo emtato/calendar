@@ -96,10 +96,3 @@ export const simpleTimeLocationExtractor = (title: string, timeModified: boolean
     }
     return [returnTime, returnLocation, returnTitle]
 }
-
-
-function addOneDay(dateStr: string): string {
-    const date = new Date(dateStr);
-    date.setDate(date.getDate() + 1);
-    return date.toISOString().split("T")[0];
-}
