@@ -861,6 +861,7 @@ export default function CalendarApp() {
                     deleteEvent={startDeleteTimer}
                     loc={location}
                     gsts={guests}
+                    onPositionChange={setPopupPos}
                 />
             )}
             <Sidebar isOpen={isSidebar} onClose={closeSidebar}/>

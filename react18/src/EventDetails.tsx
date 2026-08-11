@@ -1,4 +1,4 @@
-import {useState, type CSSProperties, useRef} from 'react'
+import React, {useState, type CSSProperties, useRef} from 'react'
 import {useEffect} from "react";
 import {Temporal} from 'temporal-polyfill'
 import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extractor";
@@ -78,6 +78,7 @@ interface PopupInfo { // describes the information the component expects
     deleteEvent: (event: DeletedEvent) => void;
     gsts: string;
     loc: string;
+    onPositionChange: (nextPosition: { x: number; y: number }) => void
 
 }
 
@@ -97,7 +98,7 @@ interface SidebarInfo {
 export default function Popup({
                                   isOpen, onClose, position, startDate, endDate, dateList, initialStartTime,
                                   initialEndTime, titleText, descriptionText, id, allDay, endTimeMod, onEventsChanged,
-                                  deleteEvent, gsts, loc,
+                                  deleteEvent, gsts, loc, onPositionChange,
                               }: PopupInfo) {
     // ------------------------------------------------
     // State and refs
@@ -116,6 +117,12 @@ export default function Popup({
     const [endTimeModified, setEndTimeModified] = useState(endTimeMod)
     const [locationModified, setLocationModified] = useState(false)
     const [guests, setGuests] = useState(gsts)
+    const dragStart = useRef<{
+        pointerX: number
+        pointerY: number
+        popupX: number
+        popupY: number
+    } | null>(null)
 
     const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
     const formRef = useRef<HTMLFormElement | null>(null); //for enter function
@@ -170,6 +177,45 @@ export default function Popup({
             desiredY = windowY * 0.45 + 115
             position.y = desiredY
         }
+    }
+
+    function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) { //start drag
+        const target = event.target as HTMLElement
+
+        if (target.closest('input, textarea, select, button')) { //enable drag only on white space of popup
+            return
+        }
+        dragStart.current = {
+            pointerX: event.clientX,
+            pointerY: event.clientY,
+            popupX: position.x,
+            popupY: position.y,
+        }
+        const start = dragStart.current
+        if (!start) return
+
+        const offsetX = event.clientX - start.pointerX
+        const offsetY = event.clientY - start.pointerY
+        onPositionChange({
+            x: start.popupX + offsetX,
+            y: start.popupY + offsetY,
+        })
+    }
+
+    function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
+        const start = dragStart.current
+        if (!start) return
+
+        const offsetX = event.clientX - start.pointerX
+        const offsetY = event.clientY - start.pointerY
+        onPositionChange({
+            x: start.popupX + offsetX,
+            y: start.popupY + offsetY,
+        })
+    }
+
+    function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
+        dragStart.current = null;
     }
 
     // ------------------------------------------------
@@ -380,6 +426,9 @@ export default function Popup({
 
                 <div
                     className="event-popup"
+                    onPointerDown={handlePointerDown}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
                     style={{'--event-color': selectedCalendar.color} as CSSProperties}
                 >
                     <button className="icon-button drag-button" type="button" aria-label="Move popup">☰</button>
@@ -529,7 +578,8 @@ export default function Popup({
                                 fill="currentColor"
                                 aria-hidden="true"
                             >
-                                <path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"/>
+                                <path
+                                    d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8Zm0 2c-4.42 0-8 2.24-8 5v1h16v-1c0-2.76-3.58-5-8-5Z"/>
                             </svg>
                             <input
                                 className="guests_location-input"
@@ -539,7 +589,7 @@ export default function Popup({
                         </div>
                         <div className="form-row">
                             <span className="row-icon row-icon-shift-left">⌖</span>
-                             <input
+                            <input
                                 className="guests_location-input"
                                 value={location}
                                 onChange={(event) => setLocation(event.target.value)}
