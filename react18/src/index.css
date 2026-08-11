@@ -64,7 +64,7 @@ h2 {
     column-gap: 8px;
     min-height: 100%;
     font-size: 14px;
-    transition: grid-template-columns 250ms ease;
+    transition: grid-template-columns 200ms ease;
 }
 
 .app-sidebar-collapsed {

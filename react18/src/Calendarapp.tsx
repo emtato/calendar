@@ -616,18 +616,30 @@ export default function CalendarApp() {
                     views={CALENDAR_VIEWS}
                     buttons={calendarButtons}
                     viewDidMount={(viewInfo) => {
-                        const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
+                        const findToolbarTitle = () => {
+                            const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
 
-                        toolbarTitle?.classList.add('calendar-toolbar-title')
+                            toolbarTitle?.classList.add('calendar-toolbar-title')
+                            return toolbarTitle
+                        }
+
+                        const setToolbarTitle = (text: string) => {
+                            const toolbarTitle = findToolbarTitle()
+                            if (!toolbarTitle) return
+
+                            toolbarTitle.textContent = text
+                        }
+
+                        findToolbarTitle()
 
                         if (viewInfo.view.type !== SCROLLING_MONTH_VIEW) return
 
                         const scroller = viewInfo.el.querySelector<HTMLElement>('.calendar-month-weeks')
 
-                        if (!scroller || !toolbarTitle) return
+                        if (!scroller) return
 
                         const today = new Date()
-                        toolbarTitle.textContent = formatMonthTitle(today)
+                        setToolbarTitle(formatMonthTitle(today))
 
                         const updateTitle = () => {
                             const scrollerTop = scroller.getBoundingClientRect().top //screen position at top of calendar edge
@@ -661,7 +673,7 @@ export default function CalendarApp() {
                                 const [year, monthIndex] = month.split('-').map(Number)
                                 const activeMonth = new Date(year, monthIndex - 1, 1)
                                 visibleMonthRef.current = activeMonth
-                                toolbarTitle.textContent = formatMonthTitle(activeMonth)
+                                setToolbarTitle(formatMonthTitle(activeMonth))
                             }
                         }
 
@@ -675,7 +687,7 @@ export default function CalendarApp() {
                             const activeMonth = new Date(date.getFullYear(), date.getMonth(), 1)
                             const top = monthStartRow.offsetTop
                             visibleMonthRef.current = activeMonth
-                            toolbarTitle.textContent = formatMonthTitle(activeMonth)
+                            setToolbarTitle(formatMonthTitle(activeMonth))
 
                             if (behavior === 'smooth') {
                                 scroller.scrollTo({top, behavior})
