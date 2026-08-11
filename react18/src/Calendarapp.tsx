@@ -259,7 +259,7 @@ export default function CalendarApp() {
     const lastCalendarViewRef = useRef('')
     const arrowTargetMonthRef = useRef<Date | null>(null)
     const arrowTargetTimerRef = useRef(0)
-    const initialSidebarResizeHandledRef = useRef(false)
+    const initialSidebarResizeHandledRef = useRef(0)
     const initialSidebarScrollRatioRef = useRef(0)
 
     const scrollVisibleMonth = useCallback((offset: number) => {
@@ -318,7 +318,7 @@ export default function CalendarApp() {
     // ------------------------------------------------
 
     function closeSidebar() {
-        if (!initialSidebarResizeHandledRef.current) { //not resized yet (this is to fix an initial resize bug)
+        if (initialSidebarResizeHandledRef.current == 0) { //not resized yet (this is to fix an initial resize bug)
             const scroller = calendarMainRef.current?.querySelector<HTMLElement>('.calendar-month-weeks')
             if (scroller) {
                 initialSidebarScrollRatioRef.current = scroller.scrollTop / scroller.scrollHeight
@@ -335,7 +335,7 @@ export default function CalendarApp() {
         if (event.target !== event.currentTarget) return
         if (event.propertyName !== 'grid-template-columns') return
         //  handler continues only when .app element itself finished transitioning (sdebar)
-        if (initialSidebarResizeHandledRef.current) return
+        if (initialSidebarResizeHandledRef.current > 1) return
 
         const scroller = calendarMainRef.current?.querySelector<HTMLElement>('.calendar-month-weeks')
         if (!scroller) return
@@ -352,7 +352,7 @@ export default function CalendarApp() {
             if (framesRemaining-- > 0) {
                 window.requestAnimationFrame(align)
             } else {
-                initialSidebarResizeHandledRef.current = true
+                initialSidebarResizeHandledRef.current += 1
             }
         }
         align()
