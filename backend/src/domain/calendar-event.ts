@@ -16,8 +16,10 @@ export interface CalendarEvent {
     extendedProps: {
         location?: string;
         description?: string;
+        guests?: string;
     };
 }
+
 export interface SaveCalendarEventInput {
     id: string;
     title: string;
@@ -29,5 +31,6 @@ export interface SaveCalendarEventInput {
     extendedProps: {
         location: string;
         description: string;
+        guests: string;
     };
 }

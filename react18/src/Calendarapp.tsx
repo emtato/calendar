@@ -241,7 +241,8 @@ export default function CalendarApp() {
     const [startTime, setStartTime] = useState(DEFAULT_START_TIME)
     const [endTime, setEndTime] = useState(DEFAULT_END_TIME)
     const [deletePopupUndo, setDeletePopup] = useState(false)
-
+    const [location, setLocation] = useState('')
+    const [guests, setGuests] = useState("")
     const [dateList, setDateList] = useState<string[]>([])
 
     const [title, setTitle] = useState('')
@@ -390,6 +391,8 @@ export default function CalendarApp() {
         setDescription('')
         setId('')
         setAllDay(false)
+        setGuests("")
+        setLocation("")
     }
 
     async function startDeleteTimer(event: DeletedEvent) {
@@ -597,6 +600,8 @@ export default function CalendarApp() {
             selectInfo.view.calendar.unselect()
         }
         setDescription(selectInfo.event.extendedProps.description)
+        setGuests(selectInfo.event.extendedProps.guests)
+        setLocation(selectInfo.event.extendedProps.location)
     }
 
 // ------------------------------------------------
@@ -851,6 +856,8 @@ export default function CalendarApp() {
                     endTimeMod={false}
                     onEventsChanged={refreshCalendar}
                     deleteEvent={startDeleteTimer}
+                    loc={location}
+                    gsts={guests}
                 />
             )}
             <Sidebar isOpen={isSidebar} onClose={closeSidebar}/>

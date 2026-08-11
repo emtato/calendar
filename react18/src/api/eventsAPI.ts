@@ -3,7 +3,7 @@ import type {
     SaveCalendarEventInput,
 } from "../../../backend/src/CalendarEvent";
 import {simpleTimeLocationExtractor} from "../utils/simple_time_location_extractor";
-import {DeletedEvent} from "../Calendarapp";
+import type {DeletedEvent} from "../Calendarapp";
 
 const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 
@@ -17,9 +17,8 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL;
 export async function getCalendarEvents(startDate: string, endDate: string): Promise<CalendarEvent[]> {
 
     const response = await fetch(`${SERVER_URL}/api/events?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`)
-    //console.log("received response" + response)
     const events = await response.json();
-    //console.log("received events", events)
+    console.log("received events", events)
     return events
 }
 
@@ -49,7 +48,7 @@ export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<
         const [hours, minutes] = returnTime.split(":").map(Number);
         event.startTime = hours * 60 + minutes;
     }
-    if(returnlocation != null){
+    if(returnlocation != ""){
         event.extendedProps.location = returnlocation
     }
 
@@ -60,7 +59,6 @@ export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<
         },
         body: JSON.stringify(event)
     })
-// console.log("saving event response", response)
     return response.json() //return id inside the returned full calendarEvent object
 }
 

@@ -17,12 +17,12 @@ import {
 import {eventStorage} from "../repositories/event.storage";
 import {randomUUID} from "node:crypto";
 
-async function saveEvent(input: SaveCalendarEventInput,): Promise<CalendarEvent> {
+async function saveEvent(input: SaveCalendarEventInput): Promise<CalendarEvent> {
+    console.log("event loc" , input.extendedProps.location)
     //TODO: gemini first pass layer to extract advanced location/time data first
     if(input.allDay){
         input.endDate = addOneDay(input.endDate)
     }
-    console.log("input in saveEvent", input)
     if (input.id == "") { //new event
         input.id = randomUUID();
         const event = ConvertToCalendarEvent(input);
@@ -34,10 +34,9 @@ async function saveEvent(input: SaveCalendarEventInput,): Promise<CalendarEvent>
     return event
 }
 async function restoreEvent(input: SaveCalendarEventInput): Promise<CalendarEvent> {
-     if(input.allDay){
+    if(input.allDay){
         input.endDate = addOneDay(input.endDate)
     }
-    console.log("event being restored", input)
         const event = ConvertToCalendarEvent(input);
        await eventStorage.createEvent(event)
         return event;
@@ -80,6 +79,7 @@ function ConvertToCalendarEvent(input: SaveCalendarEventInput): CalendarEvent {
         extendedProps: {
             location: input.extendedProps.location,
             description: input.extendedProps.description,
+            guests: input.extendedProps.guests,
         },
     };
     return event;
@@ -96,4 +96,3 @@ function addOneDay(date: string): string {
 export const calendarService = {
     saveEvent, getEvents, deleteEvent, restoreEvent
 };
-

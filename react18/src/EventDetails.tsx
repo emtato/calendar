@@ -1,10 +1,9 @@
-import React, {useState, type CSSProperties, useRef} from 'react'
+import {useState, type CSSProperties, useRef} from 'react'
 import {useEffect} from "react";
 import {Temporal} from 'temporal-polyfill'
 import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extractor";
-import {saveCalendarEvent, deleteCalendarEvent, getCalendarEventById} from "./api/eventsAPI";
+import {saveCalendarEvent} from "./api/eventsAPI";
 import TimeComboBox from "./components/TimeComboBox";
-import {CalendarEvent} from "../../backend/src/domain/calendar-event";
 import type {DeletedEvent} from "./Calendarapp";
 // ----------------------------------------------------
 // Configuration
@@ -77,6 +76,8 @@ interface PopupInfo { // describes the information the component expects
     endTimeMod: boolean
     onEventsChanged: () => void
     deleteEvent: (event: DeletedEvent) => void;
+    gsts: string;
+    loc: string;
 
 }
 
@@ -96,7 +97,7 @@ interface SidebarInfo {
 export default function Popup({
                                   isOpen, onClose, position, startDate, endDate, dateList, initialStartTime,
                                   initialEndTime, titleText, descriptionText, id, allDay, endTimeMod, onEventsChanged,
-                                  deleteEvent,
+                                  deleteEvent, gsts, loc,
                               }: PopupInfo) {
     // ------------------------------------------------
     // State and refs
@@ -107,17 +108,17 @@ export default function Popup({
     const [endTime, setEndTime] = useState(initialEndTime)
     const [selectedStartDate, setSelectedStartDate] = useState(startDate)
     const [selectedEndDate, setSelectedEndDate] = useState(endDate)
-    const [location, setLocation] = useState('')
+    const [location, setLocation] = useState(loc)
     const [title, setTitle] = useState(titleText)
     const [allday, setAllday] = useState(allDay)
     const [eventID, setEventID] = useState(id)
     const [description, setDescription] = useState(descriptionText)
     const [endTimeModified, setEndTimeModified] = useState(endTimeMod)
     const [locationModified, setLocationModified] = useState(false)
+    const [guests, setGuests] = useState(gsts)
 
     const titleCleanupTimer = useRef<ReturnType<typeof setTimeout> | null>(null); //timer to remove detected time from title
     const formRef = useRef<HTMLFormElement | null>(null); //for enter function
-    //  const [startTimeModified, setStartTimeModified] = useState(false)//flag to check time changed manually -> overrides automatic time set from title analysis
 
     // ------------------------------------------------
     // Derived values
@@ -175,22 +176,6 @@ export default function Popup({
     // Input and title handlers
     // ------------------------------------------------
 
-    // function handleUserTimeSpecification(hours: string, minutes: string, AMPM: string) {
-    //     //hours, minutes will be separate text fields
-    //     //AMPM will be a toggle that changes upon clicked
-    //     //these 3 fields will occupy the same space as the dropdown selected display
-    //     //TODO: allow input of 24h time. if user's hour is 13 or more, it removes the AMPM toggle
-    //     let nextStartTime = Number(hours) * 60 + Number(minutes)
-    //     if (AMPM === "PM" && hours != "12") {
-    //         nextStartTime += 12 * 60
-    //     }
-    //     setStartTime(nextStartTime)
-    //     if (selectedStartDate == selectedEndDate) {
-    //         const defaultEndTime = getNextFullHour(nextStartTime)
-    //         setEndTime(defaultEndTime)
-    //     }
-    // }
-
     function handleTitleInputChange([returnTime, returnLocation, returnTitle]: [string, string, string]) {
         if (titleCleanupTimer.current !== null) {
             clearTimeout(titleCleanupTimer.current);
@@ -218,27 +203,7 @@ export default function Popup({
     // Time handlers
     // ------------------------------------------------
 
-// process end time selection
-//     function checkTime(time: string) {
-//         const selectedTime = Number(time)
-//         let nextEndTime = selectedTime
-//         if (selectedEndDate == selectedStartDate) {
-//             nextEndTime = Math.min(Math.max(Number(time), startTime), MINUTES_PER_DAY)
-//         }
-//         setEndTime(nextEndTime)
-//         if (!selectedStartDate) {
-//             return
-//         }
-//         if (selectedTime % MINUTES_PER_DAY === 0 && selectedEndDate && selectedTime !== 0) { //if midnight
-//             const nextEndDate = Temporal.PlainDate.from(selectedEndDate).add({days: 1}).toString() //add 1 day to end date
-//             setSelectedEndDate(nextEndDate)
-//             setEndTime(0)
-//         }
-//     }
-
     function handleStartTimeChange(nextStartTime: number) {
-        // setStartTimeModified(true)
-        console.log("start time changed to " + nextStartTime)
         let defaultEndTime = 0
         if (nextStartTime % 15 != 0) {
             defaultEndTime = getNextFullHour(nextStartTime);
@@ -302,7 +267,6 @@ export default function Popup({
         //selectedEndDate is event end date
         //allDay is event alldayness :3
         //description is description
-        const location = "location"
         const event = {
             id: eventID, //id is "" by default, and passed in by calendarApp if clicking on a prexisting event
             title: title,
@@ -314,17 +278,15 @@ export default function Popup({
             extendedProps: {
                 location: location,
                 description: description,
+                guests: guests,
             }
         }
-        console.log("saving event with id:", id)
-        console.log("event object:", event)
         await saveCalendarEvent(event)
         onEventsChanged(); //refresh calendar events
         closePopup()
     }
 
     function createDeleteEventPackage() {
-        const location = "location"
         const event: DeletedEvent = {
             id: eventID, //id is "" by default, and passed in by calendarApp if clicking on a prexisting event
             title: title,
@@ -454,12 +416,6 @@ export default function Popup({
                         <div className="form-row">
                             <span className="row-icon">◷</span>
                             <div className="row-content">
-                                {/*
-                                <input
-                                value={dateText}
-                                onChange={(event) => setDateText(event.target.value)}
-                                />
-                                */}
                                 <div className="date-range">
                                     <select
                                         className="date-input" value={selectedStartDate}
@@ -566,11 +522,19 @@ export default function Popup({
                         </div>
                         <div className="form-row">
                             <span className="row-icon">♙</span>
-                            <span>Add guests</span>
+                            <input
+                                className="guests_location-input"
+                                value={guests}
+                                onChange={(event) => setGuests(event.target.value)}
+                                placeholder="Add guests"></input>
                         </div>
                         <div className="form-row">
                             <span className="row-icon row-icon-shift-left">⌖</span>
-                            <span>Add location</span>
+                             <input
+                                className="guests_location-input"
+                                value={location}
+                                onChange={(event) => setLocation(event.target.value)}
+                                placeholder="Add location"></input>
                         </div>
                         <div className="form-row">
                             <span className="row-icon row-icon-shift-left">▣</span>
@@ -628,7 +592,9 @@ export default function Popup({
 // Expanded sidebar
 // ====================================================
 
-export function Sidebar({isOpen, onClose}: SidebarInfo) {
+export function Sidebar({
+                            isOpen, onClose
+                        }: SidebarInfo) {
 
 
     // ------------------------------------------------
@@ -671,7 +637,7 @@ export function Sidebar({isOpen, onClose}: SidebarInfo) {
                 </div>
             </div>
             <div className='app-sidebar-section'>
-                <h2>Scheduling assistant</h2>
+                <h2>twink Scheduling assistant</h2>
                 <div className='sidebar-chat'>ALALA</div>
             </div>
 
@@ -684,7 +650,9 @@ export function Sidebar({isOpen, onClose}: SidebarInfo) {
 // ====================================================
 
 //onclose will js be closing this small bar -> opening big bar
-export function MinimizedBar({isOpen, onClose}: SidebarInfo) {
+export function MinimizedBar({
+                                 isOpen, onClose
+                             }: SidebarInfo) {
 
     // ------------------------------------------------
     // Render
