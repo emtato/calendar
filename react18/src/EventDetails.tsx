@@ -593,13 +593,14 @@ export default function Popup({
                                 <span className="calendar-arrow" aria-hidden="true">▾</span>
                             </label>
                         </div>
-                        <div className="form-row">
+                        <div className="form-row description-row">
                             <span className="row-icon row-icon-shift-left">☰</span>
-                            <input
+                            <textarea
                                 value={description}
                                 className="description-input"
                                 placeholder="Add description"
                                 onChange={(event) => setDescription(event.target.value)}
+                                rows={2}
                             />
                         </div>
                     </form>
