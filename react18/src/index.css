@@ -309,13 +309,13 @@ h2 {
 }
 
 .month-boundary-cell:first-child .month-boundary-label {
-{ /* shift month label if its the first child of parent (first in row)  */
-} transform: translate(10%, 35%);
+    /* shift month label if its the first child of parent (first in row)  */
+    transform: translate(10%, 35%);
 }
 
 .month-boundary-cell[data-month-label-visible='true'] .month-boundary-label {
-{ /*transition to visible*/
-} opacity: 0.5;
+    /*transition to visible*/
+    opacity: 0.5;
 }
 
 /* ____________________________________________________
@@ -331,15 +331,21 @@ h2 {
 
 .event-popup {
     position: fixed;
-    width: 30vw;
-    height: 55vh;
+    /*
+     * 14px at the current 1490 x 927 reference viewport.
+     * The smaller viewport axis controls the scale so the popup keeps its
+     * proportions. The 8.4px floor is 60% of the reference size.
+     */
+    font-size: max(8.4px, min(0.94vw, 1.51vh));
+    width: 31.93em;
+    height: 36.43em;
     box-sizing: border-box;
-    padding: 28px 28px 24px;
-    border: 2px solid var(--colour-border);
-    border-radius: 30px;
+    padding: 2em 2em 1.71em;
+    border: 0.143em solid var(--colour-border);
+    border-radius: 2.14em;
     background: var(--colour-off-white);
-    box-shadow: 0 12px 30px rgba(60, 64, 67, 0.18),
-    0 4px 10px rgba(60, 64, 67, 0.1);
+    box-shadow: 0 0.86em 2.14em rgba(60, 64, 67, 0.18),
+    0 0.29em 0.71em rgba(60, 64, 67, 0.1);
     color: var(--colour-text);
 }
 
@@ -401,8 +407,8 @@ h2 {
 /* Popup content layout */
 
 .event-content {
-    margin-top: 70px;
-    padding: 0 18px;
+    margin-top: 5em;
+    padding: 0 1.29em;
 }
 
 /* Popup header controls */
@@ -412,33 +418,33 @@ h2 {
     border: none;
     background: transparent;
     color: var(--colour-neutral-grey);
-    font-size: 22px;
+    font-size: 1.57em;
     cursor: pointer;
 }
 
 .drag-button {
-    top: 24px;
-    left: 32px;
-    font-size: 18px;
+    top: 1.33em;
+    left: 1.78em;
+    font-size: 1.29em;
 }
 
 .close-button {
-    top: 20px;
-    right: 28px;
+    top: 0.91em;
+    right: 1.27em;
 }
 
 /* Popup form rows and text fields */
 
 .title-input {
     width: 100%;
-    padding: 4px 0 5px;
-    margin-bottom: 18px;
+    padding: 0.2em 0 0.25em;
+    margin-bottom: 0.9em;
     border: none;
-    border-bottom: 4px solid var(--colour-purple-vibrant);
+    border-bottom: 0.2em solid var(--colour-purple-vibrant);
     outline: none;
     background: transparent;
     color: var(--colour-text);
-    font-size: 20px;
+    font-size: 1.43em;
 }
 
 .title-input::placeholder {
@@ -446,12 +452,16 @@ h2 {
 }
 
 .description-row {
-    margin-top: 0.5vw;
+    margin-top: 0.5em;
     align-items: start;
+}
+.guests_location-input{
+    border: none;
+    outline: none;
 }
 
 .description-row .row-icon {
-    margin-top: -1vw;
+    margin-top: 0.08em;
 }
 
 .description-input {
@@ -464,34 +474,32 @@ h2 {
     background: transparent;
     color: inherit;
     font: inherit;
-    margin-top: 0.48vw;
 }
 
 .form-row {
     display: grid;
-    grid-template-columns: 32px minmax(0, 1fr) auto;
+    grid-template-columns: 2.29em minmax(0, 1fr) auto;
     align-items: center;
-    min-height: 48px;
-    gap: 8px;
+    min-height: 3.43em;
+    gap: 0.57em;
 }
 
 .row-icon {
     color: var(--colour-neutral-grey);
-    font-size: 18px;
+    font-size: 1.29em;
 }
 
 .row-icon-shift-left {
-    transform: translateX(-3px);
+    transform: translateX(-0.17em);
 }
 
 .row-content {
-    font-size: 14px;
     line-height: 1.45;
 }
 
 .secondary-text {
     color: var(--colour-neutral-grey);
-    font-size: 12px;
+    font-size: 0.86em;
 }
 
 /* Date controls */
@@ -499,11 +507,11 @@ h2 {
 .date-range {
     display: flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.57em;
 }
 
 .date-input {
-    width: 105px;
+    width: 7.5em;
     border: none;
     background: transparent;
     color: inherit;
@@ -511,23 +519,23 @@ h2 {
 }
 
 .end-date-input {
-    margin-right: 10px;
+    margin-right: 0.71em;
 }
 
 .all-day-option {
     display: inline-flex;
     align-items: center;
-    gap: 8px;
+    gap: 0.57em;
     white-space: nowrap;
     color: var(--colour-text);
-    font-size: 14px;
     cursor: pointer;
 }
 
 .all-day-option input {
-    width: 18px;
-    height: 18px;
+    width: 1.29em;
+    height: 1.29em;
     margin: 0;
+    font: inherit;
     accent-color: var(--colour-purple-vibrant);
     cursor: pointer;
 }
@@ -536,12 +544,14 @@ h2 {
 
 .time-select-with-edit {
     display: inline-flex;
+    flex: 0 0 auto;
     align-items: center;
+    white-space: nowrap;
 }
 
 .time-period-toggle {
     border: 0;
-    border-radius: 8px;
+    border-radius: 0.57em;
     background: transparent;
     padding-inline: 0;
     color: inherit;
@@ -554,8 +564,8 @@ h2 {
 }
 
 .time-period-toggle:focus-visible {
-    outline: 2px solid var(--colour-purple-vibrant);
-    outline-offset: 1px;
+    outline: 0.14em solid var(--colour-purple-vibrant);
+    outline-offset: 0.07em;
 }
 
 .time-combobox-wrapper {
@@ -568,21 +578,21 @@ h2 {
     top: 100%;
     left: -322%;
     z-index: 1500;
-    max-height: 200px;
+    max-height: 14.29em;
     overflow-y: auto;
     display: grid;
     grid-template-columns: repeat(4, 1fr);
-    padding: 6px;
-    border: 1px solid var(--colour-border);
-    border-radius: 8px;
+    padding: 0.43em;
+    border: 0.07em solid var(--colour-border);
+    border-radius: 0.57em;
     background: var(--colour-off-white);
-    box-shadow: 0 8px 24px rgba(60, 64, 67, 0.18);
+    box-shadow: 0 0.57em 1.71em rgba(60, 64, 67, 0.18);
     scrollbar-color: var(--colour-scrollbar) transparent;
     scrollbar-width: thin;
 }
 
 .time-combobox-dropdown::-webkit-scrollbar {
-    width: 8px;
+    width: 0.57em;
 }
 
 .time-combobox-dropdown::-webkit-scrollbar-track {
@@ -590,8 +600,8 @@ h2 {
 }
 
 .time-combobox-dropdown::-webkit-scrollbar-thumb {
-    border: 2px solid transparent;
-    border-radius: 999px;
+    border: 0.14em solid transparent;
+    border-radius: 999em;
     background: var(--colour-scrollbar);
     background-clip: padding-box;
 }
@@ -602,11 +612,12 @@ h2 {
 }
 
 .time-option-button {
-    width: 76px;
-    height: 25px;
+    width: 5.43em;
+    height: 1.79em;
     background: transparent;
     border: none;
     font: inherit;
+    white-space: nowrap;
 }
 
 .time-option-button:hover {
@@ -614,9 +625,9 @@ h2 {
 }
 
 .time-combobox-input {
-    width: 38px;
+    width: 2.71em;
     border: none;
-    font-size: 14px;
+    font-size: 1em;
 }
 
 /* Calendar colour (type of event) */
@@ -625,7 +636,7 @@ h2 {
     display: inline-flex;
     align-items: center;
     width: max-content;
-    gap: 8px;
+    gap: 0.57em;
     color: var(--colour-text);
     cursor: pointer;
 }
@@ -642,15 +653,15 @@ h2 {
 }
 
 .calendar-color {
-    width: 11px;
-    height: 11px;
-    flex: 0 0 11px;
+    width: 0.79em;
+    height: 0.79em;
+    flex: 0 0 0.79em;
     border-radius: 50%;
 }
 
 .calendar-arrow {
     color: var(--colour-neutral-grey);
-    font-size: 12px;
+    font-size: 0.86em;
     line-height: 1;
     pointer-events: none;
 }
@@ -663,15 +674,16 @@ h2 {
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    gap: 28px;
-    margin-top: clamp(22px, 4.4vh, 50px);
+    gap: 2em;
+    margin-top: 2.5em;
 }
 
 .delete-button {
-    width: 40px;
-    height: 40px;
+    width: 2.86em;
+    height: 2.86em;
     margin-right: auto;
-    padding: 8px;
+    padding: 0.57em;
+    font: inherit;
     display: grid;
     place-items: center;
     border: none;
@@ -683,8 +695,8 @@ h2 {
 }
 
 .delete-button svg {
-    width: 22px;
-    height: 22px;
+    width: 1.57em;
+    height: 1.57em;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.8;
@@ -701,18 +713,18 @@ h2 {
     border: none;
     background: transparent;
     color: var(--colour-purple-vibrant);
-    font-size: 14px;
+    font: inherit;
     font-weight: 600;
     cursor: pointer;
 }
 
 .save-button {
-    padding: 10px 25px;
+    padding: 0.71em 1.79em;
     border: none;
-    border-radius: 999px;
+    border-radius: 999em;
     background: var(--colour-purple-vibrant);
     color: white;
-    font-size: 14px;
+    font: inherit;
     font-weight: 600;
     cursor: pointer;
 }
