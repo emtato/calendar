@@ -625,8 +625,11 @@ export default function CalendarApp() {
                             const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
 
                             toolbarTitle?.classList.add('calendar-toolbar-title')
+                            const toolbar = toolbarTitle?.parentElement?.parentElement
+                            toolbar?.classList.add('calendar-toolbar') //find and modify css of toolbartitle
                             return toolbarTitle
                         }
+
 
                         const setToolbarTitle = (text: string) => {
                             const toolbarTitle = findToolbarTitle()

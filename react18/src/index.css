@@ -71,6 +71,16 @@ h2 {
     grid-template-columns: 27fr 1fr;
 }
 
+.calendar-toolbar {
+    flex-wrap: nowrap !important;
+}
+
+@container (max-width: 55em) {
+    .calendar-toolbar {
+        flex-wrap: wrap !important;
+    }
+}
+
 .calendar-toolbar-title {
     font-size: 1.6em;
     font-weight: 700;
@@ -254,6 +264,8 @@ h2 {
     min-width: 0;
     box-sizing: border-box;
     padding-left: 8px;
+        container-type: inline-size;
+
 }
 
 .calendar-main > div > div:first-child {
@@ -455,7 +467,8 @@ h2 {
     margin-top: -0.5em;
     align-items: start;
 }
-.guests_location-input{
+
+.guests_location-input {
     border: none;
     outline: none;
 }
@@ -474,7 +487,7 @@ h2 {
     background: transparent;
     color: inherit;
     font: inherit;
-    margin-top:1.62em;
+    margin-top: 1.62em;
 }
 
 .form-row {
