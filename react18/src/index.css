@@ -664,7 +664,7 @@ h2 {
     justify-content: flex-end;
     align-items: center;
     gap: 28px;
-    margin-top: clamp(22px, 7vh, 72px);
+    margin-top: clamp(22px, 5vh, 50px);
 }
 
 .delete-button {
