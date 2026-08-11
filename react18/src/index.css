@@ -493,6 +493,10 @@ h2 {
     transform: translateX(-0.17em);
 }
 
+.guest-icon {
+    transform: translateX(-0.14em);
+}
+
 .row-content {
     line-height: 1.45;
 }
