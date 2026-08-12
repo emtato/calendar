@@ -179,12 +179,32 @@ export default function Popup({
         }
     }
 
+    function nearPopupBoundary(event: React.PointerEvent<HTMLDivElement>) {
+        const popup = event.currentTarget
+        const rect = event.currentTarget.getBoundingClientRect()
+        const localX = event.clientX - rect.left
+        const localY = event.clientY - rect.top
+
+        const fontSize = parseFloat(getComputedStyle(popup).fontSize)
+        const boundary = 2 * fontSize
+        if (localX <= boundary || localX >= rect.width - boundary || localY <= boundary * 2 || localY >= rect.height - boundary) {
+            return true
+        } else {
+            return false
+            //false if we arent near the popup boundaries. no dragging for you
+        }
+    }
+
     function handlePointerDown(event: React.PointerEvent<HTMLDivElement>) { //start drag
         const target = event.target as HTMLElement
 
         if (target.closest('input, textarea, select, button')) { //enable drag only on white space of popup
             return
         }
+        if (!nearPopupBoundary(event)) {
+            return // no drag
+        }
+
         dragStart.current = {
             pointerX: event.clientX,
             pointerY: event.clientY,
@@ -204,7 +224,11 @@ export default function Popup({
 
     function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
         const start = dragStart.current
-        if (!start) return
+        if (!start) {
+            event.currentTarget.style.cursor =
+                nearPopupBoundary(event) ? 'move' : 'default'
+            return
+        }
 
         const offsetX = event.clientX - start.pointerX
         const offsetY = event.clientY - start.pointerY
@@ -668,7 +692,8 @@ export function Sidebar({
         <div className='app-sidebar'>
             <div className='sidebar-toolbar'>
                 <div className='sidebar-toolbar-left'>
-                    <button className='sidebar-icon-button' type='button' aria-label='Close sidebar' onClick={onClose}>
+                    <button className='sidebar-icon-button' type='button' aria-label='Close sidebar'
+                            onClick={onClose}>
                         <svg viewBox='0 0 24 24' aria-hidden='true'>
                             <path d='M5 12h14M13 6l6 6-6 6'/>
                         </svg>
