@@ -4,7 +4,7 @@ An intent first calendar built to make planning feel faster, clearer, and more n
 
 [**View the live application →**](https://calendar.ems.lol)
 
-> **Project status:** Active development. The full stack calendar foundation is live; richer natural language scheduling, recurrence, travel intelligence, and planning assistance are being developed in stages.
+**In Active development.** The full stack calendar foundation is live; richer natural language scheduling, recurrence, travel intelligence, and planning assistance are being developed in stages.
 
 ## Overview
 
