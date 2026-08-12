@@ -1,44 +1,44 @@
 # Smart Calendar
 
-An intent-first calendar built to make planning feel faster, clearer, and more natural.
+An intent first calendar built to make planning feel faster, clearer, and more natural.
 
 [**View the live application →**](https://calendar.ems.lol)
 
-> **Project status:** Active development. The full-stack calendar foundation is live; richer natural-language scheduling, recurrence, travel intelligence, and planning assistance are being developed in stages.
+**In Active development.** The full stack calendar foundation is live; richer natural language scheduling, recurrence, travel intelligence, and planning assistance are being developed in stages.
 
 ## Overview
 
-Smart Calendar is a full-stack calendar application exploring a simple product question:
+Smart Calendar is a full stack calendar application exploring a simple product question:
 
 > What if creating an event started with what you meant, instead of a form you had to fill out?
 
-The current release combines a responsive React calendar with a custom event editor, lightweight title interpretation, and persistent MongoDB storage. It is the foundation for a larger system that will turn natural-language requests into structured, reviewable events while keeping every assumption visible and editable.
+The current release combines a responsive React calendar with a custom event editor, lightweight title interpretation, and persistent MongoDB storage. It is the foundation for a larger system that will turn natural language requests into structured, reviewable events while keeping every assumption visible and editable.
 
-This project is also an exercise in building the difficult parts of a calendar product: date-boundary semantics, multiple calendar views, interaction state, undoable operations, responsive layout, and a clean frontend/backend boundary.
+This project is also an exercise in building the difficult parts of a calendar product: date boundary semantics, multiple calendar views, interaction state, undoable operations, responsive layout, and a clean frontend/backend boundary.
 
 ## Preview
 
-<!--
+<!  
 Screenshot slot 1
-Recommended file: docs/screenshots/calendar-overview.png
+Recommended file: docs/screenshots/calendar overview.png
 Recommended content: the complete calendar with the sidebar visible.
 
 Replace the placeholder below with:
-![Smart Calendar overview](docs/screenshots/calendar-overview.png)
--->
+![Smart Calendar overview](docs/screenshots/calendar overview.png)
+  >
 
 > **Screenshot placeholder — Calendar overview**
 >
 > Add a wide image showing the calendar, view controls, and scheduling sidebar.
 
-<!--
+<!  
 Screenshot slot 2
-Recommended file: docs/screenshots/event-editor.png
+Recommended file: docs/screenshots/event editor.png
 Recommended content: an event selected with the editor open.
 
 Replace the placeholder below with:
-![Smart Calendar event editor](docs/screenshots/event-editor.png)
--->
+![Smart Calendar event editor](docs/screenshots/event editor.png)
+  >
 
 > **Screenshot placeholder — Event editor**
 >
@@ -46,21 +46,21 @@ Replace the placeholder below with:
 
 ## What works today
 
-- Day, week, continuous month, and year views built on FullCalendar
-- Click or drag across the calendar to create a draft event
-- Create and edit timed, all-day, single-day, and multi-day events
-- Custom time entry with selectable values and AM/PM controls
-- Event metadata for guests, location, and description
-- Lightweight title interpretation for explicit 12-hour and 24-hour times, noon, and midnight
-- MongoDB-backed event creation, loading, updating, deletion, and restoration
-- Five-second undo flow after deleting an event
-- Responsive calendar layout with a collapsible scheduling-assistant sidebar
-- Keyboard workflows, including `N` for a new event and `Escape` for closing the active surface
+  Day, week, continuous month, and year views built on FullCalendar
+  Click or drag across the calendar to create a draft event
+  Create and edit timed, all day, single day, and multi day events
+  Custom time entry with selectable values and AM/PM controls
+  Event metadata for guests, location, and description
+  Lightweight title interpretation for explicit 12 hour and 24 hour times, noon, and midnight
+  MongoDB backed event creation, loading, updating, deletion, and restoration
+  Five second undo flow after deleting an event
+  Responsive calendar layout with a collapsible scheduling assistant sidebar
+  Keyboard workflows, including `N` for a new event and `Escape` for closing the active surface
 
 ## Current product status
 
 | Capability | Status |
-| --- | --- |
+|     |     |
 | Calendar navigation and multiple views | Available |
 | Manual event creation and editing | Available |
 | Persistent event storage | Available |
@@ -70,7 +70,7 @@ Replace the placeholder below with:
 | Persisted drag/resize changes | In progress |
 | Full intent interpretation and validation | Planned |
 | Flexible recurrence and conflict detection | Planned |
-| Travel-time intelligence | Planned |
+| Travel time intelligence | Planned |
 | Conversational planning assistant | Planned |
 
 The distinction matters: the live application demonstrates the calendar and persistence foundation, while the roadmap below describes the product being built on top of it.
@@ -83,19 +83,19 @@ Calendar selection, temporary draft events, editor state, and persistence refres
 
 ### Date and time correctness
 
-Times are represented internally as minutes after midnight and converted at the API boundary. The application also translates between inclusive dates in the editor and FullCalendar's exclusive all-day end dates. `Temporal` is used for date arithmetic rather than manual string manipulation.
+Times are represented internally as minutes after midnight and converted at the API boundary. The application also translates between inclusive dates in the editor and FullCalendar's exclusive all day end dates. `Temporal` is used for date arithmetic rather than manual string manipulation.
 
 ### Recoverable deletion
 
-Deletion and restoration are separate backend operations. The client temporarily retains the deleted event and offers an accessible five-second Undo action, while restoration preserves the event's stable application ID.
+Deletion and restoration are separate backend operations. The client temporarily retains the deleted event and offers an accessible five second Undo action, while restoration preserves the event's stable application ID.
 
 ### Layered backend
 
-The backend separates HTTP routing, request handling, application rules, domain types, and database operations. This creates clear extension points for validation, recurrence, and AI-assisted interpretation without coupling them directly to Express or MongoDB.
+The backend separates HTTP routing, request handling, application rules, domain types, and database operations. This creates clear extension points for validation, recurrence, and AI assisted interpretation without coupling them directly to Express or MongoDB.
 
 ### Custom responsive UI
 
-The interface extends FullCalendar with a continuous scrolling month view, custom event rendering, responsive sizing, a collapsible sidebar, and a purpose-built event editor. The visual system uses scalable `em`-based dimensions and a consistent muted-purple palette.
+The interface extends FullCalendar with a continuous scrolling month view, custom event rendering, responsive sizing, a collapsible sidebar, and a purpose built event editor. The visual system uses scalable `em` based dimensions and a consistent muted purple palette.
 
 ## Architecture
 
@@ -109,12 +109,12 @@ flowchart LR
     Storage["MongoDB storage adapter"]
     Database[(MongoDB)]
 
-    UI --> Parser
-    UI -->|REST + JSON| Routes
-    Routes --> Controllers
-    Controllers --> Service
-    Service --> Storage
-    Storage --> Database
+    UI   > Parser
+    UI   >|REST + JSON| Routes
+    Routes   > Controllers
+    Controllers   > Service
+    Service   > Storage
+    Storage   > Database
 ```
 
 ### Repository layout
@@ -141,7 +141,7 @@ flowchart LR
 ## Technology
 
 | Area | Tools |
-| --- | --- |
+|     |     |
 | Frontend | React 18, TypeScript, Vite |
 | Calendar UI | FullCalendar 7 |
 | Date handling | Temporal polyfill |
@@ -153,7 +153,7 @@ flowchart LR
 ## API surface
 
 | Method | Endpoint | Purpose |
-| --- | --- | --- |
+|     |     |     |
 | `GET` | `/api/events?start=...&end=...` | Load events overlapping a date range |
 | `POST` | `/api/events` | Create a new event or update an existing one |
 | `POST` | `/api/events/restore` | Restore a deleted event with its original ID |
@@ -163,9 +163,9 @@ flowchart LR
 
 ### Prerequisites
 
-- Node.js 22+
-- npm
-- A MongoDB database
+  Node.js 22+
+  npm
+  A MongoDB database
 
 ### 1. Start the backend
 
@@ -227,56 +227,56 @@ npm run build
 
 ## Product roadmap
 
-The long-term vision is an editable, intent-first planning system in which AI interprets requests while deterministic application logic remains responsible for validation and scheduling decisions.
+The long term vision is an editable, intent first planning system in which AI interprets requests while deterministic application logic remains responsible for validation and scheduling decisions.
 
 ### 1. Smart event creation
 
-- Interpret title, date, time, duration, and location from natural language
-- Preview the interpreted event before saving
-- Surface uncertain assumptions instead of silently guessing
-- Detect basic scheduling conflicts
-- Keep every generated field manually editable
+  Interpret title, date, time, duration, and location from natural language
+  Preview the interpreted event before saving
+  Surface uncertain assumptions instead of silently guessing
+  Detect basic scheduling conflicts
+  Keep every generated field manually editable
 
 ### 2. Flexible recurrence and scheduling
 
-- Expressive rules such as “every 10 days” or “the last weekday of each month”
-- Exceptions and end dates
-- Dynamic titles such as milestone counts and anniversaries
-- Fixed versus movable events
-- Automatic placement into available time windows
+  Expressive rules such as “every 10 days” or “the last weekday of each month”
+  Exceptions and end dates
+  Dynamic titles such as milestone counts and anniversaries
+  Fixed versus movable events
+  Automatic placement into available time windows
 
 ### 3. Location and travel intelligence
 
-- Place autocomplete and saved locations
-- Walking, cycling, transit, and driving estimates
-- Travel feasibility warnings between events
-- Suggested departure buffers and optional travel blocks
+  Place autocomplete and saved locations
+  Walking, cycling, transit, and driving estimates
+  Travel feasibility warnings between events
+  Suggested departure buffers and optional travel blocks
 
 ### 4. Planning assistant
 
-- Plan or rebalance complete days
-- Respect fixed commitments, opening hours, travel, meals, and breaks
-- Explain scheduling decisions
-- Support conversational edits while preserving user control
+  Plan or rebalance complete days
+  Respect fixed commitments, opening hours, travel, meals, and breaks
+  Explain scheduling decisions
+  Support conversational edits while preserving user control
 
 ## Product principles
 
-- Reduce planning friction before adding feature volume.
-- Use AI to interpret intent, not to make irreversible decisions.
-- Keep recurrence, validation, travel calculations, and scheduling deterministic.
-- Show uncertainty instead of hiding assumptions.
-- Keep every suggestion editable.
-- Make each milestone a polished, deployable product.
+  Reduce planning friction before adding feature volume.
+  Use AI to interpret intent, not to make irreversible decisions.
+  Keep recurrence, validation, travel calculations, and scheduling deterministic.
+  Show uncertainty instead of hiding assumptions.
+  Keep every suggestion editable.
+  Make each milestone a polished, deployable product.
 
 ## What this project demonstrates
 
-- Building a typed React interface around a complex third-party calendar system
-- Managing transient UI state separately from persistent domain state
-- Designing undoable, asynchronous user workflows
-- Translating calendar-specific date semantics across frontend, API, and database layers
-- Structuring an Express/MongoDB backend for incremental product growth
-- Developing a product roadmap that separates AI interpretation from deterministic decisions
+  Building a typed React interface around a complex third party calendar system
+  Managing transient UI state separately from persistent domain state
+  Designing undoable, asynchronous user workflows
+  Translating calendar specific date semantics across frontend, API, and database layers
+  Structuring an Express/MongoDB backend for incremental product growth
+  Developing a product roadmap that separates AI interpretation from deterministic decisions
 
----
+   
 
-Built as an evolving full-stack product. Explore the [live application](https://calendar.ems.lol) or follow the repository as the intent-first scheduling features take shape.
+Built as an evolving full stack product. Explore the [live application](https://calendar.ems.lol) or follow the repository as the intent first scheduling features take shape.
