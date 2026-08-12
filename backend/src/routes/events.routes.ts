@@ -6,6 +6,7 @@
  * the controller; calendar decisions belong in the service.
  */
 import {Router} from "express";
+import {rateLimit} from "express-rate-limit";
 import {
     deleteEvent,
     handleCreateEvent,
@@ -15,11 +16,21 @@ import {
 
 export const eventsRouter = Router();
 
+const createEventLimiter = rateLimit({ // no spammers pls
+    windowMs: 7 * 24 * 60 * 60 * 1000,
+    limit: 200,
+    standardHeaders: true,
+    legacyHeaders: false,
+    message: {
+        error: "Event creation limit reached. Please try again later.",
+    },
+});
 // GET /api/events
 eventsRouter.get("/", handleListEvents);
 
 // POST /api/events
-eventsRouter.post("/", handleCreateEvent);
+eventsRouter.post("/", createEventLimiter, handleCreateEvent);
+
 //POST /api/events/restore
 eventsRouter.post("/restore", handleRestoreEvent);
 

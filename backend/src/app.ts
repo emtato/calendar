@@ -12,6 +12,7 @@ import cors from "cors";
 import {apiRouter} from "./routes";
 
 export const app = express();
+app.set("trust proxy", 1);
 
 app.use(cors());
 app.use(express.json());

@@ -18,7 +18,6 @@ import {eventStorage} from "../repositories/event.storage";
 import {randomUUID} from "node:crypto";
 
 async function saveEvent(input: SaveCalendarEventInput): Promise<CalendarEvent> {
-    console.log("event loc" , input.extendedProps.location)
     //TODO: gemini first pass layer to extract advanced location/time data first
     if(input.allDay){
         input.endDate = addOneDay(input.endDate)

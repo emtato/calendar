@@ -19,7 +19,7 @@ export const eventStorage = {
     getEvents,
 };
 
-const storageCollection = "events";
+const storageCollection = "events3";
 
 async function getEvents(startDate: string, endDate: string): Promise<CalendarEvent[]> {
     const db = await getDatabase();
