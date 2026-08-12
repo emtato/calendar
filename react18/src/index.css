@@ -59,9 +59,10 @@ h2 {
    ____________________________________________________ */
 
 .app {
+    --calendar-frame-size: 0.37em;
     display: grid;
     grid-template-columns: 3fr 1fr;
-    column-gap: 8px;
+    column-gap: var(--calendar-frame-size);
     min-height: 100%;
     font-size: 14px;
     transition: grid-template-columns 200ms ease;
@@ -145,7 +146,7 @@ h2 {
 .app-sidebar {
     display: flex;
     flex-direction: column;
-    margin-block: 8px;
+    margin-block: 8px 0;
     overflow: hidden;
     border-radius: 12px 0 0 12px;
     line-height: 1.5;
@@ -204,16 +205,59 @@ h2 {
     padding: 0.7em;
 }
 
+.sidebar-instructions {
+    padding: 0.9em 1em;
+    border-radius: 0.86em;
+    background: rgba(255, 255, 255, 0.08);
+}
+
+.sidebar-instructions ul {
+    margin: 0.75em 0 0;
+    padding-inline-start: 1.4em;
+}
+
+.sidebar-instructions li + li {
+    margin-top: 0.65em;
+}
+
+.sidebar-instructions kbd {
+    padding: 0.08em 0.38em;
+    border: 0.08em solid rgba(255, 255, 255, 0.32);
+    border-radius: 0.32em;
+    background: rgba(255, 255, 255, 0.1);
+    font: inherit;
+    font-size: 0.9em;
+    white-space: nowrap;
+}
+
+.sidebar-assistant-preview {
+    margin-top: auto;
+}
+
+.sidebar-assistant-preview h2 {
+    margin-bottom: 0.6em;
+}
+
 .sidebar-chat {
     color: white;
-    font-size: 14px;
+    font-size: 1em;
     font-weight: 500;
-    margin-top: auto;
-    height: 2.5vw;
+    min-height: 4.8em;
+    box-sizing: border-box;
+    padding: 0.85em 1em;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 0.28em;
     background: var(--colour-purple-medium);
-    border-radius: 12px;
+    border-radius: 0.86em;
     box-shadow: 0 12px 30px rgba(60, 64, 67, 0.18),
     0 4px 10px rgba(60, 64, 67, 0.1);
+}
+
+.sidebar-chat span {
+    color: rgba(255, 255, 255, 0.78);
+    font-size: 0.9em;
 }
 
 /* Minimized sidebar */
@@ -263,8 +307,9 @@ h2 {
 .calendar-main {
     min-width: 0;
     box-sizing: border-box;
-    padding-left: 8px;
-        container-type: inline-size;
+    padding-left: var(--calendar-frame-size);
+    padding-bottom: var(--calendar-frame-size);
+    container-type: inline-size;
 
 }
 

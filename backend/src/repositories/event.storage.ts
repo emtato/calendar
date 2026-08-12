@@ -19,9 +19,11 @@ export const eventStorage = {
     getEvents,
 };
 
+const storageCollection = "events";
+
 async function getEvents(startDate: string, endDate: string): Promise<CalendarEvent[]> {
     const db = await getDatabase();
-    const eventsCollection = db.collection<CalendarEvent>("events");
+    const eventsCollection = db.collection<CalendarEvent>(storageCollection);
 
     return eventsCollection.find({start: {$lt: endDate}, end: {$gt: startDate},}).toArray();
     // any event end date that extends into the startDate range and any event start date that happens before endDate
@@ -29,7 +31,7 @@ async function getEvents(startDate: string, endDate: string): Promise<CalendarEv
 
 async function saveEvent(event: CalendarEvent) {
     const db = await getDatabase()
-    const eventsCollection = db.collection<CalendarEvent>("events");
+    const eventsCollection = db.collection<CalendarEvent>(storageCollection);
 
     const result = await eventsCollection.updateOne(
         {id: event.id},
@@ -48,7 +50,7 @@ async function saveEvent(event: CalendarEvent) {
 
 async function createEvent(event: CalendarEvent) {
     const db = await getDatabase()
-    const eventsCollection = db.collection<CalendarEvent>("events");
+    const eventsCollection = db.collection<CalendarEvent>(storageCollection);
 
     const result = await eventsCollection.insertOne(event);
     return result;
@@ -56,7 +58,7 @@ async function createEvent(event: CalendarEvent) {
 
 async function deleteEvent(id: string) {
     const db = await getDatabase()
-    const eventsCollection = db.collection<CalendarEvent>("events");
+    const eventsCollection = db.collection<CalendarEvent>(storageCollection);
     const result = await eventsCollection.deleteOne({id: id});
     return result;
 }

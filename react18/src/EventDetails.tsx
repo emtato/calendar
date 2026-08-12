@@ -721,8 +721,31 @@ export function Sidebar({
                 </div>
             </div>
             <div className='app-sidebar-section'>
-                <h2>twink Scheduling assistant</h2>
-                <div className='sidebar-chat'>ALALA</div>
+                {/* Temporary demo guidance while the scheduling assistant is being built. */}
+                <div className='sidebar-instructions'>
+                    <h2>Quick tips</h2>
+                    <ul>
+                        <li>Click a date or time slot to create an event.</li>
+                        <li>Drag across dates or times to create a longer event.</li>
+                        <li>
+                            Add a time to the title, such as <q>Lunch at 2 PM</q>, to set it automatically.
+                        </li>
+                        <li>
+                            Shortcuts: <kbd>N</kbd> creates a new event, <kbd>Enter</kbd> saves,
+                            <kbd>Backspace</kbd> deletes when no field is active, and <kbd>Escape</kbd> closes.
+                        </li>
+                    </ul>
+                </div>
+                <div className='sidebar-assistant-preview'>
+                    <h2>Scheduling assistant</h2>
+                    <div className='sidebar-chat'>
+                        <strong>Planning preview</strong>
+                        <span>
+                            Future versions will turn requests like <q>Plan two hours of study before dinner</q>
+                            into editable calendar suggestions.
+                        </span>
+                    </div>
+                </div>
             </div>
 
         </div>
