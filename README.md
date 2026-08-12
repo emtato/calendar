@@ -190,11 +190,3 @@ The long term vision is an editable, intent first planning system in which AI in
   Respect fixed commitments, opening hours, travel, meals, and breaks
   Explain scheduling decisions
   Support conversational edits while preserving user control
-
-## Product principles
-
-  Reduce planning friction before adding feature volume.
-  Use AI to interpret intent, show uncertainty 
-  Keep recurrence, validation, travel calculations, and scheduling deterministic.
-  Keep every suggestion editable.
-  Make each milestone a polished, deployable product.
