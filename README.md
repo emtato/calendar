@@ -5,10 +5,11 @@ An intent first calendar built to make planning feel faster, clearer, and more n
 [**View the live application →**](https://calendar.ems.lol)
 
 **In Active development.** The full stack calendar foundation is live.
+coming soon:
 - AI powered richer natural language scheduling
 - recurrence
 - travel intelligence
-- and planning assistance
+- planning assistance
 are being developed in stages.
 
 ## Overview
@@ -18,8 +19,6 @@ Smart Calendar is a full stack calendar application exploring a simple product q
 > What if creating an event started with what you meant, instead of a form you had to fill out?
 
 The current release combines a responsive React calendar with a custom event editor, lightweight title interpretation, and persistent MongoDB storage. It is the foundation for a larger system that will turn natural language requests into structured, reviewable events while keeping every assumption visible and editable.
-
-This project is also an exercise in building the difficult parts of a calendar product: date boundary semantics, multiple calendar views, interaction state, undoable operations, responsive layout, and a clean frontend/backend boundary.
 
 ## Preview
 
