@@ -4,7 +4,12 @@ An intent first calendar built to make planning feel faster, clearer, and more n
 
 [**View the live application →**](https://calendar.ems.lol)
 
-**In Active development.** The full stack calendar foundation is live; richer natural language scheduling, recurrence, travel intelligence, and planning assistance are being developed in stages.
+**In Active development.** The full stack calendar foundation is live.
+- AI powered richer natural language scheduling
+- recurrence
+- travel intelligence
+- and planning assistance
+are being developed in stages.
 
 ## Overview
 
@@ -18,68 +23,25 @@ This project is also an exercise in building the difficult parts of a calendar p
 
 ## Preview
 
-<!  
-Screenshot slot 1
-Recommended file: docs/screenshots/calendar overview.png
-Recommended content: the complete calendar with the sidebar visible.
-
-Replace the placeholder below with:
-![Smart Calendar overview](docs/screenshots/calendar overview.png)
-  >
-
-> **Screenshot placeholder — Calendar overview**
->
-> Add a wide image showing the calendar, view controls, and scheduling sidebar.
-
-<!  
-Screenshot slot 2
-Recommended file: docs/screenshots/event editor.png
-Recommended content: an event selected with the editor open.
-
-Replace the placeholder below with:
-![Smart Calendar event editor](docs/screenshots/event editor.png)
-  >
-
-> **Screenshot placeholder — Event editor**
->
-> Add an image showing event creation, time controls, guests, location, and description.
+<img width="4374" height="2630" alt="sc1" src="https://github.com/user-attachments/assets/9cabc65a-1b63-4aaa-a056-ea6bc61e858a" />
+<img width="4374" height="2630" alt="sc2" src="https://github.com/user-attachments/assets/231f2651-3cdc-4142-9075-041a2bdd2fd1" />
+<img width="4375" height="2632" alt="sc3" src="https://github.com/user-attachments/assets/22c470e2-d011-4d6d-8088-4d551c0c4cee" />
 
 ## What works today
 
-  Day, week, continuous month, and year views built on FullCalendar
-  Click or drag across the calendar to create a draft event
-  Create and edit timed, all day, single day, and multi day events
-  Custom time entry with selectable values and AM/PM controls
-  Event metadata for guests, location, and description
-  Lightweight title interpretation for explicit 12 hour and 24 hour times, noon, and midnight
-  MongoDB backed event creation, loading, updating, deletion, and restoration
-  Five second undo flow after deleting an event
-  Responsive calendar layout with a collapsible scheduling assistant sidebar
-  Keyboard workflows, including `N` for a new event and `Escape` for closing the active surface
-
-## Current product status
-
-| Capability | Status |
-|     |     |
-| Calendar navigation and multiple views | Available |
-| Manual event creation and editing | Available |
-| Persistent event storage | Available |
-| Undoable deletion | Available |
-| Guests, location, and description | Available |
-| Basic time extraction from titles | Available, expanding |
-| Persisted drag/resize changes | In progress |
-| Full intent interpretation and validation | Planned |
-| Flexible recurrence and conflict detection | Planned |
-| Travel time intelligence | Planned |
-| Conversational planning assistant | Planned |
-
-The distinction matters: the live application demonstrates the calendar and persistence foundation, while the roadmap below describes the product being built on top of it.
+  Day, week, scrollable month, and year views built on FullCalendar.  
+  Click or drag across the calendar to create a draft event.  
+  Create and edit timed, all day, single day, and multi day events.  
+  Custom time entry with selectable values and AM/PM controls.  
+  Event metadata for guests, location, and description.  
+  Title parsing to change event times for explicit 12 hour and 24 hour times, noon, and midnight.  
+  Logic for event start/end dates and times, ensuring positive event durations.   
+  MongoDB backed event creation, loading, updating, deletion, and restoration.   
+  Five second undo flow after deleting an event.   
+  Responsive calendar layout with a collapsible scheduling assistant sidebar.   
+  Keyboard workflows, including `N` for a new event, `Escape` for closing the active surface, `Backspace`/`Delete` (mac) to delete the opened event. 
 
 ## Engineering highlights
-
-### Calendar interaction model
-
-Calendar selection, temporary draft events, editor state, and persistence refreshes are coordinated explicitly rather than hidden inside FullCalendar. This keeps user intent visible while an event is being created and prevents unsaved placeholders from becoming permanent data.
 
 ### Date and time correctness
 
@@ -87,7 +49,7 @@ Times are represented internally as minutes after midnight and converted at the 
 
 ### Recoverable deletion
 
-Deletion and restoration are separate backend operations. The client temporarily retains the deleted event and offers an accessible five second Undo action, while restoration preserves the event's stable application ID.
+Creation and restoration are separate backend operations. The client temporarily retains the deleted event and offers an accessible five second Undo action, while restoration preserves the event's stable application ID.
 
 ### Layered backend
 
@@ -97,32 +59,12 @@ The backend separates HTTP routing, request handling, application rules, domain 
 
 The interface extends FullCalendar with a continuous scrolling month view, custom event rendering, responsive sizing, a collapsible sidebar, and a purpose built event editor. The visual system uses scalable `em` based dimensions and a consistent muted purple palette.
 
-## Architecture
-
-```mermaid
-flowchart LR
-    UI["React + FullCalendar client"]
-    Parser["Title time interpreter"]
-    Routes["Express routes"]
-    Controllers["HTTP controllers"]
-    Service["Calendar service"]
-    Storage["MongoDB storage adapter"]
-    Database[(MongoDB)]
-
-    UI   > Parser
-    UI   >|REST + JSON| Routes
-    Routes   > Controllers
-    Controllers   > Service
-    Service   > Storage
-    Storage   > Database
-```
-
-### Repository layout
+Repo layout
 
 ```text
 .
 ├── react18/
-│   ├── src/Calendarapp.tsx          # Calendar views and interaction state
+│   ├── src/Calendarapp.tsx         # Calendar views and interaction state
 │   ├── src/EventDetails.tsx        # Event editor and form behavior
 │   ├── src/components/             # Reusable interface controls
 │   ├── src/api/                    # REST client
@@ -135,7 +77,7 @@ flowchart LR
 │       ├── repositories/           # MongoDB operations
 │       ├── domain/                 # Shared event shapes
 │       └── config/                 # Environment and database setup
-└── .github/workflows/deploy.yml        # Frontend deployment workflow
+└── .github/workflows/deploy.yml    # Frontend deployment workflow
 ```
 
 ## Technology
@@ -148,16 +90,8 @@ flowchart LR
 | Backend | Node.js, Express 5, TypeScript |
 | Database | MongoDB |
 | Styling | Handwritten responsive CSS, Nunito variable font |
-| Deployment | GitHub Actions and GitHub Pages for the frontend; separately hosted API |
+| Deployment | GitHub Actions and GitHub Pages for the frontend; Railway backend |
 
-## API surface
-
-| Method | Endpoint | Purpose |
-|     |     |     |
-| `GET` | `/api/events?start=...&end=...` | Load events overlapping a date range |
-| `POST` | `/api/events` | Create a new event or update an existing one |
-| `POST` | `/api/events/restore` | Restore a deleted event with its original ID |
-| `DELETE` | `/api/events/:id` | Delete an event |
 
 ## Run locally
 
@@ -233,7 +167,7 @@ The long term vision is an editable, intent first planning system in which AI in
 
   Interpret title, date, time, duration, and location from natural language
   Preview the interpreted event before saving
-  Surface uncertain assumptions instead of silently guessing
+  Surface uncertain assumptions
   Detect basic scheduling conflicts
   Keep every generated field manually editable
 
@@ -242,7 +176,6 @@ The long term vision is an editable, intent first planning system in which AI in
   Expressive rules such as “every 10 days” or “the last weekday of each month”
   Exceptions and end dates
   Dynamic titles such as milestone counts and anniversaries
-  Fixed versus movable events
   Automatic placement into available time windows
 
 ### 3. Location and travel intelligence
@@ -262,21 +195,7 @@ The long term vision is an editable, intent first planning system in which AI in
 ## Product principles
 
   Reduce planning friction before adding feature volume.
-  Use AI to interpret intent, not to make irreversible decisions.
+  Use AI to interpret intent, show uncertainty 
   Keep recurrence, validation, travel calculations, and scheduling deterministic.
-  Show uncertainty instead of hiding assumptions.
   Keep every suggestion editable.
   Make each milestone a polished, deployable product.
-
-## What this project demonstrates
-
-  Building a typed React interface around a complex third party calendar system
-  Managing transient UI state separately from persistent domain state
-  Designing undoable, asynchronous user workflows
-  Translating calendar specific date semantics across frontend, API, and database layers
-  Structuring an Express/MongoDB backend for incremental product growth
-  Developing a product roadmap that separates AI interpretation from deterministic decisions
-
-   
-
-Built as an evolving full stack product. Explore the [live application](https://calendar.ems.lol) or follow the repository as the intent first scheduling features take shape.
