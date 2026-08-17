@@ -31,6 +31,7 @@
     --colour-border: #dadce0;
     --colour-hover-grey: #e0e3e7;
     --colour-scrollbar: #cbd0d7;
+    --colour-purple-vibrant-dark: #635c7c;
 }
 
 html,
@@ -313,6 +314,145 @@ h2 {
     background: rgba(255, 255, 255, 0.12);
 }
 
+/* ____________________________________________________
+   Login/ intro section
+   ____________________________________________________ */
+
+.auth-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+}
+
+.auth-panel {
+    position: absolute;
+    inset: 0 0 0 33vw;
+    background: var(--colour-purple-extra-dark);
+    width: 67vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: clamp(2rem, 6vw, 6rem);
+    color: var(--colour-off-white);
+}
+
+.intro-panel {
+    position: absolute;
+    inset: 0 0 0 33vw;
+    background: var(--colour-purple-vibrant-dark);
+    width: 67vw;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    padding: clamp(2rem, 6vw, 6rem);
+    color: var(--colour-off-white);
+}
+
+.auth-content {
+    width: min(100%, 34rem);
+}
+
+.auth-eyebrow {
+    margin: 0 0 0.9rem;
+    color: var(--colour-purple-light);
+    font-size: 0.78rem;
+    font-weight: 800;
+    letter-spacing: 0.16em;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.auth-title {
+    margin: 0;
+    color: white;
+    font-size: clamp(2.5rem, 5vw, 4.75rem);
+    font-weight: 800;
+    letter-spacing: -0.045em;
+    line-height: 0.98;
+    margin-bottom: 24px;
+}
+
+.auth-subtitle {
+    max-width: 30rem;
+    margin: 1.4rem 0 0;
+    color: color-mix(in srgb, var(--colour-off-white) 82%, var(--colour-purple-light));
+    font-size: clamp(1.05rem, 1.5vw, 1.3rem);
+    font-weight: 500;
+    line-height: 1.55;
+}
+
+.auth-text {
+    margin: 1.2rem 0 0;
+    color: var(--colour-off-white);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.auth-muted-text {
+    color: color-mix(in srgb, var(--colour-off-white) 62%, var(--colour-purple-light));
+    font-size: 0.92rem;
+    line-height: 1.55;
+}
+
+.auth-link,
+.auth-text-button {
+    color: white;
+    font: inherit;
+    font-weight: 700;
+}
+
+.auth-link {
+    text-underline-offset: 0.2em;
+}
+
+.auth-text-button {
+    margin-top: 2rem;
+    padding: 0;
+    border: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.55);
+    background: transparent;
+    cursor: pointer;
+}
+
+.auth-link:hover,
+.auth-text-button:hover {
+    color: var(--colour-purple-light);
+}
+
+.auth-close-button {
+    position: absolute;
+    top: 1.5rem;
+    right: 1.5rem;
+    width: 2.5rem;
+    height: 2.5rem;
+    padding: 0;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+    background: var(--colour-purple-medium);
+    border: 0;
+    cursor: pointer;
+}
+
+.auth-close-button:hover {
+    background: var(--colour-purple-light);
+}
+
+.auth-input {
+    background: var(--colour-off-white);
+    border: 0;
+    border-radius: 0.86em;
+    padding: 0.86em 1.29em;
+    color: var(--colour-off-white);
+    font-size: 1em;
+    font-weight: 500;
+    width: 75%;
+    box-sizing: border-box;
+}
 
 /* ____________________________________________________
    Calendar section

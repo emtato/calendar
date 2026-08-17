@@ -4,15 +4,27 @@ interface AuthOverlayProps {
 
 export default function AuthOverlay({onClose}: AuthOverlayProps) {
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-            <div className="bg-white p-8 rounded-lg shadow-lg w-96">
-                <h2 className="text-2xl font-bold mb-4">Welcome to CalendarApp</h2>
-                <p className="text-gray-600 mb-6">Please sign in to continue.</p>
+        <div className="auth-overlay">
+            <div className="auth-panel">
                 <button
+                    className="auth-close-button"
+                    type="button"
+                    aria-label="Close login"
                     onClick={onClose}
-                    className="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded"
+                    style={{fontSize: "1.5rem", lineHeight: 1}}
                 >
+                    ×
                 </button>
+                <div className="auth-content">
+                    <p className="auth-eyebrow">Keep pace with your day.</p>
+                    <h2 className="auth-title">Welcome to Tempo:</h2>
+                    <span></span>
+                    <input type="text" placeholder="Email" className="auth-input"/>
+                    <input type="password" placeholder="i won't tell anyone!" className="auth-input"/>
+
+                    <button onClick={onClose} className="auth-text-button" type="button">
+                    </button>
+                </div>
             </div>
         </div>
     )

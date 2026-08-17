@@ -264,6 +264,7 @@ export default function CalendarApp() {
     const initialSidebarResizeHandledRef = useRef(0)
     const initialSidebarScrollRatioRef = useRef(0)
     const [isAuthOpen, setisAuthOpen] = useState(false)
+    const [isIntroOpen, setisIntroOpen] = useState(true)
 
     const scrollVisibleMonth = useCallback((offset: number) => {
         const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
@@ -361,16 +362,23 @@ export default function CalendarApp() {
         align()
 
     }
+
 // ------------------------------------------------
-// login
+// login/intro
 // ------------------------------------------------
     function openLogin() {
-        setIsPopOpen(false)
-        setSidebar(false)
+        closePopup()
         setisAuthOpen(true)
+        closeIntro()
+
     }
+
     function closeLogin() {
         setisAuthOpen(false)
+    }
+
+    function closeIntro() {
+        setisIntroOpen(false)
     }
 
 // ------------------------------------------------
@@ -879,7 +887,37 @@ export default function CalendarApp() {
             )}
             <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin}/>
             <MinimizedBar isOpen={!isSidebar} onClose={openSidebar} setAuthOpen={openLogin}/>
-            {isAuthOpen && <AuthOverlay onClose={closeLogin} />}
+            {isAuthOpen && <AuthOverlay onClose={closeLogin}/>}
+
+            {isIntroOpen && <div className="auth-overlay">
+                <div className="intro-panel">
+                    <button
+                        className="auth-close-button"
+                        type="button"
+                        aria-label="Close login"
+                        onClick={closeIntro}
+                        style={{fontSize: "1.5rem", lineHeight: 1}}
+                    >
+                        ×
+                    </button>
+                    <div className="auth-content">
+                        <p className="auth-eyebrow">Keep pace with your day.</p>
+                        <h2 className="auth-title">Welcome to Tempo:</h2>
+                        <p className="auth-subtitle">
+                            A smarter calendar that saves you time and makes scheduling effortless.
+                        </p>
+                        <span className="auth-text">Please </span>
+                        <button
+                            onClick={openLogin}
+                            className="auth-text-button"
+                            type="button"
+                        >
+                            sign in
+                        </button>
+                        <span className="auth-text"> or continue trying the demo.</span>
+                    </div>
+                </div>
+            </div>}
         </div>
     )
 
