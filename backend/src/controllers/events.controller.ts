@@ -16,7 +16,7 @@ export async function handleListEvents(request: any, response: any): Promise<Cal
 
     const startDate = request.query.start;
     const endDate = request.query.end;
-    const events = await calendarService.getEvents(startDate, endDate)
+    const events = await calendarService.getEvents(startDate, endDate, response.locals.userId)
     response.status(200).json(events);
 
     return events;
@@ -25,20 +25,20 @@ export async function handleListEvents(request: any, response: any): Promise<Cal
 export async function handleCreateEvent(request: any, response: any) {
     // The controller passes input inward. The service decides how Gemini and
     // MongoDB participate in creating the event.
-    const event = await calendarService.saveEvent(request.body);
+    const event = await calendarService.saveEvent(request.body, response.locals.userId);
     response.status(201).json(event);
     return event;
 }
 
 export async function deleteEvent(request: any, response: any) {
     const id = request.params.id;
-    const event = await calendarService.deleteEvent(id);
+    const event = await calendarService.deleteEvent(id, response.locals.userId);
     response.status(204).end(event);
     return event;
 }
 
 export async function handleRestoreEvent(request: any, response: any) {
-    const event = await calendarService.restoreEvent(request.body);
+    const event = await calendarService.restoreEvent(request.body, response.locals.userId);
     response.status(201).json(event);
     return event;
 }

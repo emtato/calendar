@@ -13,6 +13,7 @@ import {
     handleListEvents,
     handleRestoreEvent,
 } from "../controllers/events.controller.js";
+import { requireAuth } from "../middleware/require-auth.js";
 
 export const eventsRouter = Router();
 
@@ -25,6 +26,9 @@ const createEventLimiter = rateLimit({ // no spammers pls
         error: "Event creation limit reached. Please try again later.",
     },
 });
+
+eventsRouter.use(requireAuth); //authenticate before allowing db ops
+
 // GET /api/events
 eventsRouter.get("/", handleListEvents);
 

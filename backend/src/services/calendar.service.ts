@@ -17,39 +17,41 @@ import {
 import {eventStorage} from "../repositories/event.storage.js";
 import {randomUUID} from "node:crypto";
 
-async function saveEvent(input: SaveCalendarEventInput): Promise<CalendarEvent> {
+async function saveEvent(input: SaveCalendarEventInput, userId: any): Promise<CalendarEvent> {
     //TODO: gemini first pass layer to extract advanced location/time data first
-    if(input.allDay){
+    if (input.allDay) {
         input.endDate = addOneDay(input.endDate)
     }
     if (input.id == "") { //new event
         input.id = randomUUID();
-        const event = ConvertToCalendarEvent(input);
-       await eventStorage.createEvent(event)
+        const event = ConvertToCalendarEvent(input, userId);
+        await eventStorage.createEvent(event)
         return event;
     } //preixisting event being saved
-    const event = ConvertToCalendarEvent(input);
-   await eventStorage.saveEvent(event)
+    const event = ConvertToCalendarEvent(input, userId);
+    await eventStorage.saveEvent(event)
     return event
 }
-async function restoreEvent(input: SaveCalendarEventInput): Promise<CalendarEvent> {
-    if(input.allDay){
+
+async function restoreEvent(input: SaveCalendarEventInput, userId: any): Promise<CalendarEvent> {
+    if (input.allDay) {
         input.endDate = addOneDay(input.endDate)
     }
-        const event = ConvertToCalendarEvent(input);
-       await eventStorage.createEvent(event)
-        return event;
+    const event = ConvertToCalendarEvent(input, userId);
+    await eventStorage.createEvent(event)
+    return event;
 }
 
-async function getEvents(start: string, end: string): Promise<CalendarEvent[]> {
-    return eventStorage.getEvents(start, end)
+async function getEvents(start: string, end: string, userId: any): Promise<CalendarEvent[]> {
+    return eventStorage.getEvents(start, end, userId)
 
 }
 
-async function deleteEvent(id: string): Promise<void> {
-    await eventStorage.deleteEvent(id)
+async function deleteEvent(id: string, userId: any): Promise<void> {
+    await eventStorage.deleteEvent(id, userId)
 
 }
+
 //                          helper functions
 // ————————————————————————————————————————————————————————————————————
 
@@ -65,7 +67,7 @@ function convertTime(Date: string, Time: number): string {
     return combinedStart;
 }
 
-function ConvertToCalendarEvent(input: SaveCalendarEventInput): CalendarEvent {
+function ConvertToCalendarEvent(input: SaveCalendarEventInput, userId: string): CalendarEvent {
     const combinedStart = convertTime(input.startDate, input.startTime);
     const combinedEnd = convertTime(input.endDate, input.endTime);
 
@@ -75,6 +77,7 @@ function ConvertToCalendarEvent(input: SaveCalendarEventInput): CalendarEvent {
         start: combinedStart,
         end: combinedEnd,
         allDay: input.allDay,
+        userId: "userid",
         extendedProps: {
             location: input.extendedProps.location,
             description: input.extendedProps.description,

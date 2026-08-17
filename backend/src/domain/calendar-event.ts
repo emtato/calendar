@@ -8,6 +8,7 @@
  * controller or repository boundary instead.
  */
 export interface CalendarEvent {
+    userId: string;
     id: string;
     title: string;
     start: string; // ISO 8601 date or date-time

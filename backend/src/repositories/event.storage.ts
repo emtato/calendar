@@ -21,7 +21,7 @@ export const eventStorage = {
 
 const storageCollection = "events3";
 
-async function getEvents(startDate: string, endDate: string): Promise<CalendarEvent[]> {
+async function getEvents(startDate: string, endDate: string, userId: any): Promise<CalendarEvent[]> {
     const db = await getDatabase();
     const eventsCollection = db.collection<CalendarEvent>(storageCollection);
 
@@ -56,7 +56,7 @@ async function createEvent(event: CalendarEvent) {
     return result;
 }
 
-async function deleteEvent(id: string) {
+async function deleteEvent(id: string, userId: any) {
     const db = await getDatabase()
     const eventsCollection = db.collection<CalendarEvent>(storageCollection);
     const result = await eventsCollection.deleteOne({id: id});
