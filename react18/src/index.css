@@ -24,6 +24,7 @@
     --colour-purple-medium: #6f697f;
     --colour-purple-light: #948f9f;
     --colour-purple-vibrant: #6f5fa7;
+    --colour-purple-extra-dark: #514a69;
     --colour-off-white: #fdfdfd;
     --colour-neutral-grey: #5f6368;
     --colour-text: #3c4043;
@@ -196,6 +197,24 @@ h2 {
     stroke-width: 1.8;
     stroke-linecap: round;
     stroke-linejoin: round;
+}
+
+.sidebar-login-button {
+    padding: 0.57em 1.23em;
+    border: none;
+    border-radius: 999em;
+    background: var(--colour-purple-extra-dark);
+    color: white;
+    font: inherit;
+    font-size: 0.99em;
+    font-weight: 600;
+    white-space: nowrap;
+    cursor: pointer;
+    transition: background-color 150ms ease;
+}
+
+.sidebar-login-button:hover {
+    background: color-mix(in srgb, var(--colour-purple-extra-dark) 86%, white);
 }
 
 .app-sidebar-section {

@@ -23,6 +23,7 @@ import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import Popup, {MinimizedBar, Sidebar} from './EventDetails'
 import {deleteCalendarEvent, getCalendarEvents, restoreEvent} from './api/eventsAPI'
 import type {TransitionEvent} from 'react'
+import AuthOverlay from "./components/AuthOverlay";
 
 // ----------------------------------------------------
 // Types
@@ -262,6 +263,7 @@ export default function CalendarApp() {
     const arrowTargetTimerRef = useRef(0)
     const initialSidebarResizeHandledRef = useRef(0)
     const initialSidebarScrollRatioRef = useRef(0)
+    const [isAuthOpen, setisAuthOpen] = useState(false)
 
     const scrollVisibleMonth = useCallback((offset: number) => {
         const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
@@ -358,6 +360,17 @@ export default function CalendarApp() {
         }
         align()
 
+    }
+// ------------------------------------------------
+// login
+// ------------------------------------------------
+    function openLogin() {
+        setIsPopOpen(false)
+        setSidebar(false)
+        setisAuthOpen(true)
+    }
+    function closeLogin() {
+        setisAuthOpen(false)
     }
 
 // ------------------------------------------------
@@ -864,8 +877,9 @@ export default function CalendarApp() {
                     onPositionChange={setPopupPos}
                 />
             )}
-            <Sidebar isOpen={isSidebar} onClose={closeSidebar}/>
-            <MinimizedBar isOpen={!isSidebar} onClose={openSidebar}/>
+            <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin}/>
+            <MinimizedBar isOpen={!isSidebar} onClose={openSidebar} setAuthOpen={openLogin}/>
+            {isAuthOpen && <AuthOverlay onClose={closeLogin} />}
         </div>
     )
 

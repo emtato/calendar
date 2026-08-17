@@ -89,6 +89,7 @@ interface SidebarInfo {
      */
     isOpen: boolean
     onClose: () => void
+    setAuthOpen: () => void
 }
 
 // ====================================================
@@ -675,9 +676,7 @@ export default function Popup({
 // Expanded sidebar
 // ====================================================
 
-export function Sidebar({
-                            isOpen, onClose
-                        }: SidebarInfo) {
+export function Sidebar({isOpen, onClose, setAuthOpen}: SidebarInfo) {
 
 
     // ------------------------------------------------
@@ -706,6 +705,12 @@ export function Sidebar({
                             <path d='m16 16 4 4'/>
                         </svg>
                     </button>
+                    <button className='sidebar-icon-button' type='button' aria-label='Notifications'>
+                        <svg viewBox='0 0 24 24' aria-hidden='true'>
+                            <path d='M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9'/>
+                            <path d='M10 21h4'/>
+                        </svg>
+                    </button>
                     <button className='sidebar-icon-button' type='button' aria-label='Add'>
                         <svg viewBox='0 0 24 24' aria-hidden='true'>
                             <path d='M12 5v14M5 12h14'/>
@@ -717,6 +722,9 @@ export function Sidebar({
                             <path
                                 d='M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.12.37.34.7.65.93.3.23.67.36 1.05.38h.09v4h-.09A1.7 1.7 0 0 0 19.4 15Z'/>
                         </svg>
+                    </button>
+                    <button className='sidebar-login-button' type='button'
+                            onClick={setAuthOpen}>Log in
                     </button>
                 </div>
             </div>
@@ -757,9 +765,7 @@ export function Sidebar({
 // ====================================================
 
 //onclose will js be closing this small bar -> opening big bar
-export function MinimizedBar({
-                                 isOpen, onClose
-                             }: SidebarInfo) {
+export function MinimizedBar({isOpen, onClose, setAuthOpen}: SidebarInfo) {
 
     // ------------------------------------------------
     // Render
@@ -780,10 +786,25 @@ export function MinimizedBar({
             </button>
 
             <nav className="sidebar-icon-list" aria-label="Sidebar tools">
-                <button className="sidebar-icon-button" type="button" aria-label="Search">
+                <button className="sidebar-icon-button" onClick={setAuthOpen} type="button" aria-label="Log in">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="11" cy="11" r="6.5"/>
-                        <path d="m16 16 4 4"/>
+                        <circle cx="12" cy="8" r="3.5"/>
+                        <path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>
+                    </svg>
+                </button>
+
+                <button className="sidebar-icon-button" type="button" aria-label="Settings">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path
+                            d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.12.37.34.7.65.93.3.23.67.36 1.05.38h.09v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/>
+                    </svg>
+                </button>
+
+                <button className="sidebar-icon-button" type="button" aria-label="Notifications">
+                    <svg viewBox="0 0 24 24" aria-hidden="true">
+                        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+                        <path d="M10 21h4"/>
                     </svg>
                 </button>
 
@@ -793,11 +814,10 @@ export function MinimizedBar({
                     </svg>
                 </button>
 
-                <button className="sidebar-icon-button" type="button" aria-label="Settings">
+                <button className="sidebar-icon-button" type="button" aria-label="Search">
                     <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="12" cy="12" r="3"/>
-                        <path
-                            d="M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.12.37.34.7.65.93.3.23.67.36 1.05.38h.09v4h-.09A1.7 1.7 0 0 0 19.4 15Z"/>
+                        <circle cx="11" cy="11" r="6.5"/>
+                        <path d="m16 16 4 4"/>
                     </svg>
                 </button>
             </nav>
