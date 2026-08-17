@@ -463,7 +463,15 @@ export default function CalendarApp() {
                 }
                 return
             }
-
+            if(isIntroOpen || isAuthOpen){
+                if(isIntroOpen){
+                    closeIntro()
+                }
+                if(isAuthOpen){
+                    closeLogin()
+                }
+                return
+            }
             if (isPopOpen) {
                 closePopup()
                 return
@@ -474,7 +482,7 @@ export default function CalendarApp() {
         window.addEventListener('keydown', handleKeyDown)
 
         return () => window.removeEventListener('keydown', handleKeyDown)
-    }, [isPopOpen, isSidebar])
+    }, [isPopOpen, isSidebar, isAuthOpen, isIntroOpen])
 
     useEffect(() => {
         return () => {
