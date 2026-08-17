@@ -16,7 +16,9 @@ const SERVER_URL = import.meta.env.VITE_SERVER_URL;
  */
 export async function getCalendarEvents(startDate: string, endDate: string): Promise<CalendarEvent[]> {
 
-    const response = await fetch(`${SERVER_URL}/api/events?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`)
+    const response = await fetch(`${SERVER_URL}/api/events?start=${encodeURIComponent(startDate)}&end=${encodeURIComponent(endDate)}`, {
+        credentials: "include"
+    })
     const events = await response.json();
     console.log("received events", events)
     return events
@@ -48,12 +50,13 @@ export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<
         const [hours, minutes] = returnTime.split(":").map(Number);
         event.startTime = hours * 60 + minutes;
     }
-    if(returnlocation != ""){
+    if (returnlocation != "") {
         event.extendedProps.location = returnlocation
     }
 
     const response = await fetch(`${SERVER_URL}/api/events/`, {
         method: 'POST',
+        credentials: "include",
         headers: {
             'Content-Type': 'application/json'
         },
@@ -72,7 +75,8 @@ export async function saveCalendarEvent(event: SaveCalendarEventInput): Promise<
  */
 export async function deleteCalendarEvent(eventId: string): Promise<void> {
     const response = await fetch(`${SERVER_URL}/api/events/${eventId}`, {
-        method: 'DELETE'
+        method: 'DELETE',
+        credentials: "include"
     })
     if (!response.ok) {
         throw new Error(`Delete failed: ${response.status}`);
@@ -80,9 +84,10 @@ export async function deleteCalendarEvent(eventId: string): Promise<void> {
     return;
 }
 
-export async function restoreEvent(input: DeletedEvent): Promise<CalendarEvent>{
-const response = await fetch(`${SERVER_URL}/api/events/restore`, {
+export async function restoreEvent(input: DeletedEvent): Promise<CalendarEvent> {
+    const response = await fetch(`${SERVER_URL}/api/events/restore`, {
         method: 'POST',
+        credentials: "include",
         headers: {
             'Content-Type': 'application/json'
         },

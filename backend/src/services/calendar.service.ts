@@ -72,12 +72,12 @@ function ConvertToCalendarEvent(input: SaveCalendarEventInput, userId: string): 
     const combinedEnd = convertTime(input.endDate, input.endTime);
 
     const event: CalendarEvent = {
+        userId: userId,
         id: input.id,
         title: input.title,
         start: combinedStart,
         end: combinedEnd,
         allDay: input.allDay,
-        userId: "userid",
         extendedProps: {
             location: input.extendedProps.location,
             description: input.extendedProps.description,

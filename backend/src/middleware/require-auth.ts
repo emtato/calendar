@@ -11,7 +11,7 @@ export async function requireAuth(
 
     if (!session) {
         //TODO: eventually make non logged in users cache events locally
-        response.locals.userId = "DemoUserID"
+        response.locals.userId = "DemoUserId"
     } else {
         response.locals.userId = session.user.id;
     }

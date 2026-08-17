@@ -1,0 +1,9 @@
+.env
+.env.*
+atlas-credentials.env
+
+node_modules/
+dist/
+
+.idea/
+.DS_Store

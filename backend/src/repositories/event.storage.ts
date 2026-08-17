@@ -25,7 +25,7 @@ async function getEvents(startDate: string, endDate: string, userId: any): Promi
     const db = await getDatabase();
     const eventsCollection = db.collection<CalendarEvent>(storageCollection);
 
-    return eventsCollection.find({start: {$lt: endDate}, end: {$gt: startDate},}).toArray();
+    return eventsCollection.find({start: {$lt: endDate}, end: {$gt: startDate}, userId: userId}).toArray();
     // any event end date that extends into the startDate range and any event start date that happens before endDate
 }
 
@@ -34,7 +34,7 @@ async function saveEvent(event: CalendarEvent) {
     const eventsCollection = db.collection<CalendarEvent>(storageCollection);
 
     const result = await eventsCollection.updateOne(
-        {id: event.id},
+        {id: event.id, userId: event.userId},
         { //whcih fields to update
             $set: {
                 title: event.title,
@@ -59,6 +59,6 @@ async function createEvent(event: CalendarEvent) {
 async function deleteEvent(id: string, userId: any) {
     const db = await getDatabase()
     const eventsCollection = db.collection<CalendarEvent>(storageCollection);
-    const result = await eventsCollection.deleteOne({id: id});
+    const result = await eventsCollection.deleteOne({id: id, userId: userId});
     return result;
 }
