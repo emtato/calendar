@@ -8,4 +8,4 @@
 export type {
     CalendarEvent,
     SaveCalendarEventInput,
-} from "./domain/calendar-event";
+} from "./domain/calendar-event.js";

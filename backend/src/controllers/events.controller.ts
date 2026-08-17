@@ -9,8 +9,8 @@
  *
  * Do not put MongoDB queries or Gemini prompts directly in controllers.
  */
-import {calendarService} from "../services/calendar.service";
-import type {CalendarEvent} from "../domain/calendar-event";
+import {calendarService} from "../services/calendar.service.js";
+import type {CalendarEvent} from "../domain/calendar-event.js";
 
 export async function handleListEvents(request: any, response: any): Promise<CalendarEvent[]> {
 

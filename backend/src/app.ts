@@ -9,7 +9,7 @@
  */
 import express from "express";
 import cors from "cors";
-import {apiRouter} from "./routes";
+import {apiRouter} from "./routes/index.js";
 
 export const app = express();
 app.set("trust proxy", 1);

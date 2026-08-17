@@ -13,8 +13,8 @@
  */
 import {
     CalendarEvent, SaveCalendarEventInput,
-} from "../domain/calendar-event";
-import {eventStorage} from "../repositories/event.storage";
+} from "../domain/calendar-event.js";
+import {eventStorage} from "../repositories/event.storage.js";
 import {randomUUID} from "node:crypto";
 
 async function saveEvent(input: SaveCalendarEventInput): Promise<CalendarEvent> {

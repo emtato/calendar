@@ -5,7 +5,7 @@
  * inside every request handler is slow and can exhaust database connections.
  */
 import {Db, MongoClient} from "mongodb";
-import {env} from "./env";
+import {env} from "./env.js";
 
 let client: MongoClient | undefined;
 let database: Db | undefined;

@@ -9,8 +9,8 @@
  * Import `getDatabase()` from config/mongodb.ts when implementing these
  * operations. Convert database documents to domain types before returning.
  */
-import type {CalendarEvent} from "../domain/calendar-event";
-import {getDatabase} from "../config/mongodb";
+import type {CalendarEvent} from "../domain/calendar-event.js";
+import {getDatabase} from "../config/mongodb.js";
 
 export const eventStorage = {
     saveEvent,

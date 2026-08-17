@@ -4,6 +4,7 @@
     "esModuleInterop": true,
     "rootDir": "./src",
     "outDir": "./dist",
-    "module": "CommonJS"
+    "module": "NodeNext",
+    "moduleResolution": "NodeNext"
   }
 }

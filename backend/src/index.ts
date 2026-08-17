@@ -9,8 +9,8 @@
  * Routes and business rules do not belong here. Put Express setup in app.ts
  * and calendar behavior in services/calendar.service.ts.
  */
-import {app} from "./app";
-import {env} from "./config/env";
+import {app} from "./app.js";
+import {env} from "./config/env.js";
 
 app.listen(env.port, () => {
     console.log(`Backend listening on http://localhost:${env.port}`);

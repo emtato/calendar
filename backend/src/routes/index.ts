@@ -9,7 +9,7 @@
  *   apiRouter.use("/calendars", calendarsRouter);
  */
 import {Router} from "express";
-import {eventsRouter} from "./events.routes";
+import {eventsRouter} from "./events.routes.js";
 
 export const apiRouter = Router();
 
