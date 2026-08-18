@@ -24,6 +24,7 @@ import Popup, {MinimizedBar, Sidebar} from './EventDetails'
 import {deleteCalendarEvent, getCalendarEvents, restoreEvent} from './api/eventsAPI'
 import type {TransitionEvent} from 'react'
 import AuthOverlay from "./components/AuthOverlay";
+import {authClient} from "./api/auth-client";
 
 // ----------------------------------------------------
 // Types
@@ -70,13 +71,7 @@ const DEFAULT_END_TIME = 10 * 60
 const DRAFT_EVENT_ID = 'draft-event'
 const SCROLLING_MONTH_VIEW = 'scrollingMonth'
 
-const CALENDAR_PLUGINS = [
-    themePlugin,
-    dayGridPlugin,
-    timeGridPlugin,
-    multiMonthPlugin,
-    interactionPlugin,
-]
+const CALENDAR_PLUGINS = [themePlugin, dayGridPlugin, timeGridPlugin, multiMonthPlugin, interactionPlugin]
 
 const CALENDAR_HEADER_TOOLBAR = {
     left: 'prev,next scrollToday',
@@ -374,7 +369,6 @@ export default function CalendarApp() {
             x: button.left + button.width / 2,
             y: button.top + button.height / 2,
         });
-
         closePopup()
         setisAuthOpen(true)
     }
@@ -387,6 +381,9 @@ export default function CalendarApp() {
     function closeIntro() {
         setisIntroOpen(false)
     }
+
+    const {data: session, isPending, error} = authClient.useSession();
+    console.log(session?.user)
 
 // ------------------------------------------------
 // Calendar refresh and temp events
@@ -666,22 +663,16 @@ export default function CalendarApp() {
                             return toolbarTitle
                         }
 
-
                         const setToolbarTitle = (text: string) => {
                             const toolbarTitle = findToolbarTitle()
                             if (!toolbarTitle) return
 
                             toolbarTitle.textContent = text
                         }
-
                         findToolbarTitle()
-
                         if (viewInfo.view.type !== SCROLLING_MONTH_VIEW) return
-
                         const scroller = viewInfo.el.querySelector<HTMLElement>('.calendar-month-weeks')
-
                         if (!scroller) return
-
                         const today = new Date()
                         setToolbarTitle(formatMonthTitle(today))
 
@@ -738,7 +729,6 @@ export default function CalendarApp() {
                             } else {
                                 scroller.scrollTop = top
                             }
-
                             return monthStartRow.getBoundingClientRect().height >= firstDayCell.getBoundingClientRect().width * 0.75
                         }
 
@@ -750,17 +740,13 @@ export default function CalendarApp() {
                                 const scrollerTop = scroller.getBoundingClientRect().top
 
                                 const monthStartCells = scroller.querySelectorAll<HTMLElement>(
-                                    '[role="gridcell"][data-date$="-01"]'
-                                )
+                                    '[role="gridcell"][data-date$="-01"]')
 
                                 const nearbyMonthCell = [...monthStartCells].find((cell) => { //search month start cells andfind one whose below return statement is true
                                     const monthStartRow = cell.closest<HTMLElement>('[role="row"]')
-
                                     if (!monthStartRow) return false
-
                                     const rowBounds = monthStartRow.getBoundingClientRect()
                                     const distanceFromTop = rowBounds.top - scrollerTop
-
                                     return Math.abs(distanceFromTop) <= rowBounds.height / 1.3 //return true if within 1 row height of top of scroller
                                 })
 
@@ -780,23 +766,19 @@ export default function CalendarApp() {
                             const align = () => {
                                 if (lastCalendarViewRef.current &&
                                     lastCalendarViewRef.current !== SCROLLING_MONTH_VIEW) return
-
                                 const rowsAreSized = scrollToMonth(today)
 
                                 if (rowsAreSized) {
                                     viewInfo.el.classList.remove('scrolling-month-measuring')
                                 }
-
                                 if (framesRemaining-- > 0) {
                                     alignmentFrame = window.requestAnimationFrame(align)
                                 } else {
                                     viewInfo.el.classList.remove('scrolling-month-measuring')
                                 }
                             }
-
                             align()
                         }
-
                         scroller.addEventListener('scroll', handleScroll, {passive: true})
                         alignMonthViewRef.current = alignCurrentMonth
                         scrollToMonthRef.current = (date, behavior) => {
@@ -822,7 +804,6 @@ export default function CalendarApp() {
                     datesSet={(dateInfo) => {
                         const enteredScrollingMonth = dateInfo.view.type === SCROLLING_MONTH_VIEW &&
                             lastCalendarViewRef.current !== SCROLLING_MONTH_VIEW
-
                         lastCalendarViewRef.current = dateInfo.view.type
 
                         if (dateInfo.view.type !== SCROLLING_MONTH_VIEW) {
@@ -903,7 +884,6 @@ export default function CalendarApp() {
             <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin}/>
             <MinimizedBar isOpen={!isSidebar} onClose={openSidebar} setAuthOpen={openLogin}/>
 
-
             {(isIntroOpen || isAuthOpen) && <div className="auth-overlay">
                 {isIntroOpen && <div className="intro-panel">
                     <button
@@ -911,8 +891,7 @@ export default function CalendarApp() {
                         type="button"
                         aria-label="Close login"
                         onClick={closeIntro}
-                        style={{fontSize: "1.5rem", lineHeight: 1}}
-                    >
+                        style={{fontSize: "1.5rem", lineHeight: 1}}>
                         ×
                     </button>
                     <div className="auth-content">

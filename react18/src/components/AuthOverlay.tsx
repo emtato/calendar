@@ -43,6 +43,7 @@ export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOve
             console.log(result)
             if (!result.error) {
                 //success
+                onClose()
             } else {
                 setErrorMessage(result);
             }
@@ -53,9 +54,9 @@ export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOve
 
             if (!result.error) {
                 //success
+                onClose()
             } else {
                 setErrorMessage(result);
-
             }
         }
     }
