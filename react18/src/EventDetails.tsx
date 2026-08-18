@@ -5,6 +5,10 @@ import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extracto
 import {saveCalendarEvent} from "./api/eventsAPI";
 import TimeComboBox from "./components/TimeComboBox";
 import type {DeletedEvent} from "./Calendarapp";
+import type {authClient} from "./api/auth-client";
+import {UserMenu} from "./components/user/UserMenu";
+import {render} from "react-dom";
+
 // ----------------------------------------------------
 // Configuration
 // ----------------------------------------------------
@@ -87,9 +91,10 @@ interface SidebarInfo {
     isOpen: whether it should appear.
     onClose: a function it can call when the user presses Cancel.
      */
-    isOpen: boolean
-    onClose: () => void
+    isOpen: boolean;
+    onClose: () => void;
     setAuthOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    user?: (typeof authClient.$Infer.Session)["user"];
 }
 
 // ====================================================
@@ -676,9 +681,28 @@ export default function Popup({
 // Expanded sidebar
 // ====================================================
 
-export function Sidebar({isOpen, onClose, setAuthOpen}: SidebarInfo) {
+export function Sidebar({isOpen, onClose, setAuthOpen, user}: SidebarInfo) {
+    const [ifLoggedIn, setIfLoggedIn] = useState(false)
+    const [userDetails, setUserDetails] = useState<typeof user | null>(null)
+    const [renderUserMenu, setRenderUserMenu] = useState(false)
 
+    function closeUserMenu() {
+        setRenderUserMenu(false)
+    }
 
+    function openUserMenu() {
+        setRenderUserMenu(true)
+    }
+
+    useEffect(() => {
+        if (user) {
+            setIfLoggedIn(true)
+            setUserDetails(user)
+        } else {
+            setIfLoggedIn(false)
+            setUserDetails(null)
+        }
+    }, [user])
     // ------------------------------------------------
     // Render
     // ------------------------------------------------
@@ -686,7 +710,6 @@ export function Sidebar({isOpen, onClose, setAuthOpen}: SidebarInfo) {
     if (!isOpen) {
         return null
     }
-
     return (
         <div className='app-sidebar'>
             <div className='sidebar-toolbar'>
@@ -723,9 +746,13 @@ export function Sidebar({isOpen, onClose, setAuthOpen}: SidebarInfo) {
                                 d='M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.12.37.34.7.65.93.3.23.67.36 1.05.38h.09v4h-.09A1.7 1.7 0 0 0 19.4 15Z'/>
                         </svg>
                     </button>
-                    <button className='sidebar-login-button' type='button'
-                            onClick={setAuthOpen}>Log in
-                    </button>
+                    {!ifLoggedIn && <button className='sidebar-login-button' type='button'
+                                            onClick={setAuthOpen}>Log in</button>}
+                    {ifLoggedIn && <button className='user-profile-icon' type='button'
+                                           onClick={openUserMenu} aria-label='User profile'
+                    >{user?.image ? (<img src={user.image} alt=""/>) : (<span className="user-profile-initial">
+                                            {user?.name.trim().charAt(0).toUpperCase() || "?"}</span>
+                    )}</button>}
                 </div>
             </div>
             <div className='app-sidebar-section'>
@@ -755,7 +782,10 @@ export function Sidebar({isOpen, onClose, setAuthOpen}: SidebarInfo) {
                     </div>
                 </div>
             </div>
-
+            {renderUserMenu && <UserMenu
+                onClose={closeUserMenu}
+                user={user}
+            ></UserMenu>}
         </div>
     )
 }
