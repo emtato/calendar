@@ -32,6 +32,7 @@
     --colour-hover-grey: #e0e3e7;
     --colour-scrollbar: #cbd0d7;
     --colour-purple-vibrant-dark: #635c7c;
+    --colour-red: #d93025;
 }
 
 html,
@@ -372,7 +373,7 @@ h2 {
     box-shadow: -6px 0 10px rgba(20, 14, 32, 0.42);
     z-index: 1;
 
-    animation: auth-overlay-reveal 1400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    animation: auth-overlay-reveal 1750ms cubic-bezier(0.22, 1, 0.36, 1) both;
     will-change: clip-path;
 }
 
@@ -396,7 +397,6 @@ h2 {
     from {
         clip-path: circle(0 at calc(var(--auth-origin-x) - 33vw) var(--auth-origin-y));
     }
-
     to {
         clip-path: circle(150vmax at calc(var(--auth-origin-x) - 33vw) var(--auth-origin-y));
     }
@@ -460,7 +460,6 @@ h2 {
 }
 
 .auth-text-button {
-    margin-top: 1rem;
     padding: 0;
     border: 0;
     border-bottom: 1px solid rgba(255, 255, 255, 0.55);
@@ -517,6 +516,21 @@ h2 {
     font-weight: 700;
     cursor: pointer;
     margin-bottom: -0.5vw;
+}
+
+.auth-error-message {
+    color: var(--colour-red);
+    font-size: 1em;
+    font-weight: 500;
+    margin: 0 0 0 auto;
+}
+
+.auth-bottom-row {
+    margin-top: 1em;
+    gap: 0.5rem;
+    display: flex;
+    align-items: center;
+    width: 75%;
 }
 
 /* ____________________________________________________

@@ -1,4 +1,5 @@
 import {betterAuth} from "better-auth";
+import {username} from "better-auth/plugins";
 import {mongodbAdapter} from "better-auth/adapters/mongodb";
 import {getDatabase} from "./config/mongodb.js";
 
@@ -8,6 +9,9 @@ export const auth = betterAuth({
     database: mongodbAdapter(database),
 
     emailAndPassword: {enabled: true},
+    plugins: [
+        username()
+    ],
 
     trustedOrigins: ["http://localhost:5173", "https://tempo.ems.lol"],
 });

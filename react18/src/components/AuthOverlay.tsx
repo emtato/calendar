@@ -14,35 +14,48 @@ interface AuthOverlayProps {
 export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOverlayProps) {
 
     const [isNewAccount, setIsNewAccount] = React.useState(true);
+    const [signInError, setSignInError] = React.useState("");
 
     function toggleNewAccount() {
         setIsNewAccount(!isNewAccount);
     }
 
+    function setErrorMessage(result: Awaited<ReturnType<typeof authClient.signIn.username>>) {
+        if (result.error.message) {
+            setSignInError(result.error.message);
+            if (result.error.message.includes("[body.password]") || result.error.message.includes("Password too short")) {
+                setSignInError("Password is too short")
+            }
+        } else {
+            setSignInError("unknown error :< " + result.error)
+        }
+    }
+
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-
         const data = new FormData(event.currentTarget);
-        const email = String(data.get("email"));
+        const username = String(data.get("username"));
         const password = String(data.get("password"));
+        const email = username + "@gmail.com" // temp email for auth to be happy. verification/passsword reset later TODO
+
         if (!isNewAccount) {
-            const result = await authClient.signIn.email({email, password});
+            const result = await authClient.signIn.username({username, password});
+            console.log(result)
             if (!result.error) {
                 //success
             } else {
-                //error red text
+                setErrorMessage(result);
             }
         } else {
             const name = String(data.get("name"));
-            const result = await authClient.signUp.email({
-                name,
-                email,
-                password,
-            });
+            const result = await authClient.signUp.email({name, email, username, password});
+            console.log(result)
+
             if (!result.error) {
                 //success
             } else {
-                //error red text
+                setErrorMessage(result);
+
             }
         }
     }
@@ -72,17 +85,19 @@ export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOve
                 <form onSubmit={handleSubmit}>
 
                     {isNewAccount && <input name="name" placeholder="What should we call you?" className="auth-input"/>}
-                    <input name="email" /*type="email"*/ placeholder="Email/username" className="auth-input"/><input
+                    <input name="username" /*type="email"*/ placeholder="username" className="auth-input"/><input
                     name="password" type="password" placeholder="password (i won't tell anyone!)" className="auth-input"/><br/>
                     {isNewAccount && <button className="auth-submit-button" type="submit">Create Account</button>}
                     {!isNewAccount && <button className="auth-submit-button" type="submit">Sign In</button>}
                 </form>
-                <span>... or  </span>
-                {isNewAccount && <button onClick={toggleNewAccount} className="auth-text-button" type="button">sign in</button>}
-                {!isNewAccount && <button onClick={toggleNewAccount} className="auth-text-button" type="button">create account</button>}
-
-                <button onClick={onClose} className="auth-text-button" type="button">
-                </button>
+                <div className="auth-bottom-row">
+                    <span>... or  </span>
+                    {isNewAccount && <button onClick={toggleNewAccount} className="auth-text-button" type="button">sign in</button>}
+                    {!isNewAccount && <button onClick={toggleNewAccount} className="auth-text-button" type="button">create account</button>}
+                    {signInError && (<p className="auth-error-message">{signInError}</p>)}
+                    <button onClick={onClose} className="auth-text-button" type="button">
+                    </button>
+                </div>
             </div>
         </div>
     )
