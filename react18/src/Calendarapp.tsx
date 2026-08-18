@@ -381,6 +381,7 @@ export default function CalendarApp() {
 
     function closeLogin() {
         setisAuthOpen(false)
+        closeIntro()
     }
 
     function closeIntro() {
