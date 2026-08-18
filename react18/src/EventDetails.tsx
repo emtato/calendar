@@ -748,7 +748,7 @@ export function Sidebar({isOpen, onClose, setAuthOpen, user}: SidebarInfo) {
                     </button>
                     {!ifLoggedIn && <button className='sidebar-login-button' type='button'
                                             onClick={setAuthOpen}>Log in</button>}
-                    {ifLoggedIn && <button className='user-profile-icon' type='button'
+                    {ifLoggedIn && <button className="user-profile-icon user-profile-icon-trigger" type='button'
                                            onClick={openUserMenu} aria-label='User profile'
                     >{user?.image ? (<img src={user.image} alt=""/>) : (<span className="user-profile-initial">
                                             {user?.name.trim().charAt(0).toUpperCase() || "?"}</span>

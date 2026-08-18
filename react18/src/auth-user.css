@@ -251,8 +251,11 @@
     outline-offset: 2px;
 }
 
-user-profile-icon-edit:hover::after {
+.user-profile-icon-edit:hover::after {
     content: "✎";
+    color: var(--colour-purple-light);
+    background: var(--colour-hover-grey);
+    font-size: 1.3rem;
     position: absolute;
     inset: 0;
     display: grid;
@@ -281,11 +284,11 @@ user-profile-icon-edit:hover::after {
     display: flex;
     flex-direction: column;
     gap: 0.5rem;
-    padding: 0.5rem 0;
+    padding: 4.2rem 0 0rem;
     background: var(--colour-purple-extra-dark);
     border-radius: 0.5rem;
     width: 15rem;
-    height: 18vw;
+    height: 8vw;
 }
 
 .user-menu-button {
@@ -307,10 +310,18 @@ user-profile-icon-edit:hover::after {
 .user-profile-icon-details {
     display: flex;
     align-items: center;
-    right: 5%;
+    left: 5%;
     position: absolute;
     top: 1.3vh;
     z-index: 1000;
 }
 
-
+.user-menu-close-button {
+    top: 5%;
+    right: 5%;
+}
+.user-profile-icon-edit{
+    width: 60px;
+    height: 60px;
+    flex: 0 0 60px;
+}

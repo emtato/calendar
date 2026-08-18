@@ -21,12 +21,14 @@ export function UserMenu({onClose, user}: UserMenuProps) {
             <button className="user-menu-button">Profile</button>
 
             <button className="user-menu-button">Help</button>
-            <button className="auth-close-button" onClick={onClose}>Close</button>
             <button className="user-menu-button" onClick={() => {
                 authClient.signOut()
                 onClose()
             }}>Logout
             </button>
+            <div className="user-profile-close-details">
+                <button className="auth-close-button user-menu-close-button" onClick={onClose}>Close</button>
+            </div>
 
         </div>
     )
