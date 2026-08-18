@@ -317,8 +317,11 @@
 }
 
 .user-menu-close-button {
-    top: 5%;
-    right: 5%;
+    top: 1%;
+    right: 1%;
+    font-size: 1.2rem;
+     width: 2rem;
+    height: 2rem;
 }
 .user-profile-icon-edit{
     width: 60px;

@@ -258,7 +258,7 @@ export default function CalendarApp() {
     const initialSidebarResizeHandledRef = useRef(0)
     const initialSidebarScrollRatioRef = useRef(0)
     const [isAuthOpen, setisAuthOpen] = useState(false)
-    const [isIntroOpen, setisIntroOpen] = useState(true)
+    const [isIntroOpen, setisIntroOpen] = useState(() => localStorage.getItem("intro-seen") !== "true") //cache for intro
     const [authOrigin, setAuthOrigin] = useState({x: 0, y: 0})
 
     const scrollVisibleMonth = useCallback((offset: number) => {
@@ -379,10 +379,11 @@ export default function CalendarApp() {
 
     function closeIntro() {
         setisIntroOpen(false)
+        localStorage.setItem("intro-seen", "true")
     }
 
     const {data: session, isPending, error} = authClient.useSession();
-    console.log(session?.user)
+    let user = session?.user;
 
 // ------------------------------------------------
 // Calendar refresh and temp events
@@ -391,6 +392,14 @@ export default function CalendarApp() {
     function refreshCalendar() {
         calendarComponentRef.current?.getApi().refetchEvents()
     }
+
+    const userId = session?.user.id
+
+    useEffect(() => {
+        if (!isPending) {
+            refreshCalendar()
+        }
+    }, [userId, isPending])
 
 // ------------------------------------------------
 // popup
