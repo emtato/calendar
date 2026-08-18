@@ -6,8 +6,6 @@ import {saveCalendarEvent} from "./api/eventsAPI";
 import TimeComboBox from "./components/TimeComboBox";
 import type {DeletedEvent} from "./Calendarapp";
 import type {authClient} from "./api/auth-client";
-import {UserMenu} from "./components/user/UserMenu";
-import {render} from "react-dom";
 
 // ----------------------------------------------------
 // Configuration
@@ -94,6 +92,7 @@ interface SidebarInfo {
     isOpen: boolean;
     onClose: () => void;
     setAuthOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
+    onUserMenuOpen: () => void;
     user?: (typeof authClient.$Infer.Session)["user"];
 }
 
@@ -681,28 +680,30 @@ export default function Popup({
 // Expanded sidebar
 // ====================================================
 
-export function Sidebar({isOpen, onClose, setAuthOpen, user}: SidebarInfo) {
-    const [ifLoggedIn, setIfLoggedIn] = useState(false)
-    const [userDetails, setUserDetails] = useState<typeof user | null>(null)
-    const [renderUserMenu, setRenderUserMenu] = useState(false)
+interface UserAccountControlProps {
+    setAuthOpen: SidebarInfo["setAuthOpen"];
+    onUserMenuOpen: SidebarInfo["onUserMenuOpen"];
+    user: SidebarInfo["user"];
+}
 
-    function closeUserMenu() {
-        setRenderUserMenu(false)
+function UserAccountControl({setAuthOpen, onUserMenuOpen, user}: UserAccountControlProps) {
+    if (!user) {
+        return <button className='sidebar-login-button' type='button' onClick={setAuthOpen}>Log in</button>
     }
 
-    function openUserMenu() {
-        setRenderUserMenu(true)
-    }
+    return (
+        <button className="user-profile-icon user-profile-icon-trigger" type='button'
+                onClick={onUserMenuOpen} aria-label='User profile'>
+            {user.image ? <img src={user.image} alt=""/> : (
+                <span className="user-profile-initial">
+                    {user.name.trim().charAt(0).toUpperCase() || "?"}
+                </span>
+            )}
+        </button>
+    )
+}
 
-    useEffect(() => {
-        if (user) {
-            setIfLoggedIn(true)
-            setUserDetails(user)
-        } else {
-            setIfLoggedIn(false)
-            setUserDetails(null)
-        }
-    }, [user])
+export function Sidebar({isOpen, onClose, setAuthOpen, onUserMenuOpen, user}: SidebarInfo) {
     // ------------------------------------------------
     // Render
     // ------------------------------------------------
@@ -746,13 +747,7 @@ export function Sidebar({isOpen, onClose, setAuthOpen, user}: SidebarInfo) {
                                 d='M19.4 15a1.7 1.7 0 0 0 .34 1.88l.06.06-2.83 2.83-.06-.06A1.7 1.7 0 0 0 15 19.4a1.7 1.7 0 0 0-1 .6 1.7 1.7 0 0 0-.4 1.1V21h-4v-.09A1.7 1.7 0 0 0 8.6 19.4a1.7 1.7 0 0 0-1.88.34l-.06.06-2.83-2.83.06-.06A1.7 1.7 0 0 0 4.6 15a1.7 1.7 0 0 0-.6-1 1.7 1.7 0 0 0-1.1-.4H3v-4h.09A1.7 1.7 0 0 0 4.6 8.6a1.7 1.7 0 0 0-.34-1.88l-.06-.06 2.83-2.83.06.06A1.7 1.7 0 0 0 9 4.6a1.7 1.7 0 0 0 1-.6 1.7 1.7 0 0 0 .4-1.1V3h4v.09A1.7 1.7 0 0 0 15.4 4.6a1.7 1.7 0 0 0 1.88-.34l.06-.06 2.83 2.83-.06.06A1.7 1.7 0 0 0 19.4 9c.12.37.34.7.65.93.3.23.67.36 1.05.38h.09v4h-.09A1.7 1.7 0 0 0 19.4 15Z'/>
                         </svg>
                     </button>
-                    {!ifLoggedIn && <button className='sidebar-login-button' type='button'
-                                            onClick={setAuthOpen}>Log in</button>}
-                    {ifLoggedIn && <button className="user-profile-icon user-profile-icon-trigger" type='button'
-                                           onClick={openUserMenu} aria-label='User profile'
-                    >{user?.image ? (<img src={user.image} alt=""/>) : (<span className="user-profile-initial">
-                                            {user?.name.trim().charAt(0).toUpperCase() || "?"}</span>
-                    )}</button>}
+                    <UserAccountControl setAuthOpen={setAuthOpen} onUserMenuOpen={onUserMenuOpen} user={user}/>
                 </div>
             </div>
             <div className='app-sidebar-section'>
@@ -782,10 +777,6 @@ export function Sidebar({isOpen, onClose, setAuthOpen, user}: SidebarInfo) {
                     </div>
                 </div>
             </div>
-            {renderUserMenu && <UserMenu
-                onClose={closeUserMenu}
-                user={user}
-            ></UserMenu>}
         </div>
     )
 }
@@ -795,8 +786,7 @@ export function Sidebar({isOpen, onClose, setAuthOpen, user}: SidebarInfo) {
 // ====================================================
 
 //onclose will js be closing this small bar -> opening big bar
-export function MinimizedBar({isOpen, onClose, setAuthOpen}: SidebarInfo) {
-
+export function MinimizedBar({isOpen, onClose, setAuthOpen, onUserMenuOpen, user}: SidebarInfo) {
     // ------------------------------------------------
     // Render
     // ------------------------------------------------
@@ -810,18 +800,12 @@ export function MinimizedBar({isOpen, onClose, setAuthOpen}: SidebarInfo) {
             <button className="sidebar-icon-button sidebar-expand-button"
                     type="button"
                     aria-label="Expand sidebar"
-                    onClick={onClose}
-            >
+                    onClick={onClose}>
                 ←
             </button>
 
             <nav className="sidebar-icon-list" aria-label="Sidebar tools">
-                <button className="sidebar-icon-button" onClick={setAuthOpen} type="button" aria-label="Log in">
-                    <svg viewBox="0 0 24 24" aria-hidden="true">
-                        <circle cx="12" cy="8" r="3.5"/>
-                        <path d="M5.5 20a6.5 6.5 0 0 1 13 0"/>
-                    </svg>
-                </button>
+                <UserAccountControl setAuthOpen={setAuthOpen} onUserMenuOpen={onUserMenuOpen} user={user}/>
 
                 <button className="sidebar-icon-button" type="button" aria-label="Settings">
                     <svg viewBox="0 0 24 24" aria-hidden="true">

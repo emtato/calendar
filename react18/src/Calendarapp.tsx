@@ -25,6 +25,7 @@ import {deleteCalendarEvent, getCalendarEvents, restoreEvent} from './api/events
 import type {TransitionEvent} from 'react'
 import AuthOverlay from "./components/AuthOverlay";
 import {authClient} from "./api/auth-client";
+import {UserMenu} from "./components/user/UserMenu";
 
 // ----------------------------------------------------
 // Types
@@ -259,6 +260,7 @@ export default function CalendarApp() {
     const initialSidebarScrollRatioRef = useRef(0)
     const [isAuthOpen, setisAuthOpen] = useState(false)
     const [isIntroOpen, setisIntroOpen] = useState(() => localStorage.getItem("intro-seen") !== "true") //cache for intro
+    const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [authOrigin, setAuthOrigin] = useState({x: 0, y: 0})
 
     const scrollVisibleMonth = useCallback((offset: number) => {
@@ -328,6 +330,14 @@ export default function CalendarApp() {
 
     function openSidebar() {
         setSidebar(true)
+    }
+
+    function openUserMenu() {
+        setIsUserMenuOpen(true)
+    }
+
+    function closeUserMenu() {
+        setIsUserMenuOpen(false)
     }
 
     function handleSidebarTransitionEnd(event: TransitionEvent<HTMLDivElement>) {
@@ -889,8 +899,11 @@ export default function CalendarApp() {
                     onPositionChange={setPopupPos}
                 />
             )}
-            <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin} user={session?.user}/>
-            <MinimizedBar isOpen={!isSidebar} onClose={openSidebar} setAuthOpen={openLogin}/>
+            <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin}
+                     onUserMenuOpen={openUserMenu} user={session?.user}/>
+            <MinimizedBar isOpen={!isSidebar} onClose={openSidebar} setAuthOpen={openLogin}
+                          onUserMenuOpen={openUserMenu} user={session?.user}/>
+            {isUserMenuOpen && <UserMenu onClose={closeUserMenu} user={session?.user}/>}
 
             {(isIntroOpen || isAuthOpen) && <div className="auth-overlay">
                 {isIntroOpen && <div className="intro-panel">

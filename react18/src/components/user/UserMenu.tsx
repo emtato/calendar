@@ -27,7 +27,7 @@ export function UserMenu({onClose, user}: UserMenuProps) {
             }}>Logout
             </button>
             <div className="user-profile-close-details">
-                <button className="auth-close-button user-menu-close-button" onClick={onClose}>×</button>
+                <button className="auth-close-button user-menu-close-button" onClick={onClose}>×    </button>
             </div>
 
         </div>
