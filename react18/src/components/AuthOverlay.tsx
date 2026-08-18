@@ -1,19 +1,24 @@
 interface AuthOverlayProps {
     onClose: () => void;
+    onRevealComplete: () => void;
     origin: {
         x: number;
         y: number;
     };
 }
 
-export default function AuthOverlay({onClose, origin}: AuthOverlayProps) {
+export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOverlayProps) {
     return (
-        <div className="auth-overlay"
-             style={{
-                 "--auth-origin-x": `${origin.x}px`,
-                 "--auth-origin-y": `${origin.y}px`,
-             } as React.CSSProperties}>
-            <div className="auth-panel">
+        <div
+            className="auth-panel"
+            style={{
+                "--auth-origin-x": `${origin.x}px`,
+                "--auth-origin-y": `${origin.y}px`,
+            } as React.CSSProperties}
+            onAnimationEnd={(event) => {
+                if (event.target === event.currentTarget) onRevealComplete()
+            }}
+        >
                 <button
                     className="auth-close-button"
                     type="button"
@@ -33,7 +38,6 @@ export default function AuthOverlay({onClose, origin}: AuthOverlayProps) {
                     <button onClick={onClose} className="auth-text-button" type="button">
                     </button>
                 </div>
-            </div>
         </div>
     )
 }

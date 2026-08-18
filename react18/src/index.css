@@ -321,30 +321,10 @@ h2 {
 .auth-overlay {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 1001;
     background: rgba(23, 18, 35, 0.38);
     backdrop-filter: blur(4px);
     -webkit-backdrop-filter: blur(4px);
-
-    animation: auth-overlay-reveal 650ms cubic-bezier(0.22, 1, 0.36, 1) both;
-    will-change: clip-path;
-
-    --auth-origin-x: 100%; {/*fallbakcs for ide to not scream at me*/}
-    --auth-origin-y: 0%;
-}
-
-@keyframes auth-overlay-reveal {
-    from {
-        clip-path: circle(
-                0 at var(--auth-origin-x) var(--auth-origin-y)
-        );
-    }
-
-    to {
-        clip-path: circle(
-                150vmax at var(--auth-origin-x) var(--auth-origin-y)
-        );
-    }
 }
 
 .intro-panel::before {
@@ -390,6 +370,10 @@ h2 {
     padding: clamp(2rem, 6vw, 6rem);
     color: var(--colour-off-white);
     box-shadow: -6px 0 10px rgba(20, 14, 32, 0.42);
+    z-index: 1;
+
+    animation: auth-overlay-reveal 1400ms cubic-bezier(0.22, 1, 0.36, 1) both;
+    will-change: clip-path;
 }
 
 .intro-panel {
@@ -401,9 +385,21 @@ h2 {
     display: flex;
     align-items: center;
     justify-content: center;
+
     box-sizing: border-box;
     padding: clamp(2rem, 6vw, 6rem);
     color: var(--colour-off-white);
+    z-index: 0;
+}
+
+@keyframes auth-overlay-reveal {
+    from {
+        clip-path: circle(0 at calc(var(--auth-origin-x) - 33vw) var(--auth-origin-y));
+    }
+
+    to {
+        clip-path: circle(150vmax at calc(var(--auth-origin-x) - 33vw) var(--auth-origin-y));
+    }
 }
 
 .auth-content {

@@ -377,7 +377,6 @@ export default function CalendarApp() {
 
         closePopup()
         setisAuthOpen(true)
-        closeIntro()
     }
 
     function closeLogin() {
@@ -902,10 +901,10 @@ export default function CalendarApp() {
             )}
             <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin}/>
             <MinimizedBar isOpen={!isSidebar} onClose={openSidebar} setAuthOpen={openLogin}/>
-            {isAuthOpen && <AuthOverlay onClose={closeLogin} origin={authOrigin}/>}
 
-            {isIntroOpen && <div className="auth-overlay">
-                <div className="intro-panel">
+
+            {(isIntroOpen || isAuthOpen) && <div className="auth-overlay">
+                {isIntroOpen && <div className="intro-panel">
                     <button
                         className="auth-close-button"
                         type="button"
@@ -931,7 +930,12 @@ export default function CalendarApp() {
                         </button>
                         <span className="auth-text"> or continue trying the demo.</span>
                     </div>
-                </div>
+                </div>}
+                {isAuthOpen && <AuthOverlay
+                    onClose={closeLogin}
+                    onRevealComplete={closeIntro}
+                    origin={authOrigin}
+                />}
             </div>}
         </div>
     )
