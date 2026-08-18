@@ -3,6 +3,7 @@ import { createRoot } from 'react-dom/client'
 import CalendarApp from './Calendarapp'
 import '@fontsource-variable/nunito'
 import './index.css'
+import './auth-user.css'
 
 // @ts-ignore
 createRoot(document.getElementById('root')!).render(

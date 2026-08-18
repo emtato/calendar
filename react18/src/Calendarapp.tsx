@@ -211,7 +211,6 @@ function createDateList(startDate: string, daysBetween?: number) {
             }
         }
     }
-
     return dates
 }
 
@@ -881,7 +880,7 @@ export default function CalendarApp() {
                     onPositionChange={setPopupPos}
                 />
             )}
-            <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin}/>
+            <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin} user={session?.user}/>
             <MinimizedBar isOpen={!isSidebar} onClose={openSidebar} setAuthOpen={openLogin}/>
 
             {(isIntroOpen || isAuthOpen) && <div className="auth-overlay">
