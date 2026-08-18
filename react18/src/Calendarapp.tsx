@@ -918,15 +918,12 @@ export default function CalendarApp() {
                     <div className="auth-content">
                         <p className="auth-eyebrow">Keep pace with your day.</p>
                         <h2 className="auth-title">Welcome to Tempo:</h2>
-                        <p className="auth-subtitle">
-                            A smarter calendar that saves you time and makes scheduling effortless.
-                        </p>
+                        <p className="auth-subtitle">A smarter calendar, simplifying scheduling to keep your day in rhythm. </p>
                         <span className="auth-text">Please </span>
                         <button
                             onClick={openLogin}
                             className="auth-text-button"
-                            type="button"
-                        >
+                            type="button">
                             sign in
                         </button>
                         <span className="auth-text"> or continue trying the demo.</span>
@@ -936,6 +933,7 @@ export default function CalendarApp() {
                     onClose={closeLogin}
                     onRevealComplete={closeIntro}
                     origin={authOrigin}
+                    onAuthSuccess={closeLogin}
                 />}
             </div>}
         </div>

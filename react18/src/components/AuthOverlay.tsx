@@ -11,27 +11,41 @@ interface AuthOverlayProps {
     onAuthSuccess: () => void;
 }
 
-async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-
-    const data = new FormData(event.currentTarget);
-    const email = String(data.get("email"));
-    const password = String(data.get("password"));
-    const result = await authClient.signIn.email({
-        email,
-        password,
-    });
-   /* const result = await authClient.signUp.email({
-        name,
-        email,
-        password,
-    });*/
-
-
-}
-
 export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOverlayProps) {
-    const [isNewAccount, setIsNewAccount] = React.useState(false);
+
+    const [isNewAccount, setIsNewAccount] = React.useState(true);
+
+    function toggleNewAccount() {
+        setIsNewAccount(!isNewAccount);
+    }
+
+    async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        const data = new FormData(event.currentTarget);
+        const email = String(data.get("email"));
+        const password = String(data.get("password"));
+        if (!isNewAccount) {
+            const result = await authClient.signIn.email({email, password});
+            if (!result.error) {
+                //success
+            } else {
+                //error red text
+            }
+        } else {
+            const name = String(data.get("name"));
+            const result = await authClient.signUp.email({
+                name,
+                email,
+                password,
+            });
+            if (!result.error) {
+                //success
+            } else {
+                //error red text
+            }
+        }
+    }
 
     return (
         <div
@@ -58,11 +72,15 @@ export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOve
                 <form onSubmit={handleSubmit}>
 
                     {isNewAccount && <input name="name" placeholder="What should we call you?" className="auth-input"/>}
-                    {!isNewAccount && <><input name="email" /*type="email"*/ placeholder="Email/username" className="auth-input"/><input
-                        name="password" type="password" placeholder="password (i won't tell anyone!)" className="auth-input"/><br/>
-                        <button className="auth-submit-button" type="submit">Sign in</button>
-                    </>}
+                    <input name="email" /*type="email"*/ placeholder="Email/username" className="auth-input"/><input
+                    name="password" type="password" placeholder="password (i won't tell anyone!)" className="auth-input"/><br/>
+                    {isNewAccount && <button className="auth-submit-button" type="submit">Create Account</button>}
+                    {!isNewAccount && <button className="auth-submit-button" type="submit">Sign In</button>}
                 </form>
+                <span>... or  </span>
+                {isNewAccount && <button onClick={toggleNewAccount} className="auth-text-button" type="button">sign in</button>}
+                {!isNewAccount && <button onClick={toggleNewAccount} className="auth-text-button" type="button">create account</button>}
+
                 <button onClick={onClose} className="auth-text-button" type="button">
                 </button>
             </div>
