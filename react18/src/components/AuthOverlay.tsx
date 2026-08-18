@@ -1,18 +1,25 @@
 interface AuthOverlayProps {
     onClose: () => void;
+    origin: {
+        x: number;
+        y: number;
+    };
 }
 
-export default function AuthOverlay({onClose}: AuthOverlayProps) {
+export default function AuthOverlay({onClose, origin}: AuthOverlayProps) {
     return (
-        <div className="auth-overlay">
+        <div className="auth-overlay"
+             style={{
+                 "--auth-origin-x": `${origin.x}px`,
+                 "--auth-origin-y": `${origin.y}px`,
+             } as React.CSSProperties}>
             <div className="auth-panel">
                 <button
                     className="auth-close-button"
                     type="button"
                     aria-label="Close login"
                     onClick={onClose}
-                    style={{fontSize: "1.5rem", lineHeight: 1}}
-                >
+                    style={{fontSize: "1.5rem", lineHeight: 1}}>
                     ×
                 </button>
                 <div className="auth-content">

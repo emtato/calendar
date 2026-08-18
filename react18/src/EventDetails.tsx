@@ -89,7 +89,7 @@ interface SidebarInfo {
      */
     isOpen: boolean
     onClose: () => void
-    setAuthOpen: () => void
+    setAuthOpen: (event: React.MouseEvent<HTMLButtonElement>) => void;
 }
 
 // ====================================================

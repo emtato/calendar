@@ -265,6 +265,7 @@ export default function CalendarApp() {
     const initialSidebarScrollRatioRef = useRef(0)
     const [isAuthOpen, setisAuthOpen] = useState(false)
     const [isIntroOpen, setisIntroOpen] = useState(true)
+    const [authOrigin, setAuthOrigin] = useState({x: 0, y: 0})
 
     const scrollVisibleMonth = useCallback((offset: number) => {
         const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
@@ -366,11 +367,17 @@ export default function CalendarApp() {
 // ------------------------------------------------
 // login/intro
 // ------------------------------------------------
-    function openLogin() {
+    function openLogin(event: React.MouseEvent<HTMLButtonElement>) {
+        const button = event.currentTarget.getBoundingClientRect();
+
+        setAuthOrigin({
+            x: button.left + button.width / 2,
+            y: button.top + button.height / 2,
+        });
+
         closePopup()
         setisAuthOpen(true)
         closeIntro()
-
     }
 
     function closeLogin() {
@@ -463,11 +470,11 @@ export default function CalendarApp() {
                 }
                 return
             }
-            if(isIntroOpen || isAuthOpen){
-                if(isIntroOpen){
+            if (isIntroOpen || isAuthOpen) {
+                if (isIntroOpen) {
                     closeIntro()
                 }
-                if(isAuthOpen){
+                if (isAuthOpen) {
                     closeLogin()
                 }
                 return
@@ -895,7 +902,7 @@ export default function CalendarApp() {
             )}
             <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin}/>
             <MinimizedBar isOpen={!isSidebar} onClose={openSidebar} setAuthOpen={openLogin}/>
-            {isAuthOpen && <AuthOverlay onClose={closeLogin}/>}
+            {isAuthOpen && <AuthOverlay onClose={closeLogin} origin={authOrigin}/>}
 
             {isIntroOpen && <div className="auth-overlay">
                 <div className="intro-panel">
