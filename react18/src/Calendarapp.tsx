@@ -926,7 +926,8 @@ export default function CalendarApp() {
                             type="button">
                             sign in
                         </button>
-                        <span className="auth-text"> or continue trying the demo. (Events will not be stored to database while logged out)</span>
+                        <span className="auth-text"> or continue trying the demo.</span>
+                        <br/> <span className="auth-muted-text">(Events are stored locally while logged out)</span>
                     </div>
                 </div>}
                 {isAuthOpen && <AuthOverlay
