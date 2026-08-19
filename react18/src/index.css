@@ -548,21 +548,23 @@ h2 {
 
 .event-popup {
     position: fixed;
+    user-select: none;
+    -webkit-user-select: none;
     /*
      * 14px at the current 1490 x 927 reference viewport.
      * The smaller viewport axis controls the scale so the popup keeps its
-     * proportions. The 8.4px floor is 60% of the reference size.
+     * proportions. The 10.9px floor is ~78% of the reference size.
      */
-    font-size: max(8.4px, min(0.94vw, 1.51vh));
-    width: 31.93em;
-    height: 36.43em;
+    font-size: max(10.9px, min(0.9vw, 1.5vh));
+    width: 32em;
+    height: 36.5em;
     box-sizing: border-box;
-    padding: 2em 2em 1.71em;
-    border: 0.143em solid var(--colour-border);
+    padding: 2em 2em 1.7em;
+    border: 0.15em solid var(--colour-border);
     border-radius: 2.14em;
     background: var(--colour-off-white);
-    box-shadow: 0 0.86em 2.14em rgba(60, 64, 67, 0.18),
-    0 0.29em 0.71em rgba(60, 64, 67, 0.1);
+    box-shadow: 0 0.85em 2.15em rgba(60, 64, 67, 0.2),
+    0 0.3em 0.70em rgba(60, 64, 67, 0.1);
     color: var(--colour-text);
 }
 
@@ -640,14 +642,25 @@ h2 {
 }
 
 .drag-button {
-    top: 1.33em;
-    left: 1.78em;
+    top: 1.2em;
+    left: 1.2em;
     font-size: 1.29em;
 }
 
 .close-button {
-    top: 0.91em;
-    right: 1.27em;
+    top: 1.2em;
+    right: 1.2em;
+    border-radius: 50%;
+    width: 1.3em;
+    height: 1.3em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    line-height: 1;
+}
+.close-button:hover {
+    background: var(--colour-hover-grey);
 }
 
 /* Popup form rows and text fields */
@@ -674,8 +687,10 @@ h2 {
 }
 
 .guests_location-input {
+    width: 100%;
     border: none;
     outline: none;
+    font: inherit;
 }
 
 .description-row .row-icon {
@@ -998,4 +1013,18 @@ h2 {
         gap: 0;
         margin-top: 0;
     }
+}
+
+@media (max-width: 700px) {
+    .event-popup {
+        position: absolute;
+        width: 90vw;
+        height: 90vh;
+        border-radius: 12px;
+        grid-template-columns: minmax(0, 1fr);
+        grid-template-rows: minmax(0, 65fr) minmax(0, 35fr);
+        column-gap: 0;
+        row-gap: var(--calendar-frame-size);
+    }
+
 }

@@ -213,6 +213,7 @@ export default function Popup({
 
         // Capture all subsequent pointer events even if mouse leaves popup bounds
         event.currentTarget.setPointerCapture(event.pointerId);
+        event.preventDefault();
 
         dragStart.current = {
             pointerX: event.clientX,
