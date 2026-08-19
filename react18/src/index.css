@@ -1016,15 +1016,20 @@ h2 {
 }
 
 @media (max-width: 700px) {
-    .event-popup {
-        position: absolute;
-        width: 90vw;
-        height: 90vh;
-        border-radius: 12px;
-        grid-template-columns: minmax(0, 1fr);
-        grid-template-rows: minmax(0, 65fr) minmax(0, 35fr);
-        column-gap: 0;
-        row-gap: var(--calendar-frame-size);
+    .popup-positioner {
+        position: fixed !important; /* override inline style  for mobile */
+        top: 50% !important;
+        left: 50% !important;
+        transform: translate(-50%, -50%) !important;
     }
 
+    .event-popup {
+        position: relative;
+        width: 90vw;
+        height: 85vh;
+        max-width: 480px;
+        max-height: 720px;
+        font-size: max(13px, min(3.5vw, 16px));
+        border-radius: 16px;
+    }
 }

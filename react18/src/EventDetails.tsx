@@ -456,7 +456,7 @@ export default function Popup({
 
         <div className="popup-overlay">
             <div
-
+                className="popup-positioner"
                 style={{
                     position: "fixed",
                     left: position.x + 40,
