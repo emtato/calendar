@@ -1,0 +1,75 @@
+[
+  {
+    "id": "82468245-2f99-4a52-a8d8-f67d740df464",
+    "userId": "DemoUserId",
+    "title": "lazy meow",
+    "start": "2026-08-05T09:00:00",
+    "end": "2026-08-05T10:00:00",
+    "allDay": false,
+    "extendedProps": {
+      "location": "",
+      "description": "",
+      "guests": ""
+    }
+  }, {
+  "id": "538b07a2-2e71-459b-bd7d-5d9930c66efa",
+  "userId": "DemoUserId",
+  "title": "AWAWAWAWAWA",
+  "start": "2026-08-06T21:00:00",
+  "end": "2026-08-07T00:00:00",
+  "allDay": false,
+  "extendedProps": {
+    "location": "",
+    "description": "",
+    "guests": ""
+  }
+}, {
+  "id": "8d5e9bc7-7ad1-4c33-9721-bc41eee763a2",
+  "userId": "DemoUserId",
+  "title": "tony lins event",
+  "start": "2026-08-09T09:00:00",
+  "end": "2026-08-09T10:00:00",
+  "allDay": false,
+  "extendedProps": {
+    "location": "",
+    "description": "",
+    "guests": ""
+  }
+}, {
+  "id": "33089f66-fade-45ae-a8e2-721f1b70f769",
+  "userId": "DemoUserId",
+  "title": "emma gets turned into a fish",
+  "start": "2026-08-13T14:00:00",
+  "end": "2026-08-14T17:45:00",
+  "allDay": false,
+  "extendedProps": {
+    "location": "the pond",
+    "description": "",
+    "guests": "emma"
+  }
+}, {
+  "id": "6e80f58d-cc30-4b0c-b5d9-8054f0018091",
+  "userId": "DemoUserId",
+  "title": "meow day",
+  "start": "2026-08-17T09:00:00",
+  "end": "2026-08-18T10:00:00",
+  "allDay": true,
+  "extendedProps": {
+    "location": "",
+    "description": "spooky",
+    "guests": "silly people"
+  }
+}, {
+  "id": "9feaaa15-e342-4372-ad1e-1b35aad342a4",
+  "userId": "DemoUserId",
+  "title": "work start :c",
+  "start": "2026-09-01T08:30:00",
+  "end": "2026-09-01T18:00:00",
+  "allDay": false,
+  "extendedProps": {
+    "location": "",
+    "description": "",
+    "guests": ""
+  }
+}
+]

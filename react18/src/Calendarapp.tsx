@@ -21,7 +21,7 @@ import multiMonthPlugin from '@fullcalendar/react/multimonth'
 import {Temporal} from 'temporal-polyfill'
 import {useCallback, useEffect, useMemo, useRef, useState} from 'react'
 import Popup, {MinimizedBar, Sidebar} from './EventDetails'
-import {deleteCalendarEvent, getCalendarEvents, restoreEvent} from './api/eventsAPI'
+import {DEMO_USER_ID, deleteCalendarEvent, getCalendarEvents, restoreEvent} from './api/eventsAPI'
 import type {TransitionEvent} from 'react'
 import AuthOverlay from "./components/AuthOverlay";
 import {authClient} from "./api/auth-client";
@@ -47,16 +47,13 @@ export interface DeletedEvent {
     extendedProps: {
         location: string
         description: string
+        guests: string
     }
 }
 
 // ----------------------------------------------------
 // Calendar data and date utils
 // ----------------------------------------------------
-
-function fetchCalendarEvents(fetchInfo: EventSourceFuncInfo) {
-    return getCalendarEvents(fetchInfo.startStr, fetchInfo.endStr)
-}
 
 function toLocalDateString(date: Date) {
     const year = date.getFullYear()
@@ -365,7 +362,6 @@ export default function CalendarApp() {
             }
         }
         align()
-
     }
 
 // ------------------------------------------------
@@ -394,6 +390,11 @@ export default function CalendarApp() {
 
     const {data: session, isPending, error} = authClient.useSession();
     let user = session?.user;
+    const userId = session?.user.id ?? DEMO_USER_ID
+
+    function fetchCalendarEvents(fetchInfo: EventSourceFuncInfo) {
+        return getCalendarEvents(fetchInfo.startStr, fetchInfo.endStr, userId);
+    }
 
 // ------------------------------------------------
 // Calendar refresh and temp events
@@ -402,8 +403,6 @@ export default function CalendarApp() {
     function refreshCalendar() {
         calendarComponentRef.current?.getApi().refetchEvents()
     }
-
-    const userId = session?.user.id
 
     useEffect(() => {
         if (!isPending) {
@@ -447,7 +446,7 @@ export default function CalendarApp() {
         }
 
         setJustDeletedEvent(event)
-        await deleteCalendarEvent(event.id)
+        await deleteCalendarEvent(event.id, userId)
         setDeletePopup(true)
         refreshCalendar()
 
@@ -461,7 +460,7 @@ export default function CalendarApp() {
     async function undoDelete() {
         if (deleteTimer.current !== null && justDeletedEvent !== null) {
             clearTimeout(deleteTimer.current)
-            await restoreEvent(justDeletedEvent)
+            await restoreEvent(justDeletedEvent, userId)
             refreshCalendar()
             deleteTimer.current = null
             setJustDeletedEvent(null)
@@ -897,6 +896,7 @@ export default function CalendarApp() {
                     loc={location}
                     gsts={guests}
                     onPositionChange={setPopupPos}
+                    user={session?.user}
                 />
             )}
             <Sidebar isOpen={isSidebar} onClose={closeSidebar} setAuthOpen={openLogin}

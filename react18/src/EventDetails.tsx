@@ -2,7 +2,7 @@ import React, {useState, type CSSProperties, useRef} from 'react'
 import {useEffect} from "react";
 import {Temporal} from 'temporal-polyfill'
 import {simpleTimeLocationExtractor} from "./utils/simple_time_location_extractor";
-import {saveCalendarEvent} from "./api/eventsAPI";
+import {DEMO_USER_ID, saveCalendarEvent} from "./api/eventsAPI";
 import TimeComboBox from "./components/TimeComboBox";
 import type {DeletedEvent} from "./Calendarapp";
 import type {authClient} from "./api/auth-client";
@@ -81,6 +81,7 @@ interface PopupInfo { // describes the information the component expects
     gsts: string;
     loc: string;
     onPositionChange: (nextPosition: { x: number; y: number }) => void
+    user?: (typeof authClient.$Infer.Session)["user"];
 
 }
 
@@ -103,7 +104,7 @@ interface SidebarInfo {
 export default function Popup({
                                   isOpen, onClose, position, startDate, endDate, dateList, initialStartTime,
                                   initialEndTime, titleText, descriptionText, id, allDay, endTimeMod, onEventsChanged,
-                                  deleteEvent, gsts, loc, onPositionChange,
+                                  deleteEvent, gsts, loc, onPositionChange, user,
                               }: PopupInfo) {
     // ------------------------------------------------
     // State and refs
@@ -356,7 +357,8 @@ export default function Popup({
                 guests: guests,
             }
         }
-        await saveCalendarEvent(event)
+        const userID = user ? user.id : DEMO_USER_ID
+        await saveCalendarEvent(event, userID)
         onEventsChanged(); //refresh calendar events
         closePopup()
     }
@@ -373,6 +375,7 @@ export default function Popup({
             extendedProps: {
                 location: location,
                 description: description,
+                guests: guests,
             }
         }
         deleteEvent(event)
