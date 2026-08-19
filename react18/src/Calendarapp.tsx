@@ -260,7 +260,8 @@ export default function CalendarApp() {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [authOrigin, setAuthOrigin] = useState({x: 0, y: 0})
     const [calendarView, setCalendarView] = useState(SCROLLING_MONTH_VIEW)
-    const [loginChosen, setLoginChosen] = useState(false) //state to track which login button was chosen: from intro's signup or login
+    const [loginChosen, setLoginChosen] = useState(() => localStorage.getItem("intro-seen") === "true") //state to track which login button was chosen: from intro's signup or login
+    //logic: if intro page will not be shown (page viewed before), ONLY login button is clickable. so if seen, state should be true
 
     const scrollVisibleMonth = useCallback((offset: number) => {
         const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
@@ -421,6 +422,7 @@ export default function CalendarApp() {
 
     function closeIntro() {
         setisIntroOpen(false)
+        setLoginChosen(true)
         localStorage.setItem("intro-seen", "true")
     }
 
