@@ -211,12 +211,16 @@ export default function Popup({
             return // no drag
         }
 
+        // Capture all subsequent pointer events even if mouse leaves popup bounds
+        event.currentTarget.setPointerCapture(event.pointerId);
+
         dragStart.current = {
             pointerX: event.clientX,
             pointerY: event.clientY,
             popupX: position.x,
             popupY: position.y,
         }
+
         const start = dragStart.current
         if (!start) return
 
@@ -231,11 +235,9 @@ export default function Popup({
     function handlePointerMove(event: React.PointerEvent<HTMLDivElement>) {
         const start = dragStart.current
         if (!start) {
-            event.currentTarget.style.cursor =
-                nearPopupBoundary(event) ? 'move' : 'default'
+            event.currentTarget.style.cursor = nearPopupBoundary(event) ? 'move' : 'default'
             return
         }
-
         const offsetX = event.clientX - start.pointerX
         const offsetY = event.clientY - start.pointerY
         onPositionChange({
@@ -245,7 +247,12 @@ export default function Popup({
     }
 
     function handlePointerUp(event: React.PointerEvent<HTMLDivElement>) {
-        dragStart.current = null;
+        if (dragStart.current) {
+            if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+                event.currentTarget.releasePointerCapture(event.pointerId);
+            }
+            dragStart.current = null;
+        }
     }
 
     // ------------------------------------------------

@@ -2,14 +2,14 @@
   {
     "id": "82468245-2f99-4a52-a8d8-f67d740df464",
     "userId": "DemoUserId",
-    "title": "example events follow",
+    "title": "example events follow:",
     "start": "2026-08-04T09:00:00",
     "end": "2026-08-04T10:00:00",
     "allDay": false,
     "extendedProps": {
       "location": "",
-      "description": "",
-      "guests": "a random assortment of events so things dont feel lonely :)"
+      "description": "a random assortment of events so things dont feel lonely :)",
+      "guests": ""
     }
   }, {
   "id": "82468245-2f99-4a52-a8d8-f67d740df464",

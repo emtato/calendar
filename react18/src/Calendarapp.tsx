@@ -543,6 +543,19 @@ export default function CalendarApp() {
         return () => window.removeEventListener('keydown', handleKeyDown)
     }, [isPopOpen, isSidebar, isAuthOpen, isIntroOpen])
 
+    useEffect(() => { //close popup on click outside
+        if (!isPopOpen) return;
+
+        function handleClickOutside(event: MouseEvent) {
+            const target = event.target as HTMLElement | null;
+            if (target && !target.closest('.event-popup')) {
+                closePopup();
+            }
+        }
+        window.addEventListener('mousedown', handleClickOutside);
+        return () => window.removeEventListener('mousedown', handleClickOutside);
+    }, [isPopOpen]);
+
     useEffect(() => {
         return () => {
             if (deleteTimer.current !== null) clearTimeout(deleteTimer.current)
