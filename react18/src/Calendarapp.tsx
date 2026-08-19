@@ -74,7 +74,7 @@ const CALENDAR_PLUGINS = [themePlugin, dayGridPlugin, timeGridPlugin, multiMonth
 const CALENDAR_HEADER_TOOLBAR = {
     left: 'prev,next scrollToday',
     center: 'title',
-    right: 'timeGridDay,timeGridWeek,scrollingMonth,multiMonthYear',
+    right: 'timeGridDay,timeGridWeek,scrollingMonth,multiMonthYear compactViewSelector',
 } satisfies CalendarOptions['headerToolbar']
 
 const CALENDAR_VIEWS = {
@@ -259,6 +259,7 @@ export default function CalendarApp() {
     const [isIntroOpen, setisIntroOpen] = useState(() => localStorage.getItem("intro-seen") !== "true") //cache for intro
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [authOrigin, setAuthOrigin] = useState({x: 0, y: 0})
+    const [calendarView, setCalendarView] = useState(SCROLLING_MONTH_VIEW)
 
     const scrollVisibleMonth = useCallback((offset: number) => {
         const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
@@ -273,8 +274,18 @@ export default function CalendarApp() {
     }, [])
 
     const calendarButtons = useMemo<NonNullable<CalendarOptions['buttons']>>(() => ({
+        timeGridDay: {
+            className: 'calendar-wide-view-button',
+        },
+        timeGridWeek: {
+            className: 'calendar-wide-view-button',
+        },
         scrollingMonth: {
             text: 'Month',
+            className: 'calendar-wide-view-button',
+        },
+        multiMonthYear: {
+            className: 'calendar-wide-view-button',
         },
         prev: {
             click: (event) => {
@@ -310,6 +321,26 @@ export default function CalendarApp() {
             },
         },
     }), [scrollVisibleMonth])
+
+    const calendarToolbarElements = useMemo<NonNullable<CalendarOptions['toolbarElements']>>(() => ({
+        compactViewSelector: () => (
+            <label className="calendar-view-select-wrapper">
+                <span className="visually-hidden">Calendar view</span>
+                <select
+                    className="calendar-view-select"
+                    value={calendarView}
+                    onChange={(event) => {
+                        calendarComponentRef.current?.getApi().changeView(event.currentTarget.value)
+                    }}
+                >
+                    <option value="timeGridDay">Day</option>
+                    <option value="timeGridWeek">Week</option>
+                    <option value={SCROLLING_MONTH_VIEW}>Month</option>
+                    <option value="multiMonthYear">Year</option>
+                </select>
+            </label>
+        ),
+    }), [calendarView])
 
     // ------------------------------------------------
     // Sidebar functions
@@ -670,6 +701,7 @@ export default function CalendarApp() {
                     headerToolbar={CALENDAR_HEADER_TOOLBAR}
                     views={CALENDAR_VIEWS}
                     buttons={calendarButtons}
+                    toolbarElements={calendarToolbarElements}
                     viewDidMount={(viewInfo) => {
                         const findToolbarTitle = () => {
                             const toolbarTitle = calendarMainRef.current?.querySelector<HTMLElement>('[role="heading"]')
@@ -819,6 +851,7 @@ export default function CalendarApp() {
                         }
                     }}
                     datesSet={(dateInfo) => {
+                        setCalendarView(dateInfo.view.type)
                         const enteredScrollingMonth = dateInfo.view.type === SCROLLING_MONTH_VIEW &&
                             lastCalendarViewRef.current !== SCROLLING_MONTH_VIEW
                         lastCalendarViewRef.current = dateInfo.view.type
