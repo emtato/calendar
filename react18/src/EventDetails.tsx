@@ -104,7 +104,7 @@ interface SidebarInfo {
 export default function Popup({
                                   isOpen, onClose, position, startDate, endDate, dateList, initialStartTime,
                                   initialEndTime, titleText, descriptionText, id, allDay, endTimeMod, onEventsChanged,
-                                  deleteEvent, gsts, loc, onPositionChange, user,
+                                  deleteEvent, gsts, loc, onPositionChange, user
                               }: PopupInfo) {
     // ------------------------------------------------
     // State and refs

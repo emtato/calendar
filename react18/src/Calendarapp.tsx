@@ -260,6 +260,7 @@ export default function CalendarApp() {
     const [isUserMenuOpen, setIsUserMenuOpen] = useState(false)
     const [authOrigin, setAuthOrigin] = useState({x: 0, y: 0})
     const [calendarView, setCalendarView] = useState(SCROLLING_MONTH_VIEW)
+    const [loginChosen, setLoginChosen] = useState(false) //state to track which login button was chosen: from intro's signup or login
 
     const scrollVisibleMonth = useCallback((offset: number) => {
         const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
@@ -415,6 +416,7 @@ export default function CalendarApp() {
     function closeLogin() {
         setisAuthOpen(false)
         closeIntro()
+        setLoginChosen(true)
     }
 
     function closeIntro() {
@@ -971,6 +973,7 @@ export default function CalendarApp() {
                     onRevealComplete={closeIntro}
                     origin={authOrigin}
                     onAuthSuccess={closeLogin}
+                    loginChosen={loginChosen}
                 />}
             </div>}
         </div>

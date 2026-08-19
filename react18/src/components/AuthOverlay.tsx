@@ -9,17 +9,19 @@ interface AuthOverlayProps {
         y: number;
     };
     onAuthSuccess: () => void;
+    loginChosen: boolean;
 }
 
-export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOverlayProps) {
+export default function AuthOverlay({onClose, onRevealComplete, origin, loginChosen}: AuthOverlayProps) {
 
-    const [isNewAccount, setIsNewAccount] = React.useState(true);
+    const [isNewAccount, setIsNewAccount] = React.useState(!loginChosen);
     const [signInError, setSignInError] = React.useState("");
 
     function toggleNewAccount() {
         setIsNewAccount(!isNewAccount);
         setSignInError("")
     }
+
 
     function setErrorMessage(result: Awaited<ReturnType<typeof authClient.signIn.username>>) {
         if (result.error.message) {
@@ -63,7 +65,7 @@ export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOve
             }
         } catch (error) {
             console.error("Authentication request failed:", error)
-            setSignInError("Our server is giving you the silent treatment right now. Please try again later.")
+            setSignInError("Our server is giving you the silent treatment right now. Try again later?")
         }
     }
 
