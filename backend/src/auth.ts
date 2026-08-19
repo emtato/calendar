@@ -12,6 +12,12 @@ export const auth = betterAuth({
     plugins: [
         username()
     ],
+    advanced: {
+        defaultCookieAttributes: {
+            sameSite: "none",
+            secure: true,
+        },
+    },
 
     trustedOrigins: ["http://localhost:5173", "https://tempo.ems.lol"],
 });

@@ -60,6 +60,18 @@
     "guests": "silly people"
   }
 }, {
+  "id": "6e80f48d-cc30-4b0c-b5d9-8054f0028092",
+  "userId": "DemoUserId",
+  "title": "meow evening",
+  "start": "2026-08-17T19:00:00",
+  "end": "2026-08-17T20:00:00",
+  "allDay": false,
+  "extendedProps": {
+    "location": "",
+    "description": "extra spooky",
+    "guests": "extra silly people"
+  }
+}, {
   "id": "9feaaa15-e342-4372-ad1e-1b35aad342a4",
   "userId": "DemoUserId",
   "title": "work start :c",

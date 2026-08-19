@@ -120,13 +120,13 @@ h2 {
 
     .calendar-today-button {
         min-height: clamp(40px, 6cqi, 42px);
-        padding-inline: clamp(10px, 2.8cqi, 20px) !important;
-        font-size: clamp(12px, 2cqi, 14px) !important;
+        padding-inline: clamp(12px, 2.8cqi, 20px) !important;
+        font-size: clamp(13.5px, 2cqi, 14px) !important;
     }
 
     .calendar-toolbar-title {
         overflow: hidden;
-        font-size: clamp(0.8125rem, 3.5cqi, 1.4rem);
+        font-size: clamp(1.2rem, 3.5cqi, 1.4rem);
         white-space: nowrap;
         text-overflow: ellipsis;
     }
@@ -195,7 +195,7 @@ h2 {
         width: clamp(76px, 12cqi, 83px);
         height: clamp(40px, 6cqi, 42px);
         padding-inline: clamp(12px, 2cqi, 14px) clamp(22px, 3.5cqi, 24px);
-        font-size: clamp(12px, 2cqi, 14px);
+        font-size: clamp(13.5px, 2cqi, 14px);
     }
 
     .calendar-view-select-wrapper::after {
@@ -483,6 +483,33 @@ h2 {
 /* Hide the continuous month view until FullCalendar finishes sizing its rows. */
 .scrolling-month-measuring {
     visibility: hidden;
+}
+
+@media (max-width: 800px) {
+    .calendar-month-weeks [role="row"] {
+        min-height: 100px;
+    }
+
+    .calendar-event-time {
+        display: none;
+    }
+
+    .calendar-event-title {
+        padding-inline: 2px;
+        font-size: 70%;
+    }
+
+    .calendar-main [role="button"]:has(.calendar-event-title) {
+        padding-inline: 0 !important;
+    }
+
+    .calendar-main [role="button"]:has(.calendar-event-title) > :first-child {
+        flex: 0 0 5px !important;
+        width: 5px !important;
+        height: 5px !important;
+        border-width: 2.5px !important;
+        margin-inline-start: 1px !important;
+    }
 }
 
 .month-boundary-label {
