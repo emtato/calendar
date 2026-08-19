@@ -495,8 +495,8 @@ h2 {
     }
 
     .calendar-event-title {
-        padding-inline: 2px;
-        font-size: 70%;
+        padding-inline: 1px;
+        font-size: 80%;
     }
 
     .calendar-main [role="button"]:has(.calendar-event-title) {
@@ -508,7 +508,7 @@ h2 {
         width: 5px !important;
         height: 5px !important;
         border-width: 2.5px !important;
-        margin-inline-start: 1px !important;
+        margin-inline-start: 0px !important;
     }
 }
 
