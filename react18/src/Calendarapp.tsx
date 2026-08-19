@@ -288,6 +288,7 @@ export default function CalendarApp() {
             className: 'calendar-wide-view-button',
         },
         prev: {
+            className: 'calendar-nav-arrow',
             click: (event) => {
                 if (calendarComponentRef.current?.getApi().view.type === SCROLLING_MONTH_VIEW) {
                     event.preventDefault()
@@ -296,6 +297,7 @@ export default function CalendarApp() {
             },
         },
         next: {
+            className: 'calendar-nav-arrow',
             click: (event) => {
                 if (calendarComponentRef.current?.getApi().view.type === SCROLLING_MONTH_VIEW) {
                     event.preventDefault()
@@ -306,6 +308,7 @@ export default function CalendarApp() {
         scrollToday: {
             text: 'Today',
             hint: 'Today',
+            className: 'calendar-today-button',
             click: (event) => {
                 event.preventDefault()
 
