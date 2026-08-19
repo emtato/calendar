@@ -18,6 +18,7 @@ export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOve
 
     function toggleNewAccount() {
         setIsNewAccount(!isNewAccount);
+        setSignInError("")
     }
 
     function setErrorMessage(result: Awaited<ReturnType<typeof authClient.signIn.username>>) {
@@ -33,31 +34,36 @@ export default function AuthOverlay({onClose, onRevealComplete, origin}: AuthOve
 
     async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        const username = String(data.get("username"));
-        const password = String(data.get("password"));
-        const email = username + "@gmail.com" // temp email for auth to be happy. verification/passsword reset later TODO
+        try {
+            const data = new FormData(event.currentTarget);
+            const username = String(data.get("username"));
+            const password = String(data.get("password"));
+            const email = username + "@gmail.com" // temp email for auth to be happy. verification/passsword reset later TODO
 
-        if (!isNewAccount) {
-            const result = await authClient.signIn.username({username, password});
-            console.log(result)
-            if (!result.error) {
-                //success
-                onClose()
+            if (!isNewAccount) {
+                const result = await authClient.signIn.username({username, password});
+                console.log(result)
+                if (!result.error) {
+                    //success
+                    onClose()
+                } else {
+                    setErrorMessage(result);
+                }
             } else {
-                setErrorMessage(result);
-            }
-        } else {
-            const name = String(data.get("name"));
-            const result = await authClient.signUp.email({name, email, username, password});
-            console.log(result)
+                const name = String(data.get("name"));
+                const result = await authClient.signUp.email({name, email, username, password});
+                console.log(result)
 
-            if (!result.error) {
-                //success
-                onClose()
-            } else {
-                setErrorMessage(result);
+                if (!result.error) {
+                    //success
+                    onClose()
+                } else {
+                    setErrorMessage(result);
+                }
             }
+        } catch (error) {
+            console.error("Authentication request failed:", error)
+            setSignInError("Our server is giving you the silent treatment right now. Please try again later.")
         }
     }
 

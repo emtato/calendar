@@ -392,10 +392,10 @@ export default function CalendarApp() {
     let user = session?.user;
     const userId = session?.user.id ?? DEMO_USER_ID
 
-    function fetchCalendarEvents(fetchInfo: EventSourceFuncInfo) {
-        return getCalendarEvents(fetchInfo.startStr, fetchInfo.endStr, userId);
-    }
-
+    const fetchCalendarEvents = useCallback((fetchInfo: EventSourceFuncInfo) => {
+            return getCalendarEvents(fetchInfo.startStr, fetchInfo.endStr, userId)
+        }, [userId]
+    )
 // ------------------------------------------------
 // Calendar refresh and temp events
 // ------------------------------------------------
