@@ -81,16 +81,17 @@ const CALENDAR_VIEWS = {
     scrollingMonth: {
         type: 'dayGrid',
         visibleRange: (currentDate: Date) => {
-            const start = new Date(currentDate)
-            start.setDate(1)
-            start.setMonth(start.getMonth() - 6)
+            const start = new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth() - 6, 1)
 
-            const end = new Date(currentDate)
-            end.setDate(1)
-            end.setMonth(end.getMonth() + 7)
-            end.setDate(0)
-
-            return {start, end}
+            const end = new Date(
+                currentDate.getFullYear(),
+                currentDate.getMonth() + 7, 1)
+            return {
+                start: toLocalDateString(start),
+                end: toLocalDateString(end)
+            }
         },
         dateIncrement: {months: 1},
         aspectRatio: 1.4,
@@ -262,6 +263,7 @@ export default function CalendarApp() {
     const [calendarView, setCalendarView] = useState(SCROLLING_MONTH_VIEW)
     const [loginChosen, setLoginChosen] = useState(() => localStorage.getItem("intro-seen") === "true") //state to track which login button was chosen: from intro's signup or login
     //logic: if intro page will not be shown (page viewed before), ONLY login button is clickable. so if seen, state should be true
+    const prevMonthCentreRef = useRef(new Date())
 
     const scrollVisibleMonth = useCallback((offset: number) => {
         const targetMonth = new Date(arrowTargetMonthRef.current ?? visibleMonthRef.current)
@@ -448,6 +450,20 @@ export default function CalendarApp() {
         }
     }, [userId, isPending])
 
+    function scrollCalendar(activeMonth: Date) { //logic for scrolling month: updates range of months (if applicable) and sets title
+        //generate new list of months when we reach 1-2 months of the original scrollingmonth end range
+
+        const res = +activeMonth - +prevMonthCentreRef.current; // dif in milliseconds (+ converts date into ms)
+
+        const days = res / 1000 / 60 / 60 / 24;
+
+        if (Math.abs(days) >= 150) {//roughly 5 months, generate new centre + months
+            prevMonthCentreRef.current = activeMonth
+            const calendarApi = calendarComponentRef.current?.getApi()
+            calendarApi?.gotoDate(activeMonth) //sets new month to generate visibleRange around
+        }
+    }
+
 // ------------------------------------------------
 // popup
 // ------------------------------------------------
@@ -552,6 +568,7 @@ export default function CalendarApp() {
                 closePopup();
             }
         }
+
         window.addEventListener('mousedown', handleClickOutside);
         return () => window.removeEventListener('mousedown', handleClickOutside);
     }, [isPopOpen]);
@@ -744,6 +761,7 @@ export default function CalendarApp() {
                         if (!scroller) return
                         const today = new Date()
                         setToolbarTitle(formatMonthTitle(today))
+                        scrollCalendar(today)
 
                         const updateTitle = () => {
                             const scrollerTop = scroller.getBoundingClientRect().top //screen position at top of calendar edge
@@ -778,6 +796,7 @@ export default function CalendarApp() {
                                 const activeMonth = new Date(year, monthIndex - 1, 1)
                                 visibleMonthRef.current = activeMonth
                                 setToolbarTitle(formatMonthTitle(activeMonth))
+                                scrollCalendar(activeMonth)
                             }
                         }
 
@@ -792,6 +811,7 @@ export default function CalendarApp() {
                             const top = monthStartRow.offsetTop
                             visibleMonthRef.current = activeMonth
                             setToolbarTitle(formatMonthTitle(activeMonth))
+                            scrollCalendar(activeMonth)
 
                             if (behavior === 'smooth') {
                                 scroller.scrollTo({top, behavior})
@@ -971,7 +991,8 @@ export default function CalendarApp() {
                     <div className="auth-content">
                         <p className="auth-eyebrow">Keep pace with your day.</p>
                         <h2 className="auth-title">Welcome to Tempo:</h2>
-                        <p className="auth-subtitle">A smarter calendar, simplifying scheduling to keep your day in rhythm. </p>
+                        <p className="auth-subtitle">A smarter calendar, simplifying scheduling to keep your day in
+                            rhythm. </p>
                         <span className="auth-text">Please </span>
                         <button
                             onClick={openLogin}
